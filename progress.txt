@@ -1,0 +1,16 @@
+## Codebase Patterns
+- Package name is `dynago`, all files in project root
+- No external dependencies yet; stdlib only
+- Tests use standard `testing` package with table-driven tests
+
+---
+
+## 2026-03-28 - US-010
+- Implemented error types and sentinel values
+- Files changed: errors.go (new), errors_test.go (new), prd.json (updated passes)
+- **Learnings for future iterations:**
+  - The Error struct wraps a Sentinel + optional Cause + optional Message
+  - Use wrapError(sentinel, cause) to wrap AWS SDK errors into dynago sentinels
+  - Use newError(sentinel, msg) for custom message errors
+  - Helper functions IsNotFound, IsCondCheckFailed, IsValidation, IsTxCancelled use errors.Is
+---
