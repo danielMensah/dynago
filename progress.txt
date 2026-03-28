@@ -2,6 +2,10 @@
 - Package name is `dynago`, all files in project root
 - No external dependencies yet; stdlib only
 - Tests use standard `testing` package with table-driven tests
+- `Backend` interface in backend.go defines the 10 DynamoDB methods; all request/response types are library-owned
+- `Table.Backend()` and `Table.Name()` are the accessors free functions (Get[T], Query[T]) use
+- `KeyValue.Map()` returns the internal map[string]AttributeValue for passing to Backend
+- `Key()` panics on misuse (programmer error convention like regexp.MustCompile)
 
 ---
 
@@ -13,4 +17,15 @@
   - Use wrapError(sentinel, cause) to wrap AWS SDK errors into dynago sentinels
   - Use newError(sentinel, msg) for custom message errors
   - Helper functions IsNotFound, IsCondCheckFailed, IsValidation, IsTxCancelled use errors.Is
+---
+
+## 2026-03-28 - US-001
+- Implemented core types and Backend interface
+- Files changed: attribute.go (new), backend.go (new), dynago.go (new), key.go (new), key_test.go (new)
+- **Learnings for future iterations:**
+  - AttributeValue uses struct-with-Type-enum approach (not interface sum type) for simplicity
+  - DynamoDB numbers are strings in AttributeValue.N (matches DynamoDB wire format)
+  - Batch/Transaction request types are minimal but extensible — they use nested structs (KeysAndProjection, WriteRequest, TransactWriteItem etc.)
+  - ScanIndexForward in QueryRequest is *bool to distinguish unset from false
+  - Key() helper uses toAttributeValue() internal function that can be reused for marshalling
 ---
