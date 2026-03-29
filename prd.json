@@ -135,7 +135,7 @@
         "Code examples are syntactically valid Go"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on Phase 2 stories (Entity, Registry, Collection queries) being implemented."
     },
     {

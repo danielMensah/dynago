@@ -55,3 +55,15 @@
 - License: MIT
 
 ---
+
+## 2026-03-29 - US-506
+- What was implemented: Single-table design guide at docs/single-table-design.md
+- Files changed: docs/single-table-design.md (new)
+- **Learnings for future iterations:**
+  - `Put` auto-sets the discriminator attribute when the table has a registry and the item implements Entity
+  - `QueryCollection` and `CollectionIter` require `WithRegistry(reg)` on the table or they return an error
+  - memdb.CreateTable requires a TableSchema with KeyDef for hash/range keys and optional GSISchema slices
+  - Struct tag is `dynamo` (not `dynago`), compatible with guregu/dynamo
+  - `QueryIndex("name")` is the option for querying GSIs (not `Index()`)
+  - SplitKey is a simple strings.Split wrapper; delimiter is always a parameter
+---
