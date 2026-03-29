@@ -20,6 +20,10 @@
 - `BuildSet/BuildAdd/BuildRemove/BuildDelete` construct UpdateNode for update expressions
 - `goToAttributeValue(v any)` in builder.go converts Go values to dynago.AttributeValue
 - Reserved words in `internal/reserved.go` as `map[string]bool` with uppercase keys; use `IsReserved(word)` for lookup
+- `ToDynamo(node)` returns (exprString, names, values); `ToDynamoUpdates([]UpdateNode)` groups by action; `ToDynamoProjection(node)` for projections
+- All attribute names get `#name` aliases in expression translation, not just reserved words
+- Value placeholders use `:v0`, `:v1`, etc. with incrementing counter
+- Logical AND/OR wrap operands in parens: `(left) AND (right)`; NOT wraps operand: `NOT (operand)`
 - `Unmarshal(item, &out)` in unmarshal.go decodes `map[string]AttributeValue` into structs using cached typeCodec
 - `Unmarshaler` interface (`UnmarshalDynamo(AttributeValue) error`) for custom types, checked via pointer receiver first
 - `unmarshalValue(av, dst, opts)` is the recursive value decoder; handles pointers, sets, maps, nested structs
@@ -84,6 +88,17 @@
   - Round-trip test calls Marshal (from US-003) and uses t.Skip if not available
   - Sets (SS/NS/BS) require the `set` tag option; without it, slices expect L type
   - Extra map keys not matching struct fields are silently ignored (no error)
+---
+
+## 2026-03-29 - US-007
+- Implemented Expression AST DynamoDB string translator
+- Files changed: internal/expr/translate.go (new), internal/expr/translate_test.go (new), prd.json (updated passes), progress.txt
+- **Learnings for future iterations:**
+  - translator struct tracks nameIdx/valueIdx counters and nameCache for alias reuse
+  - aliasName() reuses aliases when the same attribute name appears multiple times in an expression
+  - Update grouping preserves insertion order of actions using a separate order slice
+  - Three public entry points: ToDynamo (general), ToDynamoUpdates (grouped updates), ToDynamoProjection (projections)
+  - Round-trip test confirms ParseCondition -> ToDynamo preserves semantics
 ---
 
 ## 2026-03-28 - US-001
