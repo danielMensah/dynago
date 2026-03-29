@@ -1,6 +1,6 @@
 ---
 title: "Migrating from guregu/dynamo"
-weight: 2
+weight: 3
 ---
 
 # Migrating from guregu/dynamo to DynaGo
