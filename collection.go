@@ -3,6 +3,7 @@ package dynago
 import (
 	"context"
 	"fmt"
+	"iter"
 )
 
 // Collection holds a heterogeneous set of items unmarshaled via a Registry.
@@ -75,4 +76,48 @@ func ItemsOf[T any](c *Collection) []T {
 		}
 	}
 	return result
+}
+
+// CollectionIter returns a Go 1.23+ iterator that lazily pages through Query
+// results, unmarshaling each item polymorphically using the table's Registry.
+// Items with unrecognized discriminators are silently skipped. If the table
+// has no registry, the iterator yields a single error and stops.
+func CollectionIter(ctx context.Context, t *Table, key KeyCondition, opts ...QueryOption) iter.Seq2[any, error] {
+	return func(yield func(any, error) bool) {
+		if t.registry == nil {
+			yield(nil, fmt.Errorf("dynago: CollectionIter requires a table with a registry"))
+			return
+		}
+
+		var cfg queryConfig
+		for _, o := range opts {
+			o(&cfg)
+		}
+
+		var startKey map[string]AttributeValue
+		for {
+			req := buildQueryRequest(t.Name(), key, &cfg, startKey)
+			resp, err := t.Backend().Query(ctx, req)
+			if err != nil {
+				yield(nil, err)
+				return
+			}
+
+			for _, item := range resp.Items {
+				v, err := unmarshalPolymorphic(item, t.registry)
+				if err != nil {
+					// Silently skip unrecognized discriminators.
+					continue
+				}
+				if !yield(v, nil) {
+					return
+				}
+			}
+
+			if len(resp.LastEvaluatedKey) == 0 {
+				return
+			}
+			startKey = resp.LastEvaluatedKey
+		}
+	}
 }
