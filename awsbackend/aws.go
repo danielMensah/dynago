@@ -99,10 +99,3 @@ func wrapAWSError(err error) error {
 	return err
 }
 
-// strPtr returns a *string from a string, or nil if empty.
-func strPtr(s string) *string {
-	if s == "" {
-		return nil
-	}
-	return &s
-}
