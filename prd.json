@@ -458,7 +458,7 @@
         "Tests pass"
       ],
       "priority": 24,
-      "passes": false,
+      "passes": true,
       "notes": "Phase 4 starts here. Uses existing Backend.TransactWriteItems."
     },
     {
@@ -477,7 +477,7 @@
         "Tests pass"
       ],
       "priority": 25,
-      "passes": false,
+      "passes": true,
       "notes": "Uses existing Backend.TransactGetItems."
     },
     {
@@ -495,7 +495,7 @@
         "Tests pass"
       ],
       "priority": 26,
-      "passes": false,
+      "passes": true,
       "notes": "Extends existing error types from Phase 1 (errors.go). IsTxCancelled already exists as a sentinel check."
     },
     {
@@ -535,7 +535,7 @@
         "Tests pass"
       ],
       "priority": 28,
-      "passes": false,
+      "passes": true,
       "notes": "Uses Get[T] and table.Put internally. Best tested with memdb (US-301)."
     },
     {
