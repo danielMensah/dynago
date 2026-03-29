@@ -20,6 +20,10 @@
 - `BuildSet/BuildAdd/BuildRemove/BuildDelete` construct UpdateNode for update expressions
 - `goToAttributeValue(v any)` in builder.go converts Go values to dynago.AttributeValue
 - Reserved words in `internal/reserved.go` as `map[string]bool` with uppercase keys; use `IsReserved(word)` for lookup
+- `Unmarshal(item, &out)` in unmarshal.go decodes `map[string]AttributeValue` into structs using cached typeCodec
+- `Unmarshaler` interface (`UnmarshalDynamo(AttributeValue) error`) for custom types, checked via pointer receiver first
+- `unmarshalValue(av, dst, opts)` is the recursive value decoder; handles pointers, sets, maps, nested structs
+- `reflect.TypeFor[T]()` preferred over `reflect.TypeOf((*T)(nil)).Elem()` for type comparisons
 
 ---
 
@@ -68,6 +72,18 @@
   - Parser implements recursive descent with correct precedence: OR < AND < NOT < comparison
   - `#name` prefix is stripped to get the actual attribute name in PathNode
   - Pre-existing issue: unmarshal.go had duplicate `timeType` declaration conflicting with marshal.go; fixed by removing from unmarshal.go
+---
+
+## 2026-03-29 - US-004
+- Implemented Unmarshal function, Unmarshaler interface, and recursive unmarshalValue decoder
+- Files changed: unmarshal.go (new), unmarshal_test.go (new), prd.json (updated passes), progress.txt
+- **Learnings for future iterations:**
+  - Pointer fields: allocate on non-NULL, set to zero on NULL or missing
+  - Check Unmarshaler interface on pointer receiver first (CanAddr + Addr), then value receiver
+  - `reflect.TypeFor[time.Time]()` used inline since linter removed the package-level var
+  - Round-trip test calls Marshal (from US-003) and uses t.Skip if not available
+  - Sets (SS/NS/BS) require the `set` tag option; without it, slices expect L type
+  - Extra map keys not matching struct fields are silently ignored (no error)
 ---
 
 ## 2026-03-28 - US-001
