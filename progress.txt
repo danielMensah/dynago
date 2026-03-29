@@ -56,14 +56,15 @@
 
 ---
 
-## 2026-03-29 - US-506
-- What was implemented: Single-table design guide at docs/single-table-design.md
-- Files changed: docs/single-table-design.md (new)
+## 2026-03-29 - US-507 / US-509
+- Created `.github/workflows/ci.yml` with full CI pipeline
+- **test job**: matrix Go 1.23 + stable, runs `go test -race`, `go vet`, `staticcheck`, plus sub-module tests for dynagotel/ and benchmarks/
+- **benchmark job**: runs only on push to main, produces bench.txt from root + benchmarks sub-module, uploads as artifact
+- **GitHub Pages publishing**: benchmark-action/github-action-benchmark@v1 with auto-push, 120% alert threshold, comment-on-alert
+- Files changed: `.github/workflows/ci.yml` (new), `prd.json`, `progress.txt`
 - **Learnings for future iterations:**
-  - `Put` auto-sets the discriminator attribute when the table has a registry and the item implements Entity
-  - `QueryCollection` and `CollectionIter` require `WithRegistry(reg)` on the table or they return an error
-  - memdb.CreateTable requires a TableSchema with KeyDef for hash/range keys and optional GSISchema slices
-  - Struct tag is `dynamo` (not `dynago`), compatible with guregu/dynamo
-  - `QueryIndex("name")` is the option for querying GSIs (not `Index()`)
-  - SplitKey is a simple strings.Split wrapper; delimiter is always a parameter
+  - Existing workflows (conformance.yml, fuzz.yml, benchmarks-weekly.yml) already exist -- don't overwrite
+  - Benchmark job needs `contents: write` permission for gh-pages push
+  - Sub-modules (dynagotel, benchmarks) must be tested with `cd <dir> && go test` since they have separate go.mod
+  - The `if` condition for main-only jobs: `github.event_name == 'push' && github.ref == 'refs/heads/main'`
 ---

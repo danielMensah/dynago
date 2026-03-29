@@ -156,7 +156,7 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on all packages existing. dynagotel/ and benchmarks/ are separate modules — CI must cd into them and run go test separately."
     },
     {
@@ -173,7 +173,7 @@
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-507 (CI workflow that produces bench.txt). Requires GitHub Pages enabled on the repo."
     },
     {
