@@ -50,6 +50,13 @@ func (t *Table) Put(ctx context.Context, item any, opts ...PutOption) error {
 		return err
 	}
 
+	// Auto-set discriminator attribute if the table has a registry and the
+	// item implements Entity.
+	if e, ok := item.(Entity); ok && t.registry != nil {
+		info := e.DynagoEntity()
+		av[t.registry.DiscriminatorAttr()] = AttributeValue{Type: TypeS, S: info.Discriminator}
+	}
+
 	var cfg putConfig
 	for _, o := range opts {
 		o(&cfg)
