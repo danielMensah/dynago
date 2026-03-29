@@ -344,6 +344,112 @@ func TestQuery_BackendError(t *testing.T) {
 	}
 }
 
+func TestQuery_GSI(t *testing.T) {
+	sb := newQueryStub(func(_ context.Context, req *QueryRequest) (*QueryResponse, error) {
+		if req.IndexName != "GSI1" {
+			t.Fatalf("expected IndexName GSI1, got %q", req.IndexName)
+		}
+		if req.TableName != "Orders" {
+			t.Fatalf("expected table Orders, got %s", req.TableName)
+		}
+		return &QueryResponse{
+			Items: []map[string]AttributeValue{
+				{
+					"PK":     {Type: TypeS, S: "USER#1"},
+					"SK":     {Type: TypeS, S: "ORDER#001"},
+					"Amount": {Type: TypeN, N: "100"},
+					"Status": {Type: TypeS, S: "shipped"},
+				},
+			},
+			Count: 1,
+		}, nil
+	})
+
+	db := New(sb)
+	tbl := db.Table("Orders")
+
+	// Query a GSI using the GSI's partition key.
+	items, err := Query[orderItem](context.Background(), tbl,
+		Partition("Status", "shipped"),
+		QueryIndex("GSI1"),
+	)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(items) != 1 {
+		t.Fatalf("expected 1 item, got %d", len(items))
+	}
+	if items[0].Status != "shipped" {
+		t.Errorf("expected shipped, got %s", items[0].Status)
+	}
+
+	// Verify the request was built correctly.
+	req := sb.queryCalls[0]
+	if req.IndexName != "GSI1" {
+		t.Errorf("expected IndexName GSI1 in request, got %q", req.IndexName)
+	}
+	if req.KeyConditionExpression == "" {
+		t.Error("expected KeyConditionExpression to be set")
+	}
+}
+
+func TestQuery_GSI_WithSortAndFilter(t *testing.T) {
+	sb := newQueryStub(func(_ context.Context, req *QueryRequest) (*QueryResponse, error) {
+		if req.IndexName != "GSI1" {
+			t.Fatalf("expected IndexName GSI1, got %q", req.IndexName)
+		}
+		if req.FilterExpression == "" {
+			t.Fatal("expected FilterExpression to be set")
+		}
+		return &QueryResponse{
+			Items: []map[string]AttributeValue{
+				{
+					"PK":     {Type: TypeS, S: "USER#1"},
+					"SK":     {Type: TypeS, S: "ORDER#001"},
+					"Amount": {Type: TypeN, N: "500"},
+					"Status": {Type: TypeS, S: "shipped"},
+				},
+			},
+			Count: 1,
+		}, nil
+	})
+
+	db := New(sb)
+	tbl := db.Table("Orders")
+
+	items, err := Query[orderItem](context.Background(), tbl,
+		Partition("Status", "shipped").SortBeginsWith("SK", "ORDER#"),
+		QueryIndex("GSI1"),
+		QueryFilter("Amount > ?", 100),
+	)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(items) != 1 {
+		t.Fatalf("expected 1 item, got %d", len(items))
+	}
+	if items[0].Amount != 500 {
+		t.Errorf("expected 500, got %d", items[0].Amount)
+	}
+}
+
+func TestQuery_NoIndex(t *testing.T) {
+	sb := newQueryStub(func(_ context.Context, req *QueryRequest) (*QueryResponse, error) {
+		if req.IndexName != "" {
+			t.Fatalf("expected empty IndexName, got %q", req.IndexName)
+		}
+		return &QueryResponse{}, nil
+	})
+
+	db := New(sb)
+	tbl := db.Table("Orders")
+
+	_, err := Query[orderItem](context.Background(), tbl, Partition("PK", "USER#1"))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
 func TestQuery_SortKeyVariants(t *testing.T) {
 	tests := []struct {
 		name string
