@@ -10,12 +10,31 @@
 - `Table.Backend()` and `Table.Name()` are the accessors free functions (Get[T], Query[T]) use
 - `KeyValue.Map()` returns the internal map[string]AttributeValue for passing to Backend
 - `Key()` panics on misuse (programmer error convention like regexp.MustCompile)
+- `Marshal(v any)` in marshal.go converts structs to `map[string]AttributeValue` using cached typeCodec
+- `Marshaler` interface (`MarshalDynamo() (AttributeValue, error)`) for custom types
+- `marshalValue(reflect.Value, fieldOptions)` is the recursive value converter
+- nil pointers are omitted (not encoded as NULL); nil slices/maps encode as NULL
+- `isZero()` helper handles omitempty logic for all types including time.Time
 - Expression AST lives in `internal/expr/` package; Node interface has private marker method
 - `ParseCondition(expr, args...)` parses placeholder expressions into AST with correct precedence (NOT > AND > OR)
 - `BuildSet/BuildAdd/BuildRemove/BuildDelete` construct UpdateNode for update expressions
 - `goToAttributeValue(v any)` in builder.go converts Go values to dynago.AttributeValue
 - Reserved words in `internal/reserved.go` as `map[string]bool` with uppercase keys; use `IsReserved(word)` for lookup
 
+---
+
+## 2026-03-29 - US-003
+- Implemented Marshal function and Marshaler interface for encoding Go structs to DynamoDB items
+- Files changed: marshal.go (new), marshal_test.go (new), prd.json (updated passes), progress.txt
+- **Learnings for future iterations:**
+  - All numeric types (int/int8/.../uint64, float32/float64) encode as TypeN with string representation
+  - time.Time uses RFC3339 (ISO 8601) by default, unix timestamp (int64) when tagged with `unixtime`
+  - Pointer fields: nil -> omit entirely; non-nil -> dereference and encode the value
+  - []byte is special-cased as TypeB (binary), not treated as a slice of uint8
+  - Set encoding (SS/NS/BS) requires the `set` tag option on the field
+  - Nested structs use the same getCodec() cache path, encoded as TypeM
+  - Maps must have string keys; non-string key maps return ErrValidation
+  - Marshaler interface checked on both value and pointer receivers
 ---
 
 ## 2026-03-28 - US-010
