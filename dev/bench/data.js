@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774814441523,
+  "lastUpdate": 1774818515401,
   "repoUrl": "https://github.com/danielMensah/dynago",
   "entries": {
     "Benchmark": [
@@ -8328,6 +8328,4422 @@ window.BENCHMARK_DATA = {
             "value": 1,
             "unit": "allocs/op",
             "extra": "9674588 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "mensahezros@gmail.com",
+            "name": "Daniel Mensah",
+            "username": "danielMensah"
+          },
+          "committer": {
+            "email": "mensahezros@gmail.com",
+            "name": "Daniel Mensah",
+            "username": "danielMensah"
+          },
+          "distinct": true,
+          "id": "cdd94bd97610490558c7269caabe6d4b694005e1",
+          "message": "Add full ETL pipeline example guide for single-table design\n\nComprehensive walkthrough demonstrating all major dynago features\n(entities, registry, transactions, batch ops, RMW with optimistic\nlocking, collection queries, iterators, GSI queries, and testing)\nusing an ETL pipeline domain with four entity types.",
+          "timestamp": "2026-03-29T22:04:06+01:00",
+          "tree_id": "c829cd00fc1fd8c1704f20736ef08037391868a6",
+          "url": "https://github.com/danielMensah/dynago/commit/cdd94bd97610490558c7269caabe6d4b694005e1"
+        },
+        "date": 1774818514972,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago)",
+            "value": 789.4,
+            "unit": "ns/op\t    1240 B/op\t       9 allocs/op",
+            "extra": "1516864 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago) - ns/op",
+            "value": 789.4,
+            "unit": "ns/op",
+            "extra": "1516864 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago) - B/op",
+            "value": 1240,
+            "unit": "B/op",
+            "extra": "1516864 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago) - allocs/op",
+            "value": 9,
+            "unit": "allocs/op",
+            "extra": "1516864 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago)",
+            "value": 797.7,
+            "unit": "ns/op\t    1240 B/op\t       9 allocs/op",
+            "extra": "1505138 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago) - ns/op",
+            "value": 797.7,
+            "unit": "ns/op",
+            "extra": "1505138 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago) - B/op",
+            "value": 1240,
+            "unit": "B/op",
+            "extra": "1505138 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago) - allocs/op",
+            "value": 9,
+            "unit": "allocs/op",
+            "extra": "1505138 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago)",
+            "value": 804.6,
+            "unit": "ns/op\t    1240 B/op\t       9 allocs/op",
+            "extra": "1477173 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago) - ns/op",
+            "value": 804.6,
+            "unit": "ns/op",
+            "extra": "1477173 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago) - B/op",
+            "value": 1240,
+            "unit": "B/op",
+            "extra": "1477173 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Flat (github.com/danielmensah/dynago) - allocs/op",
+            "value": 9,
+            "unit": "allocs/op",
+            "extra": "1477173 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago)",
+            "value": 3002,
+            "unit": "ns/op\t    4688 B/op\t      36 allocs/op",
+            "extra": "401239 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago) - ns/op",
+            "value": 3002,
+            "unit": "ns/op",
+            "extra": "401239 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago) - B/op",
+            "value": 4688,
+            "unit": "B/op",
+            "extra": "401239 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago) - allocs/op",
+            "value": 36,
+            "unit": "allocs/op",
+            "extra": "401239 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago)",
+            "value": 3018,
+            "unit": "ns/op\t    4688 B/op\t      36 allocs/op",
+            "extra": "408817 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago) - ns/op",
+            "value": 3018,
+            "unit": "ns/op",
+            "extra": "408817 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago) - B/op",
+            "value": 4688,
+            "unit": "B/op",
+            "extra": "408817 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago) - allocs/op",
+            "value": 36,
+            "unit": "allocs/op",
+            "extra": "408817 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago)",
+            "value": 3142,
+            "unit": "ns/op\t    4688 B/op\t      36 allocs/op",
+            "extra": "411616 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago) - ns/op",
+            "value": 3142,
+            "unit": "ns/op",
+            "extra": "411616 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago) - B/op",
+            "value": 4688,
+            "unit": "B/op",
+            "extra": "411616 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Nested (github.com/danielmensah/dynago) - allocs/op",
+            "value": 36,
+            "unit": "allocs/op",
+            "extra": "411616 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago)",
+            "value": 4260,
+            "unit": "ns/op\t    7533 B/op\t      40 allocs/op",
+            "extra": "282620 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago) - ns/op",
+            "value": 4260,
+            "unit": "ns/op",
+            "extra": "282620 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago) - B/op",
+            "value": 7533,
+            "unit": "B/op",
+            "extra": "282620 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago) - allocs/op",
+            "value": 40,
+            "unit": "allocs/op",
+            "extra": "282620 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago)",
+            "value": 4250,
+            "unit": "ns/op\t    7533 B/op\t      40 allocs/op",
+            "extra": "272590 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago) - ns/op",
+            "value": 4250,
+            "unit": "ns/op",
+            "extra": "272590 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago) - B/op",
+            "value": 7533,
+            "unit": "B/op",
+            "extra": "272590 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago) - allocs/op",
+            "value": 40,
+            "unit": "allocs/op",
+            "extra": "272590 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago)",
+            "value": 4273,
+            "unit": "ns/op\t    7533 B/op\t      40 allocs/op",
+            "extra": "275750 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago) - ns/op",
+            "value": 4273,
+            "unit": "ns/op",
+            "extra": "275750 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago) - B/op",
+            "value": 7533,
+            "unit": "B/op",
+            "extra": "275750 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_Large (github.com/danielmensah/dynago) - allocs/op",
+            "value": 40,
+            "unit": "allocs/op",
+            "extra": "275750 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago)",
+            "value": 1001,
+            "unit": "ns/op\t    1296 B/op\t      15 allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago) - ns/op",
+            "value": 1001,
+            "unit": "ns/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago) - B/op",
+            "value": 1296,
+            "unit": "B/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago) - allocs/op",
+            "value": 15,
+            "unit": "allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago)",
+            "value": 992.9,
+            "unit": "ns/op\t    1296 B/op\t      15 allocs/op",
+            "extra": "1207455 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago) - ns/op",
+            "value": 992.9,
+            "unit": "ns/op",
+            "extra": "1207455 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago) - B/op",
+            "value": 1296,
+            "unit": "B/op",
+            "extra": "1207455 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago) - allocs/op",
+            "value": 15,
+            "unit": "allocs/op",
+            "extra": "1207455 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago)",
+            "value": 993,
+            "unit": "ns/op\t    1296 B/op\t      15 allocs/op",
+            "extra": "1208835 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago) - ns/op",
+            "value": 993,
+            "unit": "ns/op",
+            "extra": "1208835 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago) - B/op",
+            "value": 1296,
+            "unit": "B/op",
+            "extra": "1208835 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WithSets (github.com/danielmensah/dynago) - allocs/op",
+            "value": 15,
+            "unit": "allocs/op",
+            "extra": "1208835 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago)",
+            "value": 965.9,
+            "unit": "ns/op\t    1193 B/op\t      10 allocs/op",
+            "extra": "1240986 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago) - ns/op",
+            "value": 965.9,
+            "unit": "ns/op",
+            "extra": "1240986 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago) - B/op",
+            "value": 1193,
+            "unit": "B/op",
+            "extra": "1240986 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago) - allocs/op",
+            "value": 10,
+            "unit": "allocs/op",
+            "extra": "1240986 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago)",
+            "value": 971.5,
+            "unit": "ns/op\t    1193 B/op\t      10 allocs/op",
+            "extra": "1232176 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago) - ns/op",
+            "value": 971.5,
+            "unit": "ns/op",
+            "extra": "1232176 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago) - B/op",
+            "value": 1193,
+            "unit": "B/op",
+            "extra": "1232176 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago) - allocs/op",
+            "value": 10,
+            "unit": "allocs/op",
+            "extra": "1232176 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago)",
+            "value": 961.5,
+            "unit": "ns/op\t    1193 B/op\t      10 allocs/op",
+            "extra": "1250865 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago) - ns/op",
+            "value": 961.5,
+            "unit": "ns/op",
+            "extra": "1250865 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago) - B/op",
+            "value": 1193,
+            "unit": "B/op",
+            "extra": "1250865 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_ColdCache (github.com/danielmensah/dynago) - allocs/op",
+            "value": 10,
+            "unit": "allocs/op",
+            "extra": "1250865 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago)",
+            "value": 790.1,
+            "unit": "ns/op\t    1240 B/op\t       9 allocs/op",
+            "extra": "1517905 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago) - ns/op",
+            "value": 790.1,
+            "unit": "ns/op",
+            "extra": "1517905 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago) - B/op",
+            "value": 1240,
+            "unit": "B/op",
+            "extra": "1517905 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago) - allocs/op",
+            "value": 9,
+            "unit": "allocs/op",
+            "extra": "1517905 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago)",
+            "value": 789.9,
+            "unit": "ns/op\t    1240 B/op\t       9 allocs/op",
+            "extra": "1513266 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago) - ns/op",
+            "value": 789.9,
+            "unit": "ns/op",
+            "extra": "1513266 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago) - B/op",
+            "value": 1240,
+            "unit": "B/op",
+            "extra": "1513266 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago) - allocs/op",
+            "value": 9,
+            "unit": "allocs/op",
+            "extra": "1513266 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago)",
+            "value": 791.5,
+            "unit": "ns/op\t    1240 B/op\t       9 allocs/op",
+            "extra": "1510586 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago) - ns/op",
+            "value": 791.5,
+            "unit": "ns/op",
+            "extra": "1510586 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago) - B/op",
+            "value": 1240,
+            "unit": "B/op",
+            "extra": "1510586 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkEncode_WarmCache (github.com/danielmensah/dynago) - allocs/op",
+            "value": 9,
+            "unit": "allocs/op",
+            "extra": "1510586 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago)",
+            "value": 1962,
+            "unit": "ns/op\t     104 B/op\t       2 allocs/op",
+            "extra": "617278 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago) - ns/op",
+            "value": 1962,
+            "unit": "ns/op",
+            "extra": "617278 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago) - B/op",
+            "value": 104,
+            "unit": "B/op",
+            "extra": "617278 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago) - allocs/op",
+            "value": 2,
+            "unit": "allocs/op",
+            "extra": "617278 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago)",
+            "value": 1956,
+            "unit": "ns/op\t     104 B/op\t       2 allocs/op",
+            "extra": "605677 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago) - ns/op",
+            "value": 1956,
+            "unit": "ns/op",
+            "extra": "605677 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago) - B/op",
+            "value": 104,
+            "unit": "B/op",
+            "extra": "605677 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago) - allocs/op",
+            "value": 2,
+            "unit": "allocs/op",
+            "extra": "605677 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago)",
+            "value": 1957,
+            "unit": "ns/op\t     104 B/op\t       2 allocs/op",
+            "extra": "592772 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago) - ns/op",
+            "value": 1957,
+            "unit": "ns/op",
+            "extra": "592772 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago) - B/op",
+            "value": 104,
+            "unit": "B/op",
+            "extra": "592772 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Flat (github.com/danielmensah/dynago) - allocs/op",
+            "value": 2,
+            "unit": "allocs/op",
+            "extra": "592772 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago)",
+            "value": 2023,
+            "unit": "ns/op\t     720 B/op\t      13 allocs/op",
+            "extra": "566858 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago) - ns/op",
+            "value": 2023,
+            "unit": "ns/op",
+            "extra": "566858 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago) - B/op",
+            "value": 720,
+            "unit": "B/op",
+            "extra": "566858 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago) - allocs/op",
+            "value": 13,
+            "unit": "allocs/op",
+            "extra": "566858 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago)",
+            "value": 1999,
+            "unit": "ns/op\t     720 B/op\t      13 allocs/op",
+            "extra": "594925 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago) - ns/op",
+            "value": 1999,
+            "unit": "ns/op",
+            "extra": "594925 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago) - B/op",
+            "value": 720,
+            "unit": "B/op",
+            "extra": "594925 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago) - allocs/op",
+            "value": 13,
+            "unit": "allocs/op",
+            "extra": "594925 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago)",
+            "value": 2012,
+            "unit": "ns/op\t     720 B/op\t      13 allocs/op",
+            "extra": "572818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago) - ns/op",
+            "value": 2012,
+            "unit": "ns/op",
+            "extra": "572818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago) - B/op",
+            "value": 720,
+            "unit": "B/op",
+            "extra": "572818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Nested (github.com/danielmensah/dynago) - allocs/op",
+            "value": 13,
+            "unit": "allocs/op",
+            "extra": "572818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago)",
+            "value": 2319,
+            "unit": "ns/op\t     352 B/op\t       1 allocs/op",
+            "extra": "510132 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago) - ns/op",
+            "value": 2319,
+            "unit": "ns/op",
+            "extra": "510132 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago) - B/op",
+            "value": 352,
+            "unit": "B/op",
+            "extra": "510132 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "510132 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago)",
+            "value": 2391,
+            "unit": "ns/op\t     352 B/op\t       1 allocs/op",
+            "extra": "509254 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago) - ns/op",
+            "value": 2391,
+            "unit": "ns/op",
+            "extra": "509254 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago) - B/op",
+            "value": 352,
+            "unit": "B/op",
+            "extra": "509254 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "509254 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago)",
+            "value": 2357,
+            "unit": "ns/op\t     352 B/op\t       1 allocs/op",
+            "extra": "501927 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago) - ns/op",
+            "value": 2357,
+            "unit": "ns/op",
+            "extra": "501927 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago) - B/op",
+            "value": 352,
+            "unit": "B/op",
+            "extra": "501927 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDecode_Large (github.com/danielmensah/dynago) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "501927 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago)",
+            "value": 1513,
+            "unit": "ns/op\t    1552 B/op\t      27 allocs/op",
+            "extra": "762627 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago) - ns/op",
+            "value": 1513,
+            "unit": "ns/op",
+            "extra": "762627 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago) - B/op",
+            "value": 1552,
+            "unit": "B/op",
+            "extra": "762627 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago) - allocs/op",
+            "value": 27,
+            "unit": "allocs/op",
+            "extra": "762627 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago)",
+            "value": 1521,
+            "unit": "ns/op\t    1552 B/op\t      27 allocs/op",
+            "extra": "756451 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago) - ns/op",
+            "value": 1521,
+            "unit": "ns/op",
+            "extra": "756451 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago) - B/op",
+            "value": 1552,
+            "unit": "B/op",
+            "extra": "756451 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago) - allocs/op",
+            "value": 27,
+            "unit": "allocs/op",
+            "extra": "756451 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago)",
+            "value": 1512,
+            "unit": "ns/op\t    1552 B/op\t      27 allocs/op",
+            "extra": "794882 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago) - ns/op",
+            "value": 1512,
+            "unit": "ns/op",
+            "extra": "794882 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago) - B/op",
+            "value": 1552,
+            "unit": "B/op",
+            "extra": "794882 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_SimpleFilter (github.com/danielmensah/dynago) - allocs/op",
+            "value": 27,
+            "unit": "allocs/op",
+            "extra": "794882 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago)",
+            "value": 3881,
+            "unit": "ns/op\t    3872 B/op\t      57 allocs/op",
+            "extra": "309085 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago) - ns/op",
+            "value": 3881,
+            "unit": "ns/op",
+            "extra": "309085 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago) - B/op",
+            "value": 3872,
+            "unit": "B/op",
+            "extra": "309085 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago) - allocs/op",
+            "value": 57,
+            "unit": "allocs/op",
+            "extra": "309085 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago)",
+            "value": 3881,
+            "unit": "ns/op\t    3872 B/op\t      57 allocs/op",
+            "extra": "301664 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago) - ns/op",
+            "value": 3881,
+            "unit": "ns/op",
+            "extra": "301664 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago) - B/op",
+            "value": 3872,
+            "unit": "B/op",
+            "extra": "301664 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago) - allocs/op",
+            "value": 57,
+            "unit": "allocs/op",
+            "extra": "301664 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago)",
+            "value": 3929,
+            "unit": "ns/op\t    3872 B/op\t      57 allocs/op",
+            "extra": "303834 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago) - ns/op",
+            "value": 3929,
+            "unit": "ns/op",
+            "extra": "303834 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago) - B/op",
+            "value": 3872,
+            "unit": "B/op",
+            "extra": "303834 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprBuild_ComplexCondition (github.com/danielmensah/dynago) - allocs/op",
+            "value": 57,
+            "unit": "allocs/op",
+            "extra": "303834 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago)",
+            "value": 2300,
+            "unit": "ns/op\t     632 B/op\t       7 allocs/op",
+            "extra": "507358 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago) - ns/op",
+            "value": 2300,
+            "unit": "ns/op",
+            "extra": "507358 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago) - B/op",
+            "value": 632,
+            "unit": "B/op",
+            "extra": "507358 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "507358 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago)",
+            "value": 2279,
+            "unit": "ns/op\t     632 B/op\t       7 allocs/op",
+            "extra": "518330 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago) - ns/op",
+            "value": 2279,
+            "unit": "ns/op",
+            "extra": "518330 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago) - B/op",
+            "value": 632,
+            "unit": "B/op",
+            "extra": "518330 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "518330 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago)",
+            "value": 2282,
+            "unit": "ns/op\t     632 B/op\t       7 allocs/op",
+            "extra": "503812 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago) - ns/op",
+            "value": 2282,
+            "unit": "ns/op",
+            "extra": "503812 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago) - B/op",
+            "value": 632,
+            "unit": "B/op",
+            "extra": "503812 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGetRoundTrip (github.com/danielmensah/dynago) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "503812 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago)",
+            "value": 856.7,
+            "unit": "ns/op\t    1328 B/op\t      11 allocs/op",
+            "extra": "1406090 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago) - ns/op",
+            "value": 856.7,
+            "unit": "ns/op",
+            "extra": "1406090 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago) - B/op",
+            "value": 1328,
+            "unit": "B/op",
+            "extra": "1406090 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "1406090 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago)",
+            "value": 871.7,
+            "unit": "ns/op\t    1328 B/op\t      11 allocs/op",
+            "extra": "1375935 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago) - ns/op",
+            "value": 871.7,
+            "unit": "ns/op",
+            "extra": "1375935 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago) - B/op",
+            "value": 1328,
+            "unit": "B/op",
+            "extra": "1375935 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "1375935 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago)",
+            "value": 849.7,
+            "unit": "ns/op\t    1328 B/op\t      11 allocs/op",
+            "extra": "1407392 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago) - ns/op",
+            "value": 849.7,
+            "unit": "ns/op",
+            "extra": "1407392 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago) - B/op",
+            "value": 1328,
+            "unit": "B/op",
+            "extra": "1407392 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkPutRoundTrip (github.com/danielmensah/dynago) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "1407392 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago)",
+            "value": 203296,
+            "unit": "ns/op\t   35590 B/op\t     218 allocs/op",
+            "extra": "5563 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago) - ns/op",
+            "value": 203296,
+            "unit": "ns/op",
+            "extra": "5563 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago) - B/op",
+            "value": 35590,
+            "unit": "B/op",
+            "extra": "5563 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago) - allocs/op",
+            "value": 218,
+            "unit": "allocs/op",
+            "extra": "5563 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago)",
+            "value": 204188,
+            "unit": "ns/op\t   35590 B/op\t     218 allocs/op",
+            "extra": "5798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago) - ns/op",
+            "value": 204188,
+            "unit": "ns/op",
+            "extra": "5798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago) - B/op",
+            "value": 35590,
+            "unit": "B/op",
+            "extra": "5798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago) - allocs/op",
+            "value": 218,
+            "unit": "allocs/op",
+            "extra": "5798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago)",
+            "value": 205099,
+            "unit": "ns/op\t   35590 B/op\t     218 allocs/op",
+            "extra": "5571 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago) - ns/op",
+            "value": 205099,
+            "unit": "ns/op",
+            "extra": "5571 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago) - B/op",
+            "value": 35590,
+            "unit": "B/op",
+            "extra": "5571 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryRoundTrip (github.com/danielmensah/dynago) - allocs/op",
+            "value": 218,
+            "unit": "allocs/op",
+            "extra": "5571 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago)",
+            "value": 67.69,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "17599333 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago) - ns/op",
+            "value": 67.69,
+            "unit": "ns/op",
+            "extra": "17599333 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "17599333 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "17599333 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago)",
+            "value": 67.68,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "17630180 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago) - ns/op",
+            "value": 67.68,
+            "unit": "ns/op",
+            "extra": "17630180 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "17630180 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "17630180 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago)",
+            "value": 67.66,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "17667272 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago) - ns/op",
+            "value": 67.66,
+            "unit": "ns/op",
+            "extra": "17667272 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "17667272 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKeyConstruction (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "17667272 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago)",
+            "value": 52.55,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "22879344 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago) - ns/op",
+            "value": 52.55,
+            "unit": "ns/op",
+            "extra": "22879344 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "22879344 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "22879344 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago)",
+            "value": 52.59,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "22686507 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago) - ns/op",
+            "value": 52.59,
+            "unit": "ns/op",
+            "extra": "22686507 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "22686507 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "22686507 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago)",
+            "value": 52.65,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "22810690 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago) - ns/op",
+            "value": 52.65,
+            "unit": "ns/op",
+            "extra": "22810690 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "22810690 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_String (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "22810690 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago)",
+            "value": 56.67,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "21162969 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago) - ns/op",
+            "value": 56.67,
+            "unit": "ns/op",
+            "extra": "21162969 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "21162969 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "21162969 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago)",
+            "value": 56.72,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "21138404 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago) - ns/op",
+            "value": 56.72,
+            "unit": "ns/op",
+            "extra": "21138404 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "21138404 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "21138404 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago)",
+            "value": 56.67,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "21186940 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago) - ns/op",
+            "value": 56.67,
+            "unit": "ns/op",
+            "extra": "21186940 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "21186940 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_HashOnly_Int (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "21186940 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago)",
+            "value": 73.34,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "16230805 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago) - ns/op",
+            "value": 73.34,
+            "unit": "ns/op",
+            "extra": "16230805 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "16230805 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "16230805 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago)",
+            "value": 73.53,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "16226970 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago) - ns/op",
+            "value": 73.53,
+            "unit": "ns/op",
+            "extra": "16226970 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "16226970 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "16226970 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago)",
+            "value": 73.35,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "16316883 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago) - ns/op",
+            "value": 73.35,
+            "unit": "ns/op",
+            "extra": "16316883 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "16316883 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_Mixed_StringInt (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "16316883 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago)",
+            "value": 18.41,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "64767698 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago) - ns/op",
+            "value": 18.41,
+            "unit": "ns/op",
+            "extra": "64767698 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "64767698 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "64767698 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago)",
+            "value": 18.42,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "65109500 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago) - ns/op",
+            "value": 18.42,
+            "unit": "ns/op",
+            "extra": "65109500 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "65109500 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "65109500 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago)",
+            "value": 18.41,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "64789036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago) - ns/op",
+            "value": 18.41,
+            "unit": "ns/op",
+            "extra": "64789036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "64789036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringKey (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "64789036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago)",
+            "value": 18.8,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "61791094 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago) - ns/op",
+            "value": 18.8,
+            "unit": "ns/op",
+            "extra": "61791094 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "61791094 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "61791094 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago)",
+            "value": 18.81,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "63526269 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago) - ns/op",
+            "value": 18.81,
+            "unit": "ns/op",
+            "extra": "63526269 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "63526269 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "63526269 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago)",
+            "value": 18.79,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "62989526 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago) - ns/op",
+            "value": 18.79,
+            "unit": "ns/op",
+            "extra": "62989526 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "62989526 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey (github.com/danielmensah/dynago) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "62989526 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago)",
+            "value": 210,
+            "unit": "ns/op\t     352 B/op\t       2 allocs/op",
+            "extra": "5733166 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago) - ns/op",
+            "value": 210,
+            "unit": "ns/op",
+            "extra": "5733166 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago) - B/op",
+            "value": 352,
+            "unit": "B/op",
+            "extra": "5733166 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago) - allocs/op",
+            "value": 2,
+            "unit": "allocs/op",
+            "extra": "5733166 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago)",
+            "value": 207.2,
+            "unit": "ns/op\t     352 B/op\t       2 allocs/op",
+            "extra": "5731624 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago) - ns/op",
+            "value": 207.2,
+            "unit": "ns/op",
+            "extra": "5731624 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago) - B/op",
+            "value": 352,
+            "unit": "B/op",
+            "extra": "5731624 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago) - allocs/op",
+            "value": 2,
+            "unit": "allocs/op",
+            "extra": "5731624 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago)",
+            "value": 209,
+            "unit": "ns/op\t     352 B/op\t       2 allocs/op",
+            "extra": "5757548 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago) - ns/op",
+            "value": 209,
+            "unit": "ns/op",
+            "extra": "5757548 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago) - B/op",
+            "value": 352,
+            "unit": "B/op",
+            "extra": "5757548 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkKey_WithMap (github.com/danielmensah/dynago) - allocs/op",
+            "value": 2,
+            "unit": "allocs/op",
+            "extra": "5757548 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago)",
+            "value": 166.4,
+            "unit": "ns/op\t     352 B/op\t       2 allocs/op",
+            "extra": "7268437 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago) - ns/op",
+            "value": 166.4,
+            "unit": "ns/op",
+            "extra": "7268437 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago) - B/op",
+            "value": 352,
+            "unit": "B/op",
+            "extra": "7268437 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago) - allocs/op",
+            "value": 2,
+            "unit": "allocs/op",
+            "extra": "7268437 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago)",
+            "value": 167.1,
+            "unit": "ns/op\t     352 B/op\t       2 allocs/op",
+            "extra": "7170032 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago) - ns/op",
+            "value": 167.1,
+            "unit": "ns/op",
+            "extra": "7170032 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago) - B/op",
+            "value": 352,
+            "unit": "B/op",
+            "extra": "7170032 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago) - allocs/op",
+            "value": 2,
+            "unit": "allocs/op",
+            "extra": "7170032 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago)",
+            "value": 168.2,
+            "unit": "ns/op\t     352 B/op\t       2 allocs/op",
+            "extra": "7146418 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago) - ns/op",
+            "value": 168.2,
+            "unit": "ns/op",
+            "extra": "7146418 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago) - B/op",
+            "value": 352,
+            "unit": "B/op",
+            "extra": "7146418 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkStringPairKey_WithMap (github.com/danielmensah/dynago) - allocs/op",
+            "value": 2,
+            "unit": "allocs/op",
+            "extra": "7146418 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr)",
+            "value": 3327,
+            "unit": "ns/op\t    2200 B/op\t      44 allocs/op",
+            "extra": "354117 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr) - ns/op",
+            "value": 3327,
+            "unit": "ns/op",
+            "extra": "354117 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr) - B/op",
+            "value": 2200,
+            "unit": "B/op",
+            "extra": "354117 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr) - allocs/op",
+            "value": 44,
+            "unit": "allocs/op",
+            "extra": "354117 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr)",
+            "value": 3337,
+            "unit": "ns/op\t    2200 B/op\t      44 allocs/op",
+            "extra": "341851 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr) - ns/op",
+            "value": 3337,
+            "unit": "ns/op",
+            "extra": "341851 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr) - B/op",
+            "value": 2200,
+            "unit": "B/op",
+            "extra": "341851 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr) - allocs/op",
+            "value": 44,
+            "unit": "allocs/op",
+            "extra": "341851 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr)",
+            "value": 3329,
+            "unit": "ns/op\t    2200 B/op\t      44 allocs/op",
+            "extra": "367812 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr) - ns/op",
+            "value": 3329,
+            "unit": "ns/op",
+            "extra": "367812 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr) - B/op",
+            "value": 2200,
+            "unit": "B/op",
+            "extra": "367812 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkExprTranslate_ToDynamo (github.com/danielmensah/dynago/internal/expr) - allocs/op",
+            "value": 44,
+            "unit": "allocs/op",
+            "extra": "367812 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb)",
+            "value": 80884,
+            "unit": "ns/op\t  119768 B/op\t     718 allocs/op",
+            "extra": "14798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 80884,
+            "unit": "ns/op",
+            "extra": "14798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 119768,
+            "unit": "B/op",
+            "extra": "14798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 718,
+            "unit": "allocs/op",
+            "extra": "14798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb)",
+            "value": 81408,
+            "unit": "ns/op\t  119768 B/op\t     718 allocs/op",
+            "extra": "14836 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 81408,
+            "unit": "ns/op",
+            "extra": "14836 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 119768,
+            "unit": "B/op",
+            "extra": "14836 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 718,
+            "unit": "allocs/op",
+            "extra": "14836 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb)",
+            "value": 81288,
+            "unit": "ns/op\t  119768 B/op\t     718 allocs/op",
+            "extra": "14275 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 81288,
+            "unit": "ns/op",
+            "extra": "14275 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 119768,
+            "unit": "B/op",
+            "extra": "14275 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_100Items (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 718,
+            "unit": "allocs/op",
+            "extra": "14275 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb)",
+            "value": 1159996,
+            "unit": "ns/op\t 1187485 B/op\t    7024 allocs/op",
+            "extra": "1035 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 1159996,
+            "unit": "ns/op",
+            "extra": "1035 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 1187485,
+            "unit": "B/op",
+            "extra": "1035 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 7024,
+            "unit": "allocs/op",
+            "extra": "1035 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb)",
+            "value": 1172476,
+            "unit": "ns/op\t 1187487 B/op\t    7024 allocs/op",
+            "extra": "1036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 1172476,
+            "unit": "ns/op",
+            "extra": "1036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 1187487,
+            "unit": "B/op",
+            "extra": "1036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 7024,
+            "unit": "allocs/op",
+            "extra": "1036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb)",
+            "value": 1160875,
+            "unit": "ns/op\t 1187485 B/op\t    7024 allocs/op",
+            "extra": "1040 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 1160875,
+            "unit": "ns/op",
+            "extra": "1040 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 1187485,
+            "unit": "B/op",
+            "extra": "1040 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_Query_1000Items (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 7024,
+            "unit": "allocs/op",
+            "extra": "1040 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb)",
+            "value": 10552165,
+            "unit": "ns/op\t 9068660 B/op\t  100154 allocs/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 10552165,
+            "unit": "ns/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 9068660,
+            "unit": "B/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 100154,
+            "unit": "allocs/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb)",
+            "value": 10684950,
+            "unit": "ns/op\t 9068659 B/op\t  100154 allocs/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 10684950,
+            "unit": "ns/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 9068659,
+            "unit": "B/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 100154,
+            "unit": "allocs/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb)",
+            "value": 10669536,
+            "unit": "ns/op\t 9068659 B/op\t  100154 allocs/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 10669536,
+            "unit": "ns/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 9068659,
+            "unit": "B/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ScanWithFilter_10000Items (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 100154,
+            "unit": "allocs/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb)",
+            "value": 563.3,
+            "unit": "ns/op\t    1184 B/op\t      10 allocs/op",
+            "extra": "2241942 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 563.3,
+            "unit": "ns/op",
+            "extra": "2241942 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 1184,
+            "unit": "B/op",
+            "extra": "2241942 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 10,
+            "unit": "allocs/op",
+            "extra": "2241942 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb)",
+            "value": 547.3,
+            "unit": "ns/op\t    1184 B/op\t      10 allocs/op",
+            "extra": "2164383 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 547.3,
+            "unit": "ns/op",
+            "extra": "2164383 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 1184,
+            "unit": "B/op",
+            "extra": "2164383 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 10,
+            "unit": "allocs/op",
+            "extra": "2164383 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb)",
+            "value": 560.6,
+            "unit": "ns/op\t    1184 B/op\t      10 allocs/op",
+            "extra": "2091624 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 560.6,
+            "unit": "ns/op",
+            "extra": "2091624 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 1184,
+            "unit": "B/op",
+            "extra": "2091624 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentReads (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 10,
+            "unit": "allocs/op",
+            "extra": "2091624 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb)",
+            "value": 1872,
+            "unit": "ns/op\t    1776 B/op\t      15 allocs/op",
+            "extra": "598818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 1872,
+            "unit": "ns/op",
+            "extra": "598818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 1776,
+            "unit": "B/op",
+            "extra": "598818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 15,
+            "unit": "allocs/op",
+            "extra": "598818 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb)",
+            "value": 1873,
+            "unit": "ns/op\t    1776 B/op\t      15 allocs/op",
+            "extra": "619057 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 1873,
+            "unit": "ns/op",
+            "extra": "619057 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 1776,
+            "unit": "B/op",
+            "extra": "619057 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 15,
+            "unit": "allocs/op",
+            "extra": "619057 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb)",
+            "value": 1896,
+            "unit": "ns/op\t    1776 B/op\t      15 allocs/op",
+            "extra": "583737 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb) - ns/op",
+            "value": 1896,
+            "unit": "ns/op",
+            "extra": "583737 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb) - B/op",
+            "value": 1776,
+            "unit": "B/op",
+            "extra": "583737 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMemDB_ConcurrentMixedReadWrite (github.com/danielmensah/dynago/memdb) - allocs/op",
+            "value": 15,
+            "unit": "allocs/op",
+            "extra": "583737 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 680.6,
+            "unit": "ns/op\t    1200 B/op\t       8 allocs/op",
+            "extra": "1759630 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 680.6,
+            "unit": "ns/op",
+            "extra": "1759630 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1200,
+            "unit": "B/op",
+            "extra": "1759630 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "1759630 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 681.9,
+            "unit": "ns/op\t    1200 B/op\t       8 allocs/op",
+            "extra": "1759845 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 681.9,
+            "unit": "ns/op",
+            "extra": "1759845 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1200,
+            "unit": "B/op",
+            "extra": "1759845 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "1759845 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 684,
+            "unit": "ns/op\t    1200 B/op\t       8 allocs/op",
+            "extra": "1757527 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 684,
+            "unit": "ns/op",
+            "extra": "1757527 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1200,
+            "unit": "B/op",
+            "extra": "1757527 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "1757527 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2205,
+            "unit": "ns/op\t    3880 B/op\t      23 allocs/op",
+            "extra": "537468 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2205,
+            "unit": "ns/op",
+            "extra": "537468 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3880,
+            "unit": "B/op",
+            "extra": "537468 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 23,
+            "unit": "allocs/op",
+            "extra": "537468 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2190,
+            "unit": "ns/op\t    3880 B/op\t      23 allocs/op",
+            "extra": "543370 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2190,
+            "unit": "ns/op",
+            "extra": "543370 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3880,
+            "unit": "B/op",
+            "extra": "543370 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 23,
+            "unit": "allocs/op",
+            "extra": "543370 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2223,
+            "unit": "ns/op\t    3880 B/op\t      23 allocs/op",
+            "extra": "546194 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2223,
+            "unit": "ns/op",
+            "extra": "546194 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3880,
+            "unit": "B/op",
+            "extra": "546194 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 23,
+            "unit": "allocs/op",
+            "extra": "546194 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4279,
+            "unit": "ns/op\t    7672 B/op\t      43 allocs/op",
+            "extra": "289629 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4279,
+            "unit": "ns/op",
+            "extra": "289629 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 7672,
+            "unit": "B/op",
+            "extra": "289629 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 43,
+            "unit": "allocs/op",
+            "extra": "289629 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4306,
+            "unit": "ns/op\t    7672 B/op\t      43 allocs/op",
+            "extra": "275887 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4306,
+            "unit": "ns/op",
+            "extra": "275887 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 7672,
+            "unit": "B/op",
+            "extra": "275887 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 43,
+            "unit": "allocs/op",
+            "extra": "275887 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4521,
+            "unit": "ns/op\t    7672 B/op\t      43 allocs/op",
+            "extra": "288549 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4521,
+            "unit": "ns/op",
+            "extra": "288549 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 7672,
+            "unit": "B/op",
+            "extra": "288549 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 43,
+            "unit": "allocs/op",
+            "extra": "288549 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1826,
+            "unit": "ns/op\t    3232 B/op\t      20 allocs/op",
+            "extra": "609854 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1826,
+            "unit": "ns/op",
+            "extra": "609854 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3232,
+            "unit": "B/op",
+            "extra": "609854 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 20,
+            "unit": "allocs/op",
+            "extra": "609854 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1840,
+            "unit": "ns/op\t    3232 B/op\t      20 allocs/op",
+            "extra": "639760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1840,
+            "unit": "ns/op",
+            "extra": "639760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3232,
+            "unit": "B/op",
+            "extra": "639760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 20,
+            "unit": "allocs/op",
+            "extra": "639760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1843,
+            "unit": "ns/op\t    3232 B/op\t      20 allocs/op",
+            "extra": "642924 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1843,
+            "unit": "ns/op",
+            "extra": "642924 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3232,
+            "unit": "B/op",
+            "extra": "642924 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 20,
+            "unit": "allocs/op",
+            "extra": "642924 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 833.9,
+            "unit": "ns/op\t    1145 B/op\t      12 allocs/op",
+            "extra": "1441360 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 833.9,
+            "unit": "ns/op",
+            "extra": "1441360 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1145,
+            "unit": "B/op",
+            "extra": "1441360 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 12,
+            "unit": "allocs/op",
+            "extra": "1441360 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 847.6,
+            "unit": "ns/op\t    1145 B/op\t      12 allocs/op",
+            "extra": "1439372 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 847.6,
+            "unit": "ns/op",
+            "extra": "1439372 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1145,
+            "unit": "B/op",
+            "extra": "1439372 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 12,
+            "unit": "allocs/op",
+            "extra": "1439372 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 835.1,
+            "unit": "ns/op\t    1145 B/op\t      12 allocs/op",
+            "extra": "1434033 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 835.1,
+            "unit": "ns/op",
+            "extra": "1434033 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1145,
+            "unit": "B/op",
+            "extra": "1434033 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 12,
+            "unit": "allocs/op",
+            "extra": "1434033 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 368.5,
+            "unit": "ns/op\t      64 B/op\t       1 allocs/op",
+            "extra": "3251054 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 368.5,
+            "unit": "ns/op",
+            "extra": "3251054 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 64,
+            "unit": "B/op",
+            "extra": "3251054 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "3251054 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 366.8,
+            "unit": "ns/op\t      64 B/op\t       1 allocs/op",
+            "extra": "3267626 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 366.8,
+            "unit": "ns/op",
+            "extra": "3267626 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 64,
+            "unit": "B/op",
+            "extra": "3267626 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "3267626 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 368.3,
+            "unit": "ns/op\t      64 B/op\t       1 allocs/op",
+            "extra": "3244188 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 368.3,
+            "unit": "ns/op",
+            "extra": "3244188 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 64,
+            "unit": "B/op",
+            "extra": "3244188 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "3244188 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4133,
+            "unit": "ns/op\t     272 B/op\t       3 allocs/op",
+            "extra": "287436 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4133,
+            "unit": "ns/op",
+            "extra": "287436 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 272,
+            "unit": "B/op",
+            "extra": "287436 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 3,
+            "unit": "allocs/op",
+            "extra": "287436 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4143,
+            "unit": "ns/op\t     272 B/op\t       3 allocs/op",
+            "extra": "292503 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4143,
+            "unit": "ns/op",
+            "extra": "292503 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 272,
+            "unit": "B/op",
+            "extra": "292503 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 3,
+            "unit": "allocs/op",
+            "extra": "292503 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4163,
+            "unit": "ns/op\t     272 B/op\t       3 allocs/op",
+            "extra": "283982 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4163,
+            "unit": "ns/op",
+            "extra": "283982 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 272,
+            "unit": "B/op",
+            "extra": "283982 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 3,
+            "unit": "allocs/op",
+            "extra": "283982 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 6754,
+            "unit": "ns/op\t     520 B/op\t       4 allocs/op",
+            "extra": "177842 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 6754,
+            "unit": "ns/op",
+            "extra": "177842 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 520,
+            "unit": "B/op",
+            "extra": "177842 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "177842 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 6777,
+            "unit": "ns/op\t     520 B/op\t       4 allocs/op",
+            "extra": "174669 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 6777,
+            "unit": "ns/op",
+            "extra": "174669 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 520,
+            "unit": "B/op",
+            "extra": "174669 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "174669 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 6730,
+            "unit": "ns/op\t     520 B/op\t       4 allocs/op",
+            "extra": "178492 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 6730,
+            "unit": "ns/op",
+            "extra": "178492 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 520,
+            "unit": "B/op",
+            "extra": "178492 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "178492 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 985.1,
+            "unit": "ns/op\t     176 B/op\t       1 allocs/op",
+            "extra": "1211860 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 985.1,
+            "unit": "ns/op",
+            "extra": "1211860 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 176,
+            "unit": "B/op",
+            "extra": "1211860 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1211860 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 980.8,
+            "unit": "ns/op\t     176 B/op\t       1 allocs/op",
+            "extra": "1222552 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 980.8,
+            "unit": "ns/op",
+            "extra": "1222552 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 176,
+            "unit": "B/op",
+            "extra": "1222552 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1222552 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 992.2,
+            "unit": "ns/op\t     176 B/op\t       1 allocs/op",
+            "extra": "1207948 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 992.2,
+            "unit": "ns/op",
+            "extra": "1207948 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 176,
+            "unit": "B/op",
+            "extra": "1207948 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1207948 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 606.7,
+            "unit": "ns/op\t     200 B/op\t       5 allocs/op",
+            "extra": "1975329 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 606.7,
+            "unit": "ns/op",
+            "extra": "1975329 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 200,
+            "unit": "B/op",
+            "extra": "1975329 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 5,
+            "unit": "allocs/op",
+            "extra": "1975329 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 611.1,
+            "unit": "ns/op\t     200 B/op\t       5 allocs/op",
+            "extra": "1959604 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 611.1,
+            "unit": "ns/op",
+            "extra": "1959604 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 200,
+            "unit": "B/op",
+            "extra": "1959604 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 5,
+            "unit": "allocs/op",
+            "extra": "1959604 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 610.3,
+            "unit": "ns/op\t     200 B/op\t       5 allocs/op",
+            "extra": "1971993 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 610.3,
+            "unit": "ns/op",
+            "extra": "1971993 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 200,
+            "unit": "B/op",
+            "extra": "1971993 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkDynaGo_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 5,
+            "unit": "allocs/op",
+            "extra": "1971993 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 467.5,
+            "unit": "ns/op\t     498 B/op\t       8 allocs/op",
+            "extra": "2565254 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 467.5,
+            "unit": "ns/op",
+            "extra": "2565254 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 498,
+            "unit": "B/op",
+            "extra": "2565254 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "2565254 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 464.8,
+            "unit": "ns/op\t     498 B/op\t       8 allocs/op",
+            "extra": "2584159 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 464.8,
+            "unit": "ns/op",
+            "extra": "2584159 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 498,
+            "unit": "B/op",
+            "extra": "2584159 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "2584159 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 471.5,
+            "unit": "ns/op\t     498 B/op\t       8 allocs/op",
+            "extra": "2563876 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 471.5,
+            "unit": "ns/op",
+            "extra": "2563876 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 498,
+            "unit": "B/op",
+            "extra": "2563876 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "2563876 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1572,
+            "unit": "ns/op\t    1832 B/op\t      23 allocs/op",
+            "extra": "766161 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1572,
+            "unit": "ns/op",
+            "extra": "766161 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1832,
+            "unit": "B/op",
+            "extra": "766161 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 23,
+            "unit": "allocs/op",
+            "extra": "766161 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1576,
+            "unit": "ns/op\t    1832 B/op\t      23 allocs/op",
+            "extra": "765297 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1576,
+            "unit": "ns/op",
+            "extra": "765297 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1832,
+            "unit": "B/op",
+            "extra": "765297 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 23,
+            "unit": "allocs/op",
+            "extra": "765297 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1576,
+            "unit": "ns/op\t    1832 B/op\t      23 allocs/op",
+            "extra": "730566 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1576,
+            "unit": "ns/op",
+            "extra": "730566 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1832,
+            "unit": "B/op",
+            "extra": "730566 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 23,
+            "unit": "allocs/op",
+            "extra": "730566 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2892,
+            "unit": "ns/op\t    3592 B/op\t      43 allocs/op",
+            "extra": "424718 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2892,
+            "unit": "ns/op",
+            "extra": "424718 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3592,
+            "unit": "B/op",
+            "extra": "424718 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 43,
+            "unit": "allocs/op",
+            "extra": "424718 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2903,
+            "unit": "ns/op\t    3592 B/op\t      43 allocs/op",
+            "extra": "404890 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2903,
+            "unit": "ns/op",
+            "extra": "404890 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3592,
+            "unit": "B/op",
+            "extra": "404890 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 43,
+            "unit": "allocs/op",
+            "extra": "404890 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2890,
+            "unit": "ns/op\t    3592 B/op\t      43 allocs/op",
+            "extra": "404355 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2890,
+            "unit": "ns/op",
+            "extra": "404355 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3592,
+            "unit": "B/op",
+            "extra": "404355 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 43,
+            "unit": "allocs/op",
+            "extra": "404355 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1168,
+            "unit": "ns/op\t    1458 B/op\t      20 allocs/op",
+            "extra": "995350 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1168,
+            "unit": "ns/op",
+            "extra": "995350 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1458,
+            "unit": "B/op",
+            "extra": "995350 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 20,
+            "unit": "allocs/op",
+            "extra": "995350 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1171,
+            "unit": "ns/op\t    1458 B/op\t      20 allocs/op",
+            "extra": "954910 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1171,
+            "unit": "ns/op",
+            "extra": "954910 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1458,
+            "unit": "B/op",
+            "extra": "954910 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 20,
+            "unit": "allocs/op",
+            "extra": "954910 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1169,
+            "unit": "ns/op\t    1458 B/op\t      20 allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1169,
+            "unit": "ns/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1458,
+            "unit": "B/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 20,
+            "unit": "allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 642.8,
+            "unit": "ns/op\t     633 B/op\t      12 allocs/op",
+            "extra": "1865893 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 642.8,
+            "unit": "ns/op",
+            "extra": "1865893 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 633,
+            "unit": "B/op",
+            "extra": "1865893 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 12,
+            "unit": "allocs/op",
+            "extra": "1865893 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 640.3,
+            "unit": "ns/op\t     633 B/op\t      12 allocs/op",
+            "extra": "1875910 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 640.3,
+            "unit": "ns/op",
+            "extra": "1875910 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 633,
+            "unit": "B/op",
+            "extra": "1875910 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 12,
+            "unit": "allocs/op",
+            "extra": "1875910 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 637.8,
+            "unit": "ns/op\t     633 B/op\t      12 allocs/op",
+            "extra": "1876334 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 637.8,
+            "unit": "ns/op",
+            "extra": "1876334 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 633,
+            "unit": "B/op",
+            "extra": "1876334 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 12,
+            "unit": "allocs/op",
+            "extra": "1876334 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1060,
+            "unit": "ns/op\t      64 B/op\t       1 allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1060,
+            "unit": "ns/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 64,
+            "unit": "B/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1061,
+            "unit": "ns/op\t      64 B/op\t       1 allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1061,
+            "unit": "ns/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 64,
+            "unit": "B/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1067,
+            "unit": "ns/op\t      64 B/op\t       1 allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1067,
+            "unit": "ns/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 64,
+            "unit": "B/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "1000000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4577,
+            "unit": "ns/op\t    1656 B/op\t       8 allocs/op",
+            "extra": "264030 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4577,
+            "unit": "ns/op",
+            "extra": "264030 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1656,
+            "unit": "B/op",
+            "extra": "264030 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "264030 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4583,
+            "unit": "ns/op\t    1656 B/op\t       8 allocs/op",
+            "extra": "260791 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4583,
+            "unit": "ns/op",
+            "extra": "260791 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1656,
+            "unit": "B/op",
+            "extra": "260791 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "260791 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4591,
+            "unit": "ns/op\t    1656 B/op\t       8 allocs/op",
+            "extra": "257348 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4591,
+            "unit": "ns/op",
+            "extra": "257348 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1656,
+            "unit": "B/op",
+            "extra": "257348 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "257348 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 9510,
+            "unit": "ns/op\t    3728 B/op\t      11 allocs/op",
+            "extra": "123740 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 9510,
+            "unit": "ns/op",
+            "extra": "123740 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3728,
+            "unit": "B/op",
+            "extra": "123740 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "123740 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 9533,
+            "unit": "ns/op\t    3728 B/op\t      11 allocs/op",
+            "extra": "125422 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 9533,
+            "unit": "ns/op",
+            "extra": "125422 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3728,
+            "unit": "B/op",
+            "extra": "125422 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "125422 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 9533,
+            "unit": "ns/op\t    3728 B/op\t      11 allocs/op",
+            "extra": "125409 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 9533,
+            "unit": "ns/op",
+            "extra": "125409 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 3728,
+            "unit": "B/op",
+            "extra": "125409 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "125409 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2493,
+            "unit": "ns/op\t     176 B/op\t       1 allocs/op",
+            "extra": "461799 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2493,
+            "unit": "ns/op",
+            "extra": "461799 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 176,
+            "unit": "B/op",
+            "extra": "461799 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "461799 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2480,
+            "unit": "ns/op\t     176 B/op\t       1 allocs/op",
+            "extra": "473042 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2480,
+            "unit": "ns/op",
+            "extra": "473042 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 176,
+            "unit": "B/op",
+            "extra": "473042 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "473042 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2507,
+            "unit": "ns/op\t     176 B/op\t       1 allocs/op",
+            "extra": "465118 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2507,
+            "unit": "ns/op",
+            "extra": "465118 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 176,
+            "unit": "B/op",
+            "extra": "465118 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "465118 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1991,
+            "unit": "ns/op\t     344 B/op\t      11 allocs/op",
+            "extra": "564691 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1991,
+            "unit": "ns/op",
+            "extra": "564691 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 344,
+            "unit": "B/op",
+            "extra": "564691 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "564691 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1981,
+            "unit": "ns/op\t     344 B/op\t      11 allocs/op",
+            "extra": "606162 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1981,
+            "unit": "ns/op",
+            "extra": "606162 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 344,
+            "unit": "B/op",
+            "extra": "606162 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "606162 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1988,
+            "unit": "ns/op\t     344 B/op\t      11 allocs/op",
+            "extra": "603879 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1988,
+            "unit": "ns/op",
+            "extra": "603879 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 344,
+            "unit": "B/op",
+            "extra": "603879 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkGuregu_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "603879 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 908,
+            "unit": "ns/op\t     610 B/op\t      11 allocs/op",
+            "extra": "1319562 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 908,
+            "unit": "ns/op",
+            "extra": "1319562 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 610,
+            "unit": "B/op",
+            "extra": "1319562 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "1319562 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 907.5,
+            "unit": "ns/op\t     610 B/op\t      11 allocs/op",
+            "extra": "1322670 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 907.5,
+            "unit": "ns/op",
+            "extra": "1322670 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 610,
+            "unit": "B/op",
+            "extra": "1322670 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "1322670 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 906.3,
+            "unit": "ns/op\t     610 B/op\t      11 allocs/op",
+            "extra": "1323798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 906.3,
+            "unit": "ns/op",
+            "extra": "1323798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 610,
+            "unit": "B/op",
+            "extra": "1323798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 11,
+            "unit": "allocs/op",
+            "extra": "1323798 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 3738,
+            "unit": "ns/op\t    2864 B/op\t      29 allocs/op",
+            "extra": "313506 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 3738,
+            "unit": "ns/op",
+            "extra": "313506 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 2864,
+            "unit": "B/op",
+            "extra": "313506 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 29,
+            "unit": "allocs/op",
+            "extra": "313506 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 3777,
+            "unit": "ns/op\t    2864 B/op\t      29 allocs/op",
+            "extra": "322551 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 3777,
+            "unit": "ns/op",
+            "extra": "322551 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 2864,
+            "unit": "B/op",
+            "extra": "322551 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 29,
+            "unit": "allocs/op",
+            "extra": "322551 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 3725,
+            "unit": "ns/op\t    2864 B/op\t      29 allocs/op",
+            "extra": "323708 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 3725,
+            "unit": "ns/op",
+            "extra": "323708 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 2864,
+            "unit": "B/op",
+            "extra": "323708 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 29,
+            "unit": "allocs/op",
+            "extra": "323708 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 7404,
+            "unit": "ns/op\t    5808 B/op\t      51 allocs/op",
+            "extra": "159744 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 7404,
+            "unit": "ns/op",
+            "extra": "159744 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 5808,
+            "unit": "B/op",
+            "extra": "159744 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 51,
+            "unit": "allocs/op",
+            "extra": "159744 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 7404,
+            "unit": "ns/op\t    5808 B/op\t      51 allocs/op",
+            "extra": "162159 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 7404,
+            "unit": "ns/op",
+            "extra": "162159 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 5808,
+            "unit": "B/op",
+            "extra": "162159 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 51,
+            "unit": "allocs/op",
+            "extra": "162159 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 7379,
+            "unit": "ns/op\t    5808 B/op\t      51 allocs/op",
+            "extra": "163942 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 7379,
+            "unit": "ns/op",
+            "extra": "163942 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 5808,
+            "unit": "B/op",
+            "extra": "163942 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 51,
+            "unit": "allocs/op",
+            "extra": "163942 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2193,
+            "unit": "ns/op\t    1570 B/op\t      23 allocs/op",
+            "extra": "552618 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2193,
+            "unit": "ns/op",
+            "extra": "552618 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1570,
+            "unit": "B/op",
+            "extra": "552618 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 23,
+            "unit": "allocs/op",
+            "extra": "552618 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2199,
+            "unit": "ns/op\t    1570 B/op\t      23 allocs/op",
+            "extra": "565760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2199,
+            "unit": "ns/op",
+            "extra": "565760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1570,
+            "unit": "B/op",
+            "extra": "565760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 23,
+            "unit": "allocs/op",
+            "extra": "565760 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2197,
+            "unit": "ns/op\t    1570 B/op\t      23 allocs/op",
+            "extra": "513669 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2197,
+            "unit": "ns/op",
+            "extra": "513669 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 1570,
+            "unit": "B/op",
+            "extra": "513669 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 23,
+            "unit": "allocs/op",
+            "extra": "513669 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1784,
+            "unit": "ns/op\t     976 B/op\t      27 allocs/op",
+            "extra": "671238 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1784,
+            "unit": "ns/op",
+            "extra": "671238 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 976,
+            "unit": "B/op",
+            "extra": "671238 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 27,
+            "unit": "allocs/op",
+            "extra": "671238 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1777,
+            "unit": "ns/op\t     976 B/op\t      27 allocs/op",
+            "extra": "676267 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1777,
+            "unit": "ns/op",
+            "extra": "676267 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 976,
+            "unit": "B/op",
+            "extra": "676267 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 27,
+            "unit": "allocs/op",
+            "extra": "676267 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1783,
+            "unit": "ns/op\t     976 B/op\t      27 allocs/op",
+            "extra": "678184 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1783,
+            "unit": "ns/op",
+            "extra": "678184 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 976,
+            "unit": "B/op",
+            "extra": "678184 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Encode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 27,
+            "unit": "allocs/op",
+            "extra": "678184 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 784.9,
+            "unit": "ns/op\t     176 B/op\t       4 allocs/op",
+            "extra": "1525575 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 784.9,
+            "unit": "ns/op",
+            "extra": "1525575 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 176,
+            "unit": "B/op",
+            "extra": "1525575 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "1525575 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 781.1,
+            "unit": "ns/op\t     176 B/op\t       4 allocs/op",
+            "extra": "1535346 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 781.1,
+            "unit": "ns/op",
+            "extra": "1535346 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 176,
+            "unit": "B/op",
+            "extra": "1535346 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "1535346 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks)",
+            "value": 780.6,
+            "unit": "ns/op\t     176 B/op\t       4 allocs/op",
+            "extra": "1538190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 780.6,
+            "unit": "ns/op",
+            "extra": "1538190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 176,
+            "unit": "B/op",
+            "extra": "1538190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Small (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "1538190 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2379,
+            "unit": "ns/op\t     384 B/op\t       6 allocs/op",
+            "extra": "497157 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2379,
+            "unit": "ns/op",
+            "extra": "497157 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 384,
+            "unit": "B/op",
+            "extra": "497157 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 6,
+            "unit": "allocs/op",
+            "extra": "497157 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2389,
+            "unit": "ns/op\t     384 B/op\t       6 allocs/op",
+            "extra": "475843 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2389,
+            "unit": "ns/op",
+            "extra": "475843 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 384,
+            "unit": "B/op",
+            "extra": "475843 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 6,
+            "unit": "allocs/op",
+            "extra": "475843 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks)",
+            "value": 2411,
+            "unit": "ns/op\t     384 B/op\t       6 allocs/op",
+            "extra": "472417 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 2411,
+            "unit": "ns/op",
+            "extra": "472417 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 384,
+            "unit": "B/op",
+            "extra": "472417 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Medium (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 6,
+            "unit": "allocs/op",
+            "extra": "472417 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4299,
+            "unit": "ns/op\t     632 B/op\t       7 allocs/op",
+            "extra": "280722 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4299,
+            "unit": "ns/op",
+            "extra": "280722 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 632,
+            "unit": "B/op",
+            "extra": "280722 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "280722 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4400,
+            "unit": "ns/op\t     632 B/op\t       7 allocs/op",
+            "extra": "270648 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4400,
+            "unit": "ns/op",
+            "extra": "270648 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 632,
+            "unit": "B/op",
+            "extra": "270648 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "270648 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks)",
+            "value": 4354,
+            "unit": "ns/op\t     632 B/op\t       7 allocs/op",
+            "extra": "266014 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 4354,
+            "unit": "ns/op",
+            "extra": "266014 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 632,
+            "unit": "B/op",
+            "extra": "266014 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Large (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "266014 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1809,
+            "unit": "ns/op\t     288 B/op\t       4 allocs/op",
+            "extra": "633714 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1809,
+            "unit": "ns/op",
+            "extra": "633714 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 288,
+            "unit": "B/op",
+            "extra": "633714 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "633714 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1802,
+            "unit": "ns/op\t     288 B/op\t       4 allocs/op",
+            "extra": "678909 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1802,
+            "unit": "ns/op",
+            "extra": "678909 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 288,
+            "unit": "B/op",
+            "extra": "678909 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "678909 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1808,
+            "unit": "ns/op\t     288 B/op\t       4 allocs/op",
+            "extra": "659778 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1808,
+            "unit": "ns/op",
+            "extra": "659778 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 288,
+            "unit": "B/op",
+            "extra": "659778 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_Nested (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 4,
+            "unit": "allocs/op",
+            "extra": "659778 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1287,
+            "unit": "ns/op\t     312 B/op\t       8 allocs/op",
+            "extra": "936979 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1287,
+            "unit": "ns/op",
+            "extra": "936979 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 312,
+            "unit": "B/op",
+            "extra": "936979 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "936979 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1278,
+            "unit": "ns/op\t     312 B/op\t       8 allocs/op",
+            "extra": "842251 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1278,
+            "unit": "ns/op",
+            "extra": "842251 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 312,
+            "unit": "B/op",
+            "extra": "842251 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "842251 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1281,
+            "unit": "ns/op\t     312 B/op\t       8 allocs/op",
+            "extra": "935779 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1281,
+            "unit": "ns/op",
+            "extra": "935779 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 312,
+            "unit": "B/op",
+            "extra": "935779 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkAWSSDK_Decode_WithSets (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 8,
+            "unit": "allocs/op",
+            "extra": "935779 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1.25,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "959894365 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1.25,
+            "unit": "ns/op",
+            "extra": "959894365 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "959894365 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "959894365 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1.248,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "958619388 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1.248,
+            "unit": "ns/op",
+            "extra": "958619388 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "958619388 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "958619388 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks)",
+            "value": 1.25,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "961431794 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 1.25,
+            "unit": "ns/op",
+            "extra": "961431794 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "961431794 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_Disabled (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "961431794 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks)",
+            "value": 631.4,
+            "unit": "ns/op\t     888 B/op\t       7 allocs/op",
+            "extra": "1891946 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 631.4,
+            "unit": "ns/op",
+            "extra": "1891946 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 888,
+            "unit": "B/op",
+            "extra": "1891946 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "1891946 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks)",
+            "value": 631.1,
+            "unit": "ns/op\t     888 B/op\t       7 allocs/op",
+            "extra": "1909412 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 631.1,
+            "unit": "ns/op",
+            "extra": "1909412 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 888,
+            "unit": "B/op",
+            "extra": "1909412 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "1909412 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks)",
+            "value": 631,
+            "unit": "ns/op\t     888 B/op\t       7 allocs/op",
+            "extra": "1909182 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 631,
+            "unit": "ns/op",
+            "extra": "1909182 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 888,
+            "unit": "B/op",
+            "extra": "1909182 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_NoopProvider (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 7,
+            "unit": "allocs/op",
+            "extra": "1909182 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks)",
+            "value": 124.6,
+            "unit": "ns/op\t      16 B/op\t       1 allocs/op",
+            "extra": "9607990 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 124.6,
+            "unit": "ns/op",
+            "extra": "9607990 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 16,
+            "unit": "B/op",
+            "extra": "9607990 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "9607990 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks)",
+            "value": 125,
+            "unit": "ns/op\t      16 B/op\t       1 allocs/op",
+            "extra": "9591693 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 125,
+            "unit": "ns/op",
+            "extra": "9591693 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 16,
+            "unit": "B/op",
+            "extra": "9591693 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "9591693 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks)",
+            "value": 124.6,
+            "unit": "ns/op\t      16 B/op\t       1 allocs/op",
+            "extra": "9533292 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks) - ns/op",
+            "value": 124.6,
+            "unit": "ns/op",
+            "extra": "9533292 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks) - B/op",
+            "value": 16,
+            "unit": "B/op",
+            "extra": "9533292 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMiddleware_LoggingOnly (github.com/danielmensah/dynago/benchmarks) - allocs/op",
+            "value": 1,
+            "unit": "allocs/op",
+            "extra": "9533292 times\n4 procs"
           }
         ]
       }
