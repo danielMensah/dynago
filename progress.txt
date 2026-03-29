@@ -85,3 +85,16 @@
   - Version field lookup uses dynamo struct tags, matching the codec convention
   - Test stub with putErrOnce field allows simulating transient failures
 ---
+
+## 2026-03-29 - Phases 2, 3 & 4 Complete (All User Stories)
+- **Phase 2 (Single-Table Design):** Entity interface, Registry, table binding, polymorphic unmarshal/put, SplitKey, GSI query, Collection query/iterator
+- **Phase 3 (Testing Backend):** MemDB with full CRUD, GSI maintenance, Query/Scan with pagination, expression evaluation, dynagotest helpers, benchmarks, conformance suite, fuzz tests, CI workflows
+- **Phase 4 (Transactions & Observability):** Write/Read tx builders, error decomposition, ReadModifyWrite with optimistic locking, batch put/get/delete with auto-chunking, memdb tx/batch support, middleware system, dynagotel OTel module, logging middleware, comparative benchmarks
+- Files changed: 50+ new files across dynago/, memdb/, dynagotest/, dynagotel/, benchmarks/, conformance/, .github/workflows/
+- **Learnings for future iterations:**
+  - Worktree-based parallel agents are effective for independent workstreams but merge conflicts need careful resolution
+  - memdb expression evaluation requires its own parser since DynamoDB expression strings use #name/:value substitution
+  - Sub-modules (dynagotel, benchmarks) need `replace` directives for local development
+  - `golang.org/x/sync/errgroup` added for concurrent batch operations
+  - ScannedCount field was added to QueryResponse/ScanResponse in backend.go
+---

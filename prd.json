@@ -17,7 +17,7 @@
         "Tests pass"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
@@ -26,7 +26,7 @@
       "description": "As a developer, I need a registry that maps discriminator values to Go types so the library can resolve the correct type during polymorphic unmarshaling.",
       "acceptanceCriteria": [
         "NewRegistry(discriminatorAttr string) *Registry constructor",
-        "Registry.Register(e Entity) method — accepts any type implementing Entity, stores mapping from discriminator string to reflect.Type",
+        "Registry.Register(e Entity) method \u2014 accepts any type implementing Entity, stores mapping from discriminator string to reflect.Type",
         "Registry.Register panics if two types register the same discriminator value (programmer error)",
         "Registry.Lookup(discriminator string) (reflect.Type, bool) returns the registered type",
         "Registry.DiscriminatorAttr() string returns the attribute name used for discrimination",
@@ -36,7 +36,7 @@
         "Tests pass"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-200 (Entity interface)"
     },
     {
@@ -53,7 +53,7 @@
         "Tests pass"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-201 (Registry)"
     },
     {
@@ -71,7 +71,7 @@
         "Tests pass"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-201 (Registry) and existing Unmarshal pipeline"
     },
     {
@@ -89,7 +89,7 @@
         "Tests pass"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-200 (Entity), US-202 (table registry binding)"
     },
     {
@@ -97,15 +97,15 @@
       "title": "SplitKey utility",
       "description": "As a developer working with composite keys, I need a utility to split delimited key strings into components so I can extract semantic values from keys like ORDER#2024-01-15#abc.",
       "acceptanceCriteria": [
-        "SplitKey(key string, delimiter string) []string — splits a composite key by the given delimiter",
-        "Delimiter is a parameter (not hardcoded to #) — teams use #, |, ::, etc.",
+        "SplitKey(key string, delimiter string) []string \u2014 splits a composite key by the given delimiter",
+        "Delimiter is a parameter (not hardcoded to #) \u2014 teams use #, |, ::, etc.",
         "Zero-allocation (uses strings.Split which is already optimized)",
         "Unit tests: split #-delimited key, split |-delimited key, split with no delimiter match returns single-element slice, empty string input",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "No dependencies. ParseKey deferred to post-launch."
     },
     {
@@ -124,7 +124,7 @@
         "Tests pass"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "No dependency on registry; can be implemented independently. QueryCollection integration tested after US-206."
     },
     {
@@ -137,13 +137,13 @@
         "Uses the table's registry to unmarshal each item into its correct Go type",
         "Returns an error if the table has no registry",
         "ItemsOf[T](collection *Collection) []T generic function that filters and returns items of type T",
-        "Items with unrecognized discriminators are silently skipped (not an error — allows schema evolution)",
+        "Items with unrecognized discriminators are silently skipped (not an error \u2014 allows schema evolution)",
         "Unit tests: query partition with mixed User/Order items, extract typed slices, empty partition returns empty collection",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-203 (polymorphic unmarshal), US-202 (table registry)"
     },
     {
@@ -152,7 +152,7 @@
       "description": "As a developer, I need an iterator over heterogeneous collection results so I can process mixed-type items one at a time using a type switch, especially for large result sets.",
       "acceptanceCriteria": [
         "CollectionIter(ctx, table, key KeyCondition, opts ...QueryOption) iter.Seq2[any, error] free function",
-        "Yields (value any, err error) pairs — each value is the concrete registered type",
+        "Yields (value any, err error) pairs \u2014 each value is the concrete registered type",
         "Usable with for item, err := range CollectionIter(...) syntax",
         "A non-nil error is yielded as the final value; iteration stops after error",
         "Supports pagination (fetches next page automatically when current page exhausted)",
@@ -162,7 +162,7 @@
         "Tests pass"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-206 (Collection type), US-203 (polymorphic unmarshal). Uses iter.Seq2[any, error] pattern matching existing QueryIter/ScanIter."
     },
     {
@@ -188,7 +188,7 @@
       "title": "MemDB core structure and table management",
       "description": "As a developer writing tests, I need an in-memory DynamoDB backend that can create tables with key schema so I can run tests without Docker or network.",
       "acceptanceCriteria": [
-        "memdb package under the project root (not internal — users import it directly)",
+        "memdb package under the project root (not internal \u2014 users import it directly)",
         "NewMemoryBackend() *MemoryBackend constructor",
         "MemoryBackend implements the dynago.Backend interface (stub/error for unimplemented methods initially)",
         "CreateTable(name string, schema dynago.TableSchema) method for test setup",
@@ -203,7 +203,7 @@
         "Tests pass"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "Phase 3 starts here. No dependency on Phase 2 stories for the memdb structure itself."
     },
     {
@@ -214,10 +214,10 @@
         "PutItem stores items indexed by their hash key (and range key if table has one)",
         "PutItem validates that the item contains the required hash key (and range key if defined)",
         "PutItem returns an error if required key attributes are missing or wrong type",
-        "PutItem supports condition expressions — evaluates the AST from the request against the existing item (if any)",
+        "PutItem supports condition expressions \u2014 evaluates the AST from the request against the existing item (if any)",
         "PutItem returns ConditionalCheckFailedException-equivalent error when condition fails",
         "GetItem returns the item matching the key, or an empty response (not error) if not found",
-        "GetItem supports projection expressions — evaluates the AST to return only requested attributes",
+        "GetItem supports projection expressions \u2014 evaluates the AST to return only requested attributes",
         "GetItem supports ConsistentRead (accepted but no behavioral difference in memdb)",
         "Items are stored by value (mutations to the returned item don't affect stored data)",
         "Write operations acquire write lock; read operations acquire read lock",
@@ -226,7 +226,7 @@
         "Tests pass"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-300 (memdb core). Uses internal/expr Eval for condition expressions."
     },
     {
@@ -244,7 +244,7 @@
         "Tests pass"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-300 (memdb core)"
     },
     {
@@ -265,8 +265,8 @@
         "Tests pass"
       ],
       "priority": 14,
-      "passes": false,
-      "notes": "Depends on US-300 (memdb core). Critical for conformance suite — Update is a Phase 1 public API surface."
+      "passes": true,
+      "notes": "Depends on US-300 (memdb core). Critical for conformance suite \u2014 Update is a Phase 1 public API surface."
     },
     {
       "id": "US-306",
@@ -282,7 +282,7 @@
         "Tests pass"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-301 (PutItem), US-302 (DeleteItem), US-303 (UpdateItem). Must be done before Query/Scan since they need GSI support."
     },
     {
@@ -295,17 +295,17 @@
         "Applies filter expression AST to post-filter results",
         "Applies projection expression to limit returned attributes",
         "Supports ScanIndexForward (ascending/descending sort)",
-        "Supports Limit — returns at most N items (limit applies to items read before filter, matching DynamoDB semantics)",
+        "Supports Limit \u2014 returns at most N items (limit applies to items read before filter, matching DynamoDB semantics)",
         "Returns LastEvaluatedKey when limit is reached (pagination support)",
         "Accepts ExclusiveStartKey for pagination continuation",
-        "When querying a GSI, reads from the GSI's projected items (full projection — all attributes copied to GSI)",
+        "When querying a GSI, reads from the GSI's projected items (full projection \u2014 all attributes copied to GSI)",
         "Returns ScannedCount and Count in response",
         "Unit tests: basic partition query, sort key conditions (each type), filter expression, pagination with limit, descending order, GSI query, empty results",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 16,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-301 (PutItem for data), US-306 (GSI maintenance for GSI queries)"
     },
     {
@@ -324,18 +324,18 @@
         "Tests pass"
       ],
       "priority": 17,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-301 (PutItem for data), US-306 (GSI maintenance)"
     },
     {
       "id": "US-307",
-      "title": "Test helper package — seed utilities",
+      "title": "Test helper package \u2014 seed utilities",
       "description": "As a developer writing tests, I need seed utilities to quickly populate the in-memory backend with test data so I can focus on testing behavior rather than setup.",
       "acceptanceCriteria": [
         "dynagotest package (separate sub-package, importable as dynago/dynagotest)",
-        "Seed(ctx, table *dynago.Table, items []any) error — marshals and puts each item",
-        "SeedFromJSON(ctx, table *dynago.Table, path string) error — reads a JSON file in DynamoDB JSON format and seeds items",
-        "DynamoDB JSON format only (with type descriptors: {\"S\": \"value\"}, {\"N\": \"42\"}, {\"SS\": [\"a\",\"b\"]}, etc.) — no flat JSON with type inference",
+        "Seed(ctx, table *dynago.Table, items []any) error \u2014 marshals and puts each item",
+        "SeedFromJSON(ctx, table *dynago.Table, path string) error \u2014 reads a JSON file in DynamoDB JSON format and seeds items",
+        "DynamoDB JSON format only (with type descriptors: {\"S\": \"value\"}, {\"N\": \"42\"}, {\"SS\": [\"a\",\"b\"]}, etc.) \u2014 no flat JSON with type inference",
         "File format: JSON array of objects, each object uses DynamoDB's AttributeValue type descriptors",
         "Seed returns an error if any put fails (wraps the first error with item index context)",
         "Unit tests: seed from slice, seed from JSON file, seed with invalid item",
@@ -343,18 +343,18 @@
         "Tests pass"
       ],
       "priority": 18,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-301 (PutItem working in memdb). DynamoDB JSON chosen for unambiguous types and aws cli compatibility."
     },
     {
       "id": "US-308",
-      "title": "Test helper package — assertions",
+      "title": "Test helper package \u2014 assertions",
       "description": "As a developer writing tests, I need assertion helpers that check item state in the backend so I can write expressive, readable test assertions.",
       "acceptanceCriteria": [
-        "AssertItemExists(t testing.TB, table *dynago.Table, key dynago.KeyValue, opts ...AssertOption) — fails the test if item doesn't exist",
-        "AssertItemNotExists(t testing.TB, table *dynago.Table, key dynago.KeyValue) — fails the test if item exists",
-        "HasAttribute(name string, expected any) AssertOption — asserts a specific attribute value",
-        "AssertCount(t testing.TB, table *dynago.Table, key dynago.KeyCondition, expected int) — asserts the number of items matching a query",
+        "AssertItemExists(t testing.TB, table *dynago.Table, key dynago.KeyValue, opts ...AssertOption) \u2014 fails the test if item doesn't exist",
+        "AssertItemNotExists(t testing.TB, table *dynago.Table, key dynago.KeyValue) \u2014 fails the test if item exists",
+        "HasAttribute(name string, expected any) AssertOption \u2014 asserts a specific attribute value",
+        "AssertCount(t testing.TB, table *dynago.Table, key dynago.KeyCondition, expected int) \u2014 asserts the number of items matching a query",
         "All assertions use t.Helper() so failure messages point to the caller",
         "All assertions produce clear failure messages including expected vs actual values",
         "Unit tests for each assertion function (positive and negative cases)",
@@ -362,7 +362,7 @@
         "Tests pass"
       ],
       "priority": 19,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-301 (GetItem), US-304 (Query for AssertCount)"
     },
     {
@@ -370,21 +370,21 @@
       "title": "Tier 1 MemDB benchmarks",
       "description": "As a library maintainer, I need benchmarks for the in-memory backend to validate that memdb query performance meets the < 1ms target for 100 items and to catch regressions.",
       "acceptanceCriteria": [
-        "BenchmarkMemDB_EvalSimpleFilter — single equality check against an item",
-        "BenchmarkMemDB_EvalComplexFilter — 5+ conditions with AND/OR",
-        "BenchmarkMemDB_EvalNestedPath — path traversal (e.g., Address.City)",
-        "BenchmarkMemDB_EvalFunctionCall — begins_with, contains, size",
-        "BenchmarkMemDB_Query_100Items — query returning 100 items from a 1000-item table",
-        "BenchmarkMemDB_Query_1000Items — query returning 1000 items",
-        "BenchmarkMemDB_ScanWithFilter_10000Items — 10k items, filter matches 10%",
-        "BenchmarkMemDB_ConcurrentReads — parallel GetItem on shared table",
-        "BenchmarkMemDB_ConcurrentMixedReadWrite — 80% reads, 20% writes",
+        "BenchmarkMemDB_EvalSimpleFilter \u2014 single equality check against an item",
+        "BenchmarkMemDB_EvalComplexFilter \u2014 5+ conditions with AND/OR",
+        "BenchmarkMemDB_EvalNestedPath \u2014 path traversal (e.g., Address.City)",
+        "BenchmarkMemDB_EvalFunctionCall \u2014 begins_with, contains, size",
+        "BenchmarkMemDB_Query_100Items \u2014 query returning 100 items from a 1000-item table",
+        "BenchmarkMemDB_Query_1000Items \u2014 query returning 1000 items",
+        "BenchmarkMemDB_ScanWithFilter_10000Items \u2014 10k items, filter matches 10%",
+        "BenchmarkMemDB_ConcurrentReads \u2014 parallel GetItem on shared table",
+        "BenchmarkMemDB_ConcurrentMixedReadWrite \u2014 80% reads, 20% writes",
         "All benchmarks use b.ReportAllocs()",
         "100-item query benchmark completes in under 1ms per operation",
         "Typecheck passes"
       ],
       "priority": 20,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-304 (Query), US-305 (Scan). Benchmarks live in memdb/ package."
     },
     {
@@ -404,7 +404,7 @@
         "Tests pass"
       ],
       "priority": 21,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-301 through US-305 (all core memdb operations). Phase 3 exit criterion."
     },
     {
@@ -421,7 +421,7 @@
         "Typecheck passes"
       ],
       "priority": 22,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-310 (conformance tests exist to run)"
     },
     {
@@ -429,16 +429,16 @@
       "title": "Fuzz testing for encoding and expression evaluation",
       "description": "As a library maintainer, I need fuzz tests to discover edge cases in encoding round-trips and expression evaluation that unit tests miss.",
       "acceptanceCriteria": [
-        "FuzzEncodeDecodeRoundTrip — fuzzes string, int64, bool fields through marshal/unmarshal and asserts equality",
-        "FuzzExpressionEval — fuzzes attribute values through expression evaluator and asserts no panics",
+        "FuzzEncodeDecodeRoundTrip \u2014 fuzzes string, int64, bool fields through marshal/unmarshal and asserts equality",
+        "FuzzExpressionEval \u2014 fuzzes attribute values through expression evaluator and asserts no panics",
         "Fuzz tests are in appropriate _test.go files",
         "Fuzz tests run successfully with go test -fuzz=Fuzz -fuzztime=10s (short sanity check)",
         ".github/workflows/fuzz.yml nightly workflow running go test ./... -fuzz=Fuzz -fuzztime=30m",
         "Typecheck passes"
       ],
       "priority": 23,
-      "passes": false,
-      "notes": "No dependency on memdb — fuzzes the core encoding and expr packages."
+      "passes": true,
+      "notes": "No dependency on memdb \u2014 fuzzes the core encoding and expr packages."
     },
     {
       "id": "US-400",
@@ -446,11 +446,11 @@
       "description": "As a developer, I need a fluent transaction builder for write transactions so I can compose multi-item atomic operations (put, update, delete, condition check) in a type-safe way.",
       "acceptanceCriteria": [
         "WriteTx(ctx context.Context, db *DB) *WriteTxBuilder constructor",
-        "WriteTxBuilder.Put(table *Table, item any, opts ...PutOption) *WriteTxBuilder — adds a put operation",
-        "WriteTxBuilder.Update(table *Table, key KeyValue, opts ...UpdateOption) *WriteTxBuilder — adds an update operation",
-        "WriteTxBuilder.Delete(table *Table, key KeyValue, opts ...DeleteOption) *WriteTxBuilder — adds a delete operation",
-        "WriteTxBuilder.Check(table *Table, key KeyValue, condition ConditionOption) *WriteTxBuilder — adds a condition check",
-        "WriteTxBuilder.Run() error — executes the transaction via Backend.TransactWriteItems",
+        "WriteTxBuilder.Put(table *Table, item any, opts ...PutOption) *WriteTxBuilder \u2014 adds a put operation",
+        "WriteTxBuilder.Update(table *Table, key KeyValue, opts ...UpdateOption) *WriteTxBuilder \u2014 adds an update operation",
+        "WriteTxBuilder.Delete(table *Table, key KeyValue, opts ...DeleteOption) *WriteTxBuilder \u2014 adds a delete operation",
+        "WriteTxBuilder.Check(table *Table, key KeyValue, condition ConditionOption) *WriteTxBuilder \u2014 adds a condition check",
+        "WriteTxBuilder.Run() error \u2014 executes the transaction via Backend.TransactWriteItems",
         "Maximum 100 operations per transaction (return error if exceeded before calling backend)",
         "Each operation builds its own expression AST (conditions, updates) independently",
         "Unit tests: build a transaction with mixed operations, exceed 100 ops error, empty transaction",
@@ -467,10 +467,10 @@
       "description": "As a developer, I need a read transaction builder for consistent reads across multiple items so I can get a point-in-time snapshot of several items atomically.",
       "acceptanceCriteria": [
         "ReadTx(ctx context.Context, db *DB) *ReadTxBuilder constructor",
-        "ReadTxBuilder.Get(table *Table, key KeyValue, opts ...GetOption) *ReadTxBuilder — adds a get operation",
-        "ReadTxBuilder.Run() (*ReadTxResult, error) — executes via Backend.TransactGetItems",
-        "ReadTxResult.Item(index int) (map[string]AttributeValue, bool) — returns the item at position index",
-        "GetAs[T](result *ReadTxResult, index int) (T, error) — generic helper to unmarshal item at index into type T",
+        "ReadTxBuilder.Get(table *Table, key KeyValue, opts ...GetOption) *ReadTxBuilder \u2014 adds a get operation",
+        "ReadTxBuilder.Run() (*ReadTxResult, error) \u2014 executes via Backend.TransactGetItems",
+        "ReadTxResult.Item(index int) (map[string]AttributeValue, bool) \u2014 returns the item at position index",
+        "GetAs[T](result *ReadTxResult, index int) (T, error) \u2014 generic helper to unmarshal item at index into type T",
         "Maximum 100 operations per transaction",
         "Unit tests: read transaction with multiple gets, unmarshal results, empty result for missing item",
         "Typecheck passes",
@@ -485,8 +485,8 @@
       "title": "Transaction error decomposition",
       "description": "As a developer, I need structured error handling for transaction failures so I can determine which operation failed and why, rather than parsing error strings.",
       "acceptanceCriteria": [
-        "IsTxCancelled(err error) bool — checks if the error is a transaction cancellation",
-        "TxCancelReasons(err error) []TxCancelReason — extracts per-operation failure reasons",
+        "IsTxCancelled(err error) bool \u2014 checks if the error is a transaction cancellation",
+        "TxCancelReasons(err error) []TxCancelReason \u2014 extracts per-operation failure reasons",
         "TxCancelReason struct with Code string (e.g., ConditionalCheckFailed) and Message string",
         "Works with errors returned from both the AWS adapter and memdb",
         "TxCancelledError type that wraps the individual reasons",
@@ -515,7 +515,7 @@
         "Tests pass"
       ],
       "priority": 27,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-301-303 (memdb CRUD), US-402 (TxCancelledError type)"
     },
     {
@@ -525,9 +525,9 @@
       "acceptanceCriteria": [
         "ReadModifyWrite[T any](ctx, table, key KeyValue, fn func(*T) error, opts ...RMWOption) error",
         "Reads the item, calls fn with a pointer to the decoded item, then puts the modified item back",
-        "OptimisticLock(versionAttr string) RMWOption — auto-increments the version field and adds a condition expression checking the old version",
+        "OptimisticLock(versionAttr string) RMWOption \u2014 auto-increments the version field and adds a condition expression checking the old version",
         "Retries automatically on condition check failure (optimistic lock contention), up to a configurable max (default 3)",
-        "MaxRetries(n int) RMWOption — configures retry count",
+        "MaxRetries(n int) RMWOption \u2014 configures retry count",
         "Returns the condition check error if all retries exhausted",
         "If fn returns an error, the write is aborted and the error is returned",
         "Unit tests: successful RMW, concurrent RMW with retries, fn returns error, max retries exceeded",
@@ -543,19 +543,19 @@
       "title": "Batch write with auto-chunking",
       "description": "As a developer, I need batch write operations that automatically chunk requests into DynamoDB's 25-item limit and handle unprocessed items.",
       "acceptanceCriteria": [
-        "table.BatchPut(ctx, items []any, opts ...BatchOption) error — method on Table",
-        "table.BatchDelete(ctx, keys []KeyValue, opts ...BatchOption) error — method on Table",
+        "table.BatchPut(ctx, items []any, opts ...BatchOption) error \u2014 method on Table",
+        "table.BatchDelete(ctx, keys []KeyValue, opts ...BatchOption) error \u2014 method on Table",
         "Automatically chunks into groups of 25 (DynamoDB batch limit)",
         "Retries unprocessed items with exponential backoff",
-        "OnProgress(fn func(completed, total int)) BatchOption — progress callback",
-        "MaxConcurrency(n int) BatchOption — limits concurrent chunk requests (default 1, sequential)",
+        "OnProgress(fn func(completed, total int)) BatchOption \u2014 progress callback",
+        "MaxConcurrency(n int) BatchOption \u2014 limits concurrent chunk requests (default 1, sequential)",
         "Returns a combined error if any chunk fails after retries",
         "Unit tests: batch put < 25 items, batch put > 25 items (chunking), progress callback invoked correctly, batch delete",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 29,
-      "passes": false,
+      "passes": true,
       "notes": "Uses Backend.BatchWriteItem. Chunking and retry logic is library-level."
     },
     {
@@ -566,14 +566,14 @@
         "BatchGet[T any](ctx, table *Table, keys []KeyValue, opts ...BatchGetOption) ([]T, error) free function",
         "Automatically chunks into groups of 100 (DynamoDB BatchGetItem limit)",
         "Retries unprocessed keys with exponential backoff",
-        "Returns results in arbitrary order (matches DynamoDB behavior — no ordering guarantee)",
+        "Returns results in arbitrary order (matches DynamoDB behavior \u2014 no ordering guarantee)",
         "Supports projection expressions via options",
         "Unit tests: batch get < 100 keys, batch get > 100 keys, unprocessed key retry, projection",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 30,
-      "passes": false,
+      "passes": true,
       "notes": "Uses Backend.BatchGetItem. Free function because return type needs generic parameter."
     },
     {
@@ -593,7 +593,7 @@
         "Tests pass"
       ],
       "priority": 31,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-301-302 (memdb PutItem/DeleteItem/GetItem)"
     },
     {
@@ -612,15 +612,15 @@
         "Tests pass"
       ],
       "priority": 32,
-      "passes": false,
-      "notes": "Core library change — no external dependencies. Foundation for US-409 and US-410."
+      "passes": true,
+      "notes": "Core library change \u2014 no external dependencies. Foundation for US-409 and US-410."
     },
     {
       "id": "US-409",
       "title": "OpenTelemetry reference implementation (dynagotel)",
       "description": "As a developer using OpenTelemetry, I need a reference middleware implementation that emits spans and metrics so I can monitor DynamoDB operations in production.",
       "acceptanceCriteria": [
-        "dynagotel package in dynagotel/ directory with its own go.mod — separate module so otel dependencies are never transitive for core library users",
+        "dynagotel package in dynagotel/ directory with its own go.mod \u2014 separate module so otel dependencies are never transitive for core library users",
         "dynagotel/go.mod requires the core dynago module at a compatible version",
         "NewMiddleware(opts ...Option) dynago.Middleware constructor",
         "WithTracer(tracer trace.Tracer) Option",
@@ -636,7 +636,7 @@
         "Tests pass"
       ],
       "priority": 33,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-408 (Middleware type). Separate go.mod isolates otel dependency. Package name is dynagotel (flat), not otel."
     },
     {
@@ -654,8 +654,8 @@
         "Tests pass"
       ],
       "priority": 34,
-      "passes": false,
-      "notes": "Depends on US-408 (Middleware type). No external dependencies — uses stdlib slog."
+      "passes": true,
+      "notes": "Depends on US-408 (Middleware type). No external dependencies \u2014 uses stdlib slog."
     },
     {
       "id": "US-411",
@@ -671,7 +671,7 @@
         "Typecheck passes"
       ],
       "priority": 35,
-      "passes": false,
+      "passes": true,
       "notes": "Separate go.mod in benchmarks/ isolates guregu/dynamo and AWS SDK dependencies."
     },
     {
@@ -679,17 +679,17 @@
       "title": "Observability overhead benchmarks",
       "description": "As a library maintainer, I need benchmarks measuring the overhead of the instrumentation middleware to ensure observability doesn't degrade performance.",
       "acceptanceCriteria": [
-        "BenchmarkMiddleware_Disabled — no middleware configured",
-        "BenchmarkMiddleware_NoopProvider — otel middleware with noop tracer/meter",
-        "BenchmarkMiddleware_RealProvider — otel middleware with in-memory exporter",
-        "BenchmarkMiddleware_LoggingOnly — logging middleware with slog",
+        "BenchmarkMiddleware_Disabled \u2014 no middleware configured",
+        "BenchmarkMiddleware_NoopProvider \u2014 otel middleware with noop tracer/meter",
+        "BenchmarkMiddleware_RealProvider \u2014 otel middleware with in-memory exporter",
+        "BenchmarkMiddleware_LoggingOnly \u2014 logging middleware with slog",
         "All benchmarks use a noop backend to isolate middleware overhead",
         "Noop provider adds less than 2% overhead compared to disabled",
         "All benchmarks report ns/op and allocs/op",
         "Typecheck passes"
       ],
       "priority": 36,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-408 (Middleware), US-409 (dynagotel), US-410 (logging middleware)"
     }
   ]
