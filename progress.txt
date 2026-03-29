@@ -132,6 +132,10 @@
   - SET uses setNestedPath which creates intermediate maps and does copy-on-write
   - ADD on missing path acts as SET; ADD on number does addition; ADD on sets does union
   - DELETE from missing attribute is a no-op (no error)
+- Import cycle: `internal/expr` imports `dynago` for AttributeValue, so dynago package CANNOT import `internal/expr`. Use `condition.go` helpers (conditionExpr, buildCondition, anyToAttributeValue) instead.
+- `buildQueryRequest` and `buildScanRequest` build complete request structs from configs and handle merging name/value maps
+- `conditionExpr` struct holds expression string + names + values maps; `mergeConditions` combines with AND
+- `buildProjection` in get.go builds projection expression strings from attribute name lists
 ---
 
 ## 2026-03-29 - US-012
@@ -143,4 +147,17 @@
   - Previous agent left many broken untracked files (put.go, delete.go, query.go, scan.go, update.go, iter.go, condition.go) that imported internal/expr and caused the cycle; these were removed
   - stubBackend pattern: implement only the needed method, other methods panic("not implemented")
   - Get returns ErrNotFound (sentinel directly) when response Item is nil or empty map
+---
+
+## 2026-03-29 - US-013/US-014
+- Implemented Query[T] and Scan[T] generic free functions with full option support and automatic pagination
+- KeyCondition builder with Partition() constructor and all sort key modifiers (SortEquals, SortBeginsWith, SortBetween, SortGreaterThan, SortLessThan, SortGreaterOrEqual, SortLessOrEqual)
+- Files changed: query.go (added Query[T], updated QueryLimit to take int), scan.go (added Scan[T], updated ScanLimit to take int), query_test.go (new), scan_test.go (new), prd.json, progress.txt
+- **Learnings for future iterations:**
+  - condition.go already existed with conditionExpr, buildCondition, mergeConditions, anyToAttributeValue, tokenizeExpr - use these for all expression building in dynago package
+  - buildQueryRequest/buildScanRequest handle assembling the full request including merging filter names/values into key condition names/values
+  - KeyCondition uses conditionExpr internally for sort key conditions with fixed placeholder names (:pk0, :sk0, :sk1)
+  - Pagination loop: check LastEvaluatedKey after processing items, set ExclusiveStartKey and adjust Limit for next page
+  - Test stubs embed stubBackend and override specific methods (Query/Scan); capture calls slice for assertions
+  - QueryLimit and ScanLimit take int (not int32) for API ergonomics, convert internally
 ---
