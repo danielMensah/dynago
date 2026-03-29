@@ -449,3 +449,54 @@ func BenchmarkKeyConstruction(b *testing.B) {
 		Key("PK", "user#123", "SK", "order#2024-01-15")
 	}
 }
+
+func BenchmarkKey_HashOnly_String(b *testing.B) {
+	b.ReportAllocs()
+	for b.Loop() {
+		Key("PK", "user#123")
+	}
+}
+
+func BenchmarkKey_HashOnly_Int(b *testing.B) {
+	b.ReportAllocs()
+	for b.Loop() {
+		Key("ID", 42)
+	}
+}
+
+func BenchmarkKey_Mixed_StringInt(b *testing.B) {
+	b.ReportAllocs()
+	for b.Loop() {
+		Key("PK", "user#123", "Version", 7)
+	}
+}
+
+func BenchmarkStringKey(b *testing.B) {
+	b.ReportAllocs()
+	for b.Loop() {
+		StringKey("PK", "user#123")
+	}
+}
+
+func BenchmarkStringPairKey(b *testing.B) {
+	b.ReportAllocs()
+	for b.Loop() {
+		StringPairKey("PK", "user#123", "SK", "order#2024-01-15")
+	}
+}
+
+func BenchmarkKey_WithMap(b *testing.B) {
+	b.ReportAllocs()
+	for b.Loop() {
+		kv := Key("PK", "user#123", "SK", "order#2024-01-15")
+		_ = kv.Map()
+	}
+}
+
+func BenchmarkStringPairKey_WithMap(b *testing.B) {
+	b.ReportAllocs()
+	for b.Loop() {
+		kv := StringPairKey("PK", "user#123", "SK", "order#2024-01-15")
+		_ = kv.Map()
+	}
+}

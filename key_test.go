@@ -1,6 +1,7 @@
 package dynago
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -184,4 +185,50 @@ func TestKey_PanicOnBoolValue(t *testing.T) {
 		}
 	}()
 	Key("Active", true)
+}
+
+func TestStringKey(t *testing.T) {
+	kv := StringKey("PK", "user#123")
+	m := kv.Map()
+
+	if len(m) != 1 {
+		t.Fatalf("expected 1 key, got %d", len(m))
+	}
+	av := m["PK"]
+	if av.Type != TypeS || av.S != "user#123" {
+		t.Fatalf("unexpected PK: %+v", av)
+	}
+}
+
+func TestStringPairKey(t *testing.T) {
+	kv := StringPairKey("PK", "user#123", "SK", "order#2024-01-15")
+	m := kv.Map()
+
+	if len(m) != 2 {
+		t.Fatalf("expected 2 keys, got %d", len(m))
+	}
+	pk := m["PK"]
+	if pk.Type != TypeS || pk.S != "user#123" {
+		t.Fatalf("unexpected PK: %+v", pk)
+	}
+	sk := m["SK"]
+	if sk.Type != TypeS || sk.S != "order#2024-01-15" {
+		t.Fatalf("unexpected SK: %+v", sk)
+	}
+}
+
+func TestKeyEquivalence(t *testing.T) {
+	// Hash-only
+	generic := Key("PK", "val")
+	typed := StringKey("PK", "val")
+	if !reflect.DeepEqual(generic.Map(), typed.Map()) {
+		t.Fatal("StringKey and Key produce different maps")
+	}
+
+	// Hash+range
+	generic2 := Key("PK", "a", "SK", "b")
+	typed2 := StringPairKey("PK", "a", "SK", "b")
+	if !reflect.DeepEqual(generic2.Map(), typed2.Map()) {
+		t.Fatal("StringPairKey and Key produce different maps")
+	}
 }
