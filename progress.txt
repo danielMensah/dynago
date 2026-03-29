@@ -26,6 +26,8 @@
 - `goToAttributeValue(v any)` in builder.go converts Go values to dynago.AttributeValue
 - Reserved words in `internal/reserved.go` as `map[string]bool` with uppercase keys; use `IsReserved(word)` for lookup
 - `ToDynamo(node)` returns (exprString, names, values); `ToDynamoUpdates([]UpdateNode)` groups by action; `ToDynamoProjection(node)` for projections
+- IMPORT CYCLE: `internal/expr` imports `dynago` (for AttributeValue in ValueNode). Do NOT import `internal/expr` from the `dynago` package. Build projection/condition expressions inline instead.
+- `buildProjection(attrs)` in get.go builds projection expressions without importing internal/expr
 - All attribute names get `#name` aliases in expression translation, not just reserved words
 - Value placeholders use `:v0`, `:v1`, etc. with incrementing counter
 - Logical AND/OR wrap operands in parens: `(left) AND (right)`; NOT wraps operand: `NOT (operand)`
@@ -130,4 +132,15 @@
   - SET uses setNestedPath which creates intermediate maps and does copy-on-write
   - ADD on missing path acts as SET; ADD on number does addition; ADD on sets does union
   - DELETE from missing attribute is a no-op (no error)
+---
+
+## 2026-03-29 - US-012
+- Implemented Get[T] generic free function with GetOption (ConsistentRead, Project)
+- Files changed: get.go (new), get_test.go (new), prd.json (updated passes), progress.txt
+- **Learnings for future iterations:**
+  - Cannot import `internal/expr` from `dynago` package due to import cycle (expr imports dynago for AttributeValue)
+  - Projection expressions built inline via `buildProjection()` helper in get.go instead of using expr.ToDynamoProjection
+  - Previous agent left many broken untracked files (put.go, delete.go, query.go, scan.go, update.go, iter.go, condition.go) that imported internal/expr and caused the cycle; these were removed
+  - stubBackend pattern: implement only the needed method, other methods panic("not implemented")
+  - Get returns ErrNotFound (sentinel directly) when response Item is nil or empty map
 ---
