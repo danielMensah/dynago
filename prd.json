@@ -1,696 +1,216 @@
 {
   "project": "DynaGo",
-  "branchName": "ralph/phase2-3-4",
-  "description": "Phases 2-4: Single-table design (Entity, Registry, polymorphic queries), in-memory testing backend (memdb), transactions, batch operations, and pluggable instrumentation middleware",
+  "branchName": "ralph/phase5-polish-launch",
+  "description": "Phase 5: AWS adapter (awsbackend package), API review and GoDoc completeness, documentation (README, migration guide, single-table design guide), Tier 1 CI workflow, GitHub Pages benchmarks, and v0.1.0 release",
   "userStories": [
     {
-      "id": "US-200",
-      "title": "Entity interface and EntityInfo type",
-      "description": "As a developer using single-table design, I need a compile-time contract that ensures every entity type declares its discriminator value, so that missing discriminators are caught at compile time rather than runtime.",
+      "id": "US-500",
+      "title": "AWS adapter — core CRUD operations",
+      "description": "As a developer, I need an AWS adapter that translates DynaGo's library-owned request/response types to AWS SDK v2 calls so I can use DynaGo against real DynamoDB tables.",
       "acceptanceCriteria": [
-        "Entity interface defined with DynagoEntity() EntityInfo method",
-        "EntityInfo struct defined with Discriminator string field",
-        "Interface is exported from the dynago package",
-        "A type that does not implement DynagoEntity() cannot be passed where Entity is required (compile error)",
-        "Unit test: a concrete type implementing Entity returns correct EntityInfo",
+        "awsbackend package in awsbackend/ directory within the main dynago module (single module — no separate go.mod)",
+        "AWS SDK dependencies (github.com/aws/aws-sdk-go-v2/service/dynamodb) added to the root go.mod",
+        "NewAWSBackend(client *dynamodb.Client) *AWSBackend constructor",
+        "AWSBackend implements all 10 dynago.Backend interface methods",
+        "Translates dynago.AttributeValue to/from AWS SDK types.AttributeValue correctly for all types: S, N, B, BOOL, NULL, L, M, SS, NS, BS",
+        "Translates expression AST to DynamoDB expression strings using internal/expr.ToDynamo and ToDynamoUpdates (accessible since awsbackend is in the same module)",
+        "Translates projection expressions using internal/expr.ToDynamoProjection",
+        "Passes through ConsistentRead, ScanIndexForward, Limit, ExclusiveStartKey, IndexName, ReturnValues fields",
+        "Returns LastEvaluatedKey in query/scan responses for pagination",
+        "Maps AWS SDK errors to DynaGo error types (IsCondCheckFailed, IsTxCancelled, etc.)",
+        "Unit tests with a mock AWS client or integration test pattern",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 1,
-      "passes": true,
-      "notes": ""
+      "passes": false,
+      "notes": "Single module architecture — awsbackend can import internal/expr directly. No separate go.mod."
     },
     {
-      "id": "US-201",
-      "title": "Registry implementation",
-      "description": "As a developer, I need a registry that maps discriminator values to Go types so the library can resolve the correct type during polymorphic unmarshaling.",
+      "id": "US-501",
+      "title": "AWS adapter — batch and transaction operations",
+      "description": "As a developer, I need the AWS adapter to support batch and transaction operations so I can use all DynaGo features against real DynamoDB.",
       "acceptanceCriteria": [
-        "NewRegistry(discriminatorAttr string) *Registry constructor",
-        "Registry.Register(e Entity) method \u2014 accepts any type implementing Entity, stores mapping from discriminator string to reflect.Type",
-        "Registry.Register panics if two types register the same discriminator value (programmer error)",
-        "Registry.Lookup(discriminator string) (reflect.Type, bool) returns the registered type",
-        "Registry.DiscriminatorAttr() string returns the attribute name used for discrimination",
-        "Registry is safe for concurrent reads after initialization (no writes after setup)",
-        "Unit tests: register multiple types, lookup by discriminator, panic on duplicate, lookup miss returns false",
+        "BatchGetItem translates keys and projection, handles UnprocessedKeys in response",
+        "BatchWriteItem translates put and delete requests, handles UnprocessedItems in response",
+        "TransactWriteItems translates all operation types (Put, Update, Delete, ConditionCheck) with their conditions",
+        "TransactGetItems translates get operations with projections",
+        "Transaction cancellation errors are mapped to TxCancelledError with per-operation TxCancelReason",
+        "ConsumedCapacity is translated when returned by AWS",
+        "Unit tests for batch and transaction translation",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "Depends on US-200 (Entity interface)"
+      "passes": false,
+      "notes": "Depends on US-500 (awsbackend package and attribute translation)."
     },
     {
-      "id": "US-202",
-      "title": "Table-level registry binding",
-      "description": "As a developer, I need to bind a registry to a table so that polymorphic operations know which discriminator attribute and type mappings to use.",
+      "id": "US-502",
+      "title": "AWS adapter — helper constructor from aws.Config",
+      "description": "As a developer, I need a convenience constructor that creates an AWSBackend from aws.Config so I can set up DynaGo with the standard AWS configuration pattern.",
       "acceptanceCriteria": [
-        "WithRegistry(r *Registry) TableOption functional option",
-        "Table stores an optional *Registry reference",
-        "Table.Registry() *Registry accessor (returns nil if no registry bound)",
-        "Creating a table without WithRegistry works as before (no registry, no polymorphism)",
-        "Unit test: create table with and without registry, verify accessor",
+        "NewFromConfig(cfg aws.Config, opts ...func(*dynamodb.Options)) *AWSBackend constructor",
+        "Creates a dynamodb.Client internally from the config",
+        "Options are passed through to dynamodb.NewFromConfig",
+        "Example in GoDoc showing typical setup: cfg, _ := config.LoadDefaultConfig(ctx); backend := awsbackend.NewFromConfig(cfg)",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "Depends on US-201 (Registry)"
+      "passes": false,
+      "notes": "Depends on US-500 (AWSBackend type exists)."
     },
     {
-      "id": "US-203",
-      "title": "Polymorphic unmarshaling integration",
-      "description": "As a developer, I need the decode pipeline to use the registry's discriminator attribute to resolve the correct Go type when unmarshaling items from collection queries.",
+      "id": "US-503",
+      "title": "API review and GoDoc completeness",
+      "description": "As a developer evaluating DynaGo, I need all public types, functions, and methods to have clear GoDoc comments so I can understand the API from pkg.go.dev without reading source code.",
       "acceptanceCriteria": [
-        "unmarshalPolymorphic(item map[string]AttributeValue, registry *Registry) (any, error) function",
-        "Reads the discriminator attribute from the item, looks up the type in the registry, unmarshals into that type",
-        "Returns a descriptive error if the discriminator attribute is missing from the item",
-        "Returns a descriptive error if the discriminator value is not registered",
-        "Works with all existing field types (strings, numbers, bools, time.Time, slices, maps, nested structs)",
-        "Unit tests: unmarshal User vs Order based on discriminator, missing discriminator error, unknown discriminator error",
-        "Typecheck passes",
-        "Tests pass"
+        "Every exported type has a GoDoc comment explaining its purpose",
+        "Every exported function/method has a GoDoc comment with parameter semantics and return behavior",
+        "Every option type (PutOption, GetOption, QueryOption, ScanOption, etc.) documents what it does",
+        "Error types and sentinel errors document when they occur",
+        "Package-level doc comment on dynago package explains the library's purpose and shows a quick-start example",
+        "Package-level doc comment on awsbackend package shows setup",
+        "Package-level doc comment on memdb (if it exists) or equivalent shows testing usage",
+        "Package-level doc comment on dynagotest shows assertion usage",
+        "Package-level doc comment on dynagotel shows OTel setup",
+        "Run go doc ./... and verify no exported symbols are undocumented",
+        "Consistent naming conventions across the API (verify no inconsistencies in parameter naming, option patterns, etc.)",
+        "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "Depends on US-201 (Registry) and existing Unmarshal pipeline"
+      "passes": false,
+      "notes": "Depends on all prior phases being complete. Review all packages including awsbackend, dynagotest, dynagotel."
     },
     {
-      "id": "US-204",
-      "title": "Polymorphic Put (auto-set discriminator)",
-      "description": "As a developer, I want table.Put to automatically set the discriminator attribute when the table has a registry and the item implements Entity, so I don't have to manually add the discriminator field to every struct.",
+      "id": "US-504",
+      "title": "README with quick-start and examples",
+      "description": "As a developer discovering DynaGo, I need a README that shows what the library does, how to install it, and gives copy-paste examples for common operations.",
       "acceptanceCriteria": [
-        "When table.Put is called with a value implementing Entity and the table has a registry, the discriminator attribute is automatically added to the marshaled item",
-        "The discriminator value comes from calling DynagoEntity().Discriminator on the item",
-        "If the item already has the discriminator attribute set in the struct, the auto-set value takes precedence (ensures consistency)",
-        "If the table has no registry, Put behaves exactly as before (no discriminator logic)",
-        "If the item does not implement Entity but the table has a registry, Put proceeds without setting a discriminator (supports mixed usage)",
-        "Unit tests: put with auto-discriminator, put without registry, put with non-Entity type on registry table",
-        "Typecheck passes",
-        "Tests pass"
+        "README.md in project root with sections: Overview, Installation, Quick Start, Features, Examples, Documentation links",
+        "Quick Start shows: create backend, create DB/Table, Put, Get, Query with 10 lines or fewer",
+        "Features section lists: type-safe generics API, single-table design, in-memory testing, OTel observability",
+        "Examples section covers: basic CRUD, query with filter, single-table design with registry, testing with memdb, OpenTelemetry setup",
+        "Installation shows go get github.com/danielMensah/dynago",
+        "Separate install instructions for dynagotel sub-module",
+        "Badge for CI status, Go Reference (pkg.go.dev), Go Report Card",
+        "Typecheck passes (any Go code in README should be valid)"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "Depends on US-200 (Entity), US-202 (table registry binding)"
+      "passes": false,
+      "notes": "Module path is github.com/danielMensah/dynago. awsbackend is in-module (no separate go get)."
     },
     {
-      "id": "US-205",
-      "title": "SplitKey utility",
-      "description": "As a developer working with composite keys, I need a utility to split delimited key strings into components so I can extract semantic values from keys like ORDER#2024-01-15#abc.",
+      "id": "US-505",
+      "title": "Migration guide from guregu/dynamo",
+      "description": "As a developer currently using guregu/dynamo, I need a migration guide that maps guregu patterns to DynaGo equivalents so I can evaluate switching.",
       "acceptanceCriteria": [
-        "SplitKey(key string, delimiter string) []string \u2014 splits a composite key by the given delimiter",
-        "Delimiter is a parameter (not hardcoded to #) \u2014 teams use #, |, ::, etc.",
-        "Zero-allocation (uses strings.Split which is already optimized)",
-        "Unit tests: split #-delimited key, split |-delimited key, split with no delimiter match returns single-element slice, empty string input",
-        "Typecheck passes",
-        "Tests pass"
+        "docs/migration-from-guregu.md file",
+        "Side-by-side comparison table for common operations: Put, Get, Query, Scan, Delete, Update, BatchGet, BatchWrite",
+        "Struct tag migration section: dynamo tag is compatible but documents any option differences",
+        "Testing migration: from dynamodbiface mocking to dynago.Backend + memdb",
+        "Error handling differences documented",
+        "What's new section highlighting features guregu doesn't have: type-safe generics, single-table design, in-memory backend, OTel",
+        "Code examples are syntactically valid Go"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "No dependencies. ParseKey deferred to post-launch."
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "US-208",
-      "title": "GSI query support",
-      "description": "As a developer, I need to query Global Secondary Indexes through the existing Query[T] API so I can use GSI overloading patterns for single-table design.",
+      "id": "US-506",
+      "title": "Single-table design guide",
+      "description": "As a developer new to single-table design, I need a guide that shows how to model entities, register types, and query heterogeneous collections using DynaGo.",
       "acceptanceCriteria": [
-        "Index(name string) QueryOption functional option",
-        "When Index is set, the QueryRequest includes the IndexName field",
-        "Works with both homogeneous Query[T] and heterogeneous QueryCollection",
-        "The key condition attributes can differ from the table's primary key (GSI key attributes)",
-        "Index also works as a ScanOption for GSI scans",
-        "Unit tests: query GSI with typed results, scan GSI",
-        "AWS adapter passes IndexName through to the SDK correctly",
-        "Typecheck passes",
-        "Tests pass"
+        "docs/single-table-design.md file",
+        "Explains the concept: multiple entity types in one table, composite keys, discriminator attribute",
+        "Concrete example: e-commerce model with User, Order, Product entities",
+        "Shows: defining entities with DynagoEntity(), creating a registry, binding to table",
+        "Shows: key construction with plain functions, SplitKey for parsing",
+        "Shows: QueryCollection for heterogeneous queries, ItemsOf[T] for typed extraction",
+        "Shows: CollectionIter with type switch for streaming processing",
+        "Shows: GSI overloading pattern with Index() option",
+        "Shows: testing the whole pattern with memdb",
+        "Code examples are syntactically valid Go"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": "No dependency on registry; can be implemented independently. QueryCollection integration tested after US-206."
+      "passes": false,
+      "notes": "Depends on Phase 2 stories (Entity, Registry, Collection queries) being implemented."
     },
     {
-      "id": "US-206",
-      "title": "Heterogeneous collection query",
-      "description": "As a developer using single-table design, I need to query a partition and receive results grouped by entity type, so I can access typed slices of Users, Orders, etc. from a single query.",
+      "id": "US-507",
+      "title": "Tier 1 core CI workflow",
+      "description": "As a library maintainer, I need a CI workflow that runs tests, linting, and benchmarks on every push so regressions are caught immediately.",
       "acceptanceCriteria": [
-        "Collection type that holds a list of polymorphically unmarshaled items",
-        "QueryCollection(ctx, table, key KeyCondition, opts ...QueryOption) (*Collection, error) free function",
-        "Uses the table's registry to unmarshal each item into its correct Go type",
-        "Returns an error if the table has no registry",
-        "ItemsOf[T](collection *Collection) []T generic function that filters and returns items of type T",
-        "Items with unrecognized discriminators are silently skipped (not an error \u2014 allows schema evolution)",
-        "Unit tests: query partition with mixed User/Order items, extract typed slices, empty partition returns empty collection",
-        "Typecheck passes",
-        "Tests pass"
+        ".github/workflows/ci.yml workflow file",
+        "Triggers on push and pull_request",
+        "Runs go test ./... -race -count=1 (excluding conformance/integration tags)",
+        "Runs go vet ./...",
+        "Runs staticcheck ./... (or golangci-lint)",
+        "Runs go test ./... -bench=. -benchmem -run=^$ -count=3 | tee bench.txt",
+        "Uploads bench.txt as artifact",
+        "Uses Go 1.23",
+        "Also tests awsbackend/, dynagotest/ packages (in-module) and dynagotel/, benchmarks/ sub-modules",
+        "Matrix strategy for Go 1.23 and latest stable Go version",
+        "Typecheck passes"
       ],
       "priority": 8,
-      "passes": true,
-      "notes": "Depends on US-203 (polymorphic unmarshal), US-202 (table registry)"
+      "passes": false,
+      "notes": "Depends on all packages existing. dynagotel/ and benchmarks/ are separate modules — CI must cd into them and run go test separately."
     },
     {
-      "id": "US-207",
-      "title": "Heterogeneous collection iterator (range over func)",
-      "description": "As a developer, I need an iterator over heterogeneous collection results so I can process mixed-type items one at a time using a type switch, especially for large result sets.",
+      "id": "US-509",
+      "title": "GitHub Pages benchmark publishing",
+      "description": "As a library maintainer, I need benchmark results published to GitHub Pages with historical tracking so I can detect performance regressions over time.",
       "acceptanceCriteria": [
-        "CollectionIter(ctx, table, key KeyCondition, opts ...QueryOption) iter.Seq2[any, error] free function",
-        "Yields (value any, err error) pairs \u2014 each value is the concrete registered type",
-        "Usable with for item, err := range CollectionIter(...) syntax",
-        "A non-nil error is yielded as the final value; iteration stops after error",
-        "Supports pagination (fetches next page automatically when current page exhausted)",
-        "Items with unrecognized discriminators are skipped during iteration",
-        "Unit tests: iterate mixed items with type switch, pagination across pages, error yields correctly, range-for usage",
-        "Typecheck passes",
-        "Tests pass"
+        "benchmark-action/github-action-benchmark integrated into the Tier 1 CI workflow",
+        "Benchmark results from bench.txt are pushed to a gh-pages branch",
+        "Historical chart is accessible at the repo's GitHub Pages URL",
+        "Alert threshold set to 120% — PRs that regress beyond 20% get a comment",
+        "auto-push: true for benchmark data on main branch pushes",
+        "comment-on-alert: true for PR notifications",
+        "Typecheck passes"
       ],
       "priority": 9,
-      "passes": true,
-      "notes": "Depends on US-206 (Collection type), US-203 (polymorphic unmarshal). Uses iter.Seq2[any, error] pattern matching existing QueryIter/ScanIter."
+      "passes": false,
+      "notes": "Depends on US-507 (CI workflow that produces bench.txt). Requires GitHub Pages enabled on the repo."
     },
     {
-      "id": "US-209",
-      "title": "Verify iterators use range over func",
-      "description": "As a developer, I want all iterators in the library to use Go 1.23's range over func pattern so there is one consistent iteration idiom across the entire API.",
+      "id": "US-510",
+      "title": "Release preparation",
+      "description": "As a library maintainer, I need the repository to be release-ready with proper module paths, license, and clean dependencies.",
       "acceptanceCriteria": [
-        "QueryIter[T] returns iter.Seq2[T, error]",
-        "ScanIter[T] returns iter.Seq2[T, error]",
-        "Both support automatic pagination",
-        "Error on final yield signals end of iteration; breaking out of the loop early is safe",
-        "Query[T] and Scan[T] convenience functions internally consume the iterator",
-        "No old .Next() / .Err() iterator types exist",
-        "Typecheck passes",
-        "Tests pass"
+        "go.mod has the correct module path (github.com/danielMensah/dynago)",
+        "Sub-modules with separate go.mod (dynagotel/, benchmarks/) have correct require directives",
+        "In-module packages (awsbackend/, dynagotest/) have no separate go.mod — they're part of the root module",
+        "go.sum is clean and committed",
+        "MIT LICENSE file exists at repo root",
+        "No TODO or FIXME comments in shipped code (audit and resolve or convert to GitHub issues)",
+        "No test-only files in the wrong packages",
+        "go vet ./... passes on all modules",
+        ".gitignore covers standard Go artifacts",
+        "Typecheck passes"
       ],
       "priority": 10,
-      "passes": true,
-      "notes": "Already implemented in Phase 1 US-016. QueryIter and ScanIter already use iter.Seq2[T, error] in iter.go."
+      "passes": false,
+      "notes": "Final audit before tagging. License is MIT."
     },
     {
-      "id": "US-300",
-      "title": "MemDB core structure and table management",
-      "description": "As a developer writing tests, I need an in-memory DynamoDB backend that can create tables with key schema so I can run tests without Docker or network.",
+      "id": "US-511",
+      "title": "Tag v0.1.0 and publish",
+      "description": "As a library maintainer, I need to tag v0.1.0 and create a GitHub release so the module is discoverable on pkg.go.dev.",
       "acceptanceCriteria": [
-        "memdb package under the project root (not internal \u2014 users import it directly)",
-        "NewMemoryBackend() *MemoryBackend constructor",
-        "MemoryBackend implements the dynago.Backend interface (stub/error for unimplemented methods initially)",
-        "CreateTable(name string, schema dynago.TableSchema) method for test setup",
-        "TableSchema struct with HashKey, RangeKey (optional), and GSIs slice",
-        "KeyDef struct with Name string and Type KeyType (String, Number, Binary)",
-        "GSISchema struct with Name, HashKey, RangeKey (optional)",
-        "Items stored as map[string]dynago.AttributeValue internally, indexed by hash key (and range key if present)",
-        "CreateTable panics if table already exists (test setup error)",
-        "Concurrency: sync.RWMutex per table for safe t.Parallel() usage",
-        "Unit tests: create table, create table with range key, create table with GSI, panic on duplicate",
-        "Typecheck passes",
-        "Tests pass"
+        "Git tag v0.1.0 on main branch",
+        "Sub-module tag: dynagotel/v0.1.0 (only separate module needs its own tag)",
+        "GitHub release created with changelog summarizing all features",
+        "Changelog organized by category: Core API, Single-Table Design, Testing Backend, Transactions & Batches, Observability, AWS Adapter",
+        "Module is fetchable via go get github.com/danielMensah/dynago@v0.1.0",
+        "pkg.go.dev page renders correctly with GoDoc"
       ],
       "priority": 11,
-      "passes": true,
-      "notes": "Phase 3 starts here. No dependency on Phase 2 stories for the memdb structure itself."
-    },
-    {
-      "id": "US-301",
-      "title": "MemDB GetItem and PutItem",
-      "description": "As a developer writing tests, I need GetItem and PutItem to work in the in-memory backend so I can test basic CRUD operations.",
-      "acceptanceCriteria": [
-        "PutItem stores items indexed by their hash key (and range key if table has one)",
-        "PutItem validates that the item contains the required hash key (and range key if defined)",
-        "PutItem returns an error if required key attributes are missing or wrong type",
-        "PutItem supports condition expressions \u2014 evaluates the AST from the request against the existing item (if any)",
-        "PutItem returns ConditionalCheckFailedException-equivalent error when condition fails",
-        "GetItem returns the item matching the key, or an empty response (not error) if not found",
-        "GetItem supports projection expressions \u2014 evaluates the AST to return only requested attributes",
-        "GetItem supports ConsistentRead (accepted but no behavioral difference in memdb)",
-        "Items are stored by value (mutations to the returned item don't affect stored data)",
-        "Write operations acquire write lock; read operations acquire read lock",
-        "Unit tests: put and get round-trip, put with condition (success and failure), get with projection, get missing item, concurrent put/get",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 12,
-      "passes": true,
-      "notes": "Depends on US-300 (memdb core). Uses internal/expr Eval for condition expressions."
-    },
-    {
-      "id": "US-302",
-      "title": "MemDB DeleteItem",
-      "description": "As a developer writing tests, I need DeleteItem in the in-memory backend so I can test delete operations with condition expressions.",
-      "acceptanceCriteria": [
-        "DeleteItem removes the item matching the key",
-        "DeleteItem supports condition expressions (evaluated before deletion)",
-        "DeleteItem returns the old item if ReturnValues is set to ALL_OLD",
-        "DeleteItem is a no-op (not an error) if the item doesn't exist (matches DynamoDB behavior)",
-        "DeleteItem with a condition on a non-existent item fails the condition check (matches DynamoDB)",
-        "Unit tests: delete existing item, delete with condition, delete non-existent item, delete with return old values",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 13,
-      "passes": true,
-      "notes": "Depends on US-300 (memdb core)"
-    },
-    {
-      "id": "US-303",
-      "title": "MemDB UpdateItem",
-      "description": "As a developer writing tests, I need UpdateItem in the in-memory backend so I can test update expressions (SET, ADD, REMOVE, DELETE) against in-memory data.",
-      "acceptanceCriteria": [
-        "UpdateItem applies update expression AST nodes to the stored item",
-        "Supports SET (overwrite attribute), ADD (increment number or add to set), REMOVE (delete attribute), DELETE (remove elements from set)",
-        "Supports condition expressions evaluated before the update is applied",
-        "Creates the item if it doesn't exist (upsert behavior, matching DynamoDB)",
-        "Returns the updated item if ReturnValues is set to ALL_NEW",
-        "Returns the old item if ReturnValues is set to ALL_OLD",
-        "Validates that required key attributes are present",
-        "Uses the expression evaluator from internal/expr (specifically EvalUpdate)",
-        "Unit tests: SET field, ADD to number, ADD to set, REMOVE field, DELETE from set, upsert, condition check failure, return values",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 14,
-      "passes": true,
-      "notes": "Depends on US-300 (memdb core). Critical for conformance suite \u2014 Update is a Phase 1 public API surface."
-    },
-    {
-      "id": "US-306",
-      "title": "MemDB GSI maintenance",
-      "description": "As a developer writing tests, I need GSI indexes to be automatically maintained when items are written, so that GSI queries return correct results.",
-      "acceptanceCriteria": [
-        "When an item is put, updated, or deleted, all GSI indexes on the table are updated",
-        "GSI entries are keyed by the GSI's hash key (and range key if defined)",
-        "Items missing the GSI hash key attribute are not indexed in that GSI (matches DynamoDB)",
-        "GSI items store all attributes (full projection for simplicity)",
-        "Unit tests: put item and query via GSI, update item and verify GSI reflects change, delete item and verify GSI entry removed, item missing GSI key not in index",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 15,
-      "passes": true,
-      "notes": "Depends on US-301 (PutItem), US-302 (DeleteItem), US-303 (UpdateItem). Must be done before Query/Scan since they need GSI support."
-    },
-    {
-      "id": "US-304",
-      "title": "MemDB Query",
-      "description": "As a developer writing tests, I need Query in the in-memory backend so I can test partition queries with sort key conditions and filter expressions.",
-      "acceptanceCriteria": [
-        "Query scans the table (or GSI) for items matching the partition key",
-        "Applies sort key condition: equals, begins_with, between, less_than, greater_than, less_than_or_equal, greater_than_or_equal",
-        "Applies filter expression AST to post-filter results",
-        "Applies projection expression to limit returned attributes",
-        "Supports ScanIndexForward (ascending/descending sort)",
-        "Supports Limit \u2014 returns at most N items (limit applies to items read before filter, matching DynamoDB semantics)",
-        "Returns LastEvaluatedKey when limit is reached (pagination support)",
-        "Accepts ExclusiveStartKey for pagination continuation",
-        "When querying a GSI, reads from the GSI's projected items (full projection \u2014 all attributes copied to GSI)",
-        "Returns ScannedCount and Count in response",
-        "Unit tests: basic partition query, sort key conditions (each type), filter expression, pagination with limit, descending order, GSI query, empty results",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 16,
-      "passes": true,
-      "notes": "Depends on US-301 (PutItem for data), US-306 (GSI maintenance for GSI queries)"
-    },
-    {
-      "id": "US-305",
-      "title": "MemDB Scan",
-      "description": "As a developer writing tests, I need Scan in the in-memory backend so I can test full-table scans with filter expressions.",
-      "acceptanceCriteria": [
-        "Scan iterates all items in the table (or GSI)",
-        "Applies filter expression AST to each item",
-        "Applies projection expression to limit returned attributes",
-        "Supports Limit and pagination (LastEvaluatedKey / ExclusiveStartKey)",
-        "Supports IndexName for GSI scans",
-        "Returns ScannedCount and Count",
-        "Unit tests: full scan, scan with filter, scan with limit and pagination, GSI scan",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 17,
-      "passes": true,
-      "notes": "Depends on US-301 (PutItem for data), US-306 (GSI maintenance)"
-    },
-    {
-      "id": "US-307",
-      "title": "Test helper package \u2014 seed utilities",
-      "description": "As a developer writing tests, I need seed utilities to quickly populate the in-memory backend with test data so I can focus on testing behavior rather than setup.",
-      "acceptanceCriteria": [
-        "dynagotest package (separate sub-package, importable as dynago/dynagotest)",
-        "Seed(ctx, table *dynago.Table, items []any) error \u2014 marshals and puts each item",
-        "SeedFromJSON(ctx, table *dynago.Table, path string) error \u2014 reads a JSON file in DynamoDB JSON format and seeds items",
-        "DynamoDB JSON format only (with type descriptors: {\"S\": \"value\"}, {\"N\": \"42\"}, {\"SS\": [\"a\",\"b\"]}, etc.) \u2014 no flat JSON with type inference",
-        "File format: JSON array of objects, each object uses DynamoDB's AttributeValue type descriptors",
-        "Seed returns an error if any put fails (wraps the first error with item index context)",
-        "Unit tests: seed from slice, seed from JSON file, seed with invalid item",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 18,
-      "passes": true,
-      "notes": "Depends on US-301 (PutItem working in memdb). DynamoDB JSON chosen for unambiguous types and aws cli compatibility."
-    },
-    {
-      "id": "US-308",
-      "title": "Test helper package \u2014 assertions",
-      "description": "As a developer writing tests, I need assertion helpers that check item state in the backend so I can write expressive, readable test assertions.",
-      "acceptanceCriteria": [
-        "AssertItemExists(t testing.TB, table *dynago.Table, key dynago.KeyValue, opts ...AssertOption) \u2014 fails the test if item doesn't exist",
-        "AssertItemNotExists(t testing.TB, table *dynago.Table, key dynago.KeyValue) \u2014 fails the test if item exists",
-        "HasAttribute(name string, expected any) AssertOption \u2014 asserts a specific attribute value",
-        "AssertCount(t testing.TB, table *dynago.Table, key dynago.KeyCondition, expected int) \u2014 asserts the number of items matching a query",
-        "All assertions use t.Helper() so failure messages point to the caller",
-        "All assertions produce clear failure messages including expected vs actual values",
-        "Unit tests for each assertion function (positive and negative cases)",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 19,
-      "passes": true,
-      "notes": "Depends on US-301 (GetItem), US-304 (Query for AssertCount)"
-    },
-    {
-      "id": "US-309",
-      "title": "Tier 1 MemDB benchmarks",
-      "description": "As a library maintainer, I need benchmarks for the in-memory backend to validate that memdb query performance meets the < 1ms target for 100 items and to catch regressions.",
-      "acceptanceCriteria": [
-        "BenchmarkMemDB_EvalSimpleFilter \u2014 single equality check against an item",
-        "BenchmarkMemDB_EvalComplexFilter \u2014 5+ conditions with AND/OR",
-        "BenchmarkMemDB_EvalNestedPath \u2014 path traversal (e.g., Address.City)",
-        "BenchmarkMemDB_EvalFunctionCall \u2014 begins_with, contains, size",
-        "BenchmarkMemDB_Query_100Items \u2014 query returning 100 items from a 1000-item table",
-        "BenchmarkMemDB_Query_1000Items \u2014 query returning 1000 items",
-        "BenchmarkMemDB_ScanWithFilter_10000Items \u2014 10k items, filter matches 10%",
-        "BenchmarkMemDB_ConcurrentReads \u2014 parallel GetItem on shared table",
-        "BenchmarkMemDB_ConcurrentMixedReadWrite \u2014 80% reads, 20% writes",
-        "All benchmarks use b.ReportAllocs()",
-        "100-item query benchmark completes in under 1ms per operation",
-        "Typecheck passes"
-      ],
-      "priority": 20,
-      "passes": true,
-      "notes": "Depends on US-304 (Query), US-305 (Scan). Benchmarks live in memdb/ package."
-    },
-    {
-      "id": "US-310",
-      "title": "Tier 2 conformance test suite",
-      "description": "As a library maintainer, I need a conformance test suite that runs identical assertions against both the in-memory backend and DynamoDB Local, ensuring memdb correctly simulates DynamoDB behavior.",
-      "acceptanceCriteria": [
-        "Tests gated behind //go:build conformance build tag",
-        "backends(t) helper returns memdb always, plus AWS backend when DYNAMODB_LOCAL_ENDPOINT is set",
-        "Each test runs against all available backends via t.Run(backendName, ...)",
-        "Conformance tests cover: put/get round-trip, condition expressions (attribute_exists, attribute_not_exists), update expressions (SET, ADD, REMOVE, DELETE), query with sort key conditions (equals, begins_with, between), query with filter, query pagination, scan with filter, scan pagination, delete with condition, type marshaling (strings, numbers, bools, time.Time, slices, maps, nested structs, sets)",
-        "Empty partition query returns empty slice (not error)",
-        "SortBetween with equal bounds returns items with that exact sort key",
-        "Limit(1) returns pagination token",
-        "All conformance tests pass against memdb",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 21,
-      "passes": true,
-      "notes": "Depends on US-301 through US-305 (all core memdb operations). Phase 3 exit criterion."
-    },
-    {
-      "id": "US-311",
-      "title": "Conformance CI workflow",
-      "description": "As a library maintainer, I need a CI workflow that runs the conformance suite against DynamoDB Local on every push so regressions are caught automatically.",
-      "acceptanceCriteria": [
-        ".github/workflows/conformance.yml workflow file",
-        "Triggers on push and pull_request",
-        "Uses amazon/dynamodb-local:latest as a Docker service container on port 8000",
-        "Sets DYNAMODB_LOCAL_ENDPOINT=http://localhost:8000 environment variable",
-        "Runs go test ./... -tags=conformance -race",
-        "Uses Go 1.23",
-        "Typecheck passes"
-      ],
-      "priority": 22,
-      "passes": true,
-      "notes": "Depends on US-310 (conformance tests exist to run)"
-    },
-    {
-      "id": "US-312",
-      "title": "Fuzz testing for encoding and expression evaluation",
-      "description": "As a library maintainer, I need fuzz tests to discover edge cases in encoding round-trips and expression evaluation that unit tests miss.",
-      "acceptanceCriteria": [
-        "FuzzEncodeDecodeRoundTrip \u2014 fuzzes string, int64, bool fields through marshal/unmarshal and asserts equality",
-        "FuzzExpressionEval \u2014 fuzzes attribute values through expression evaluator and asserts no panics",
-        "Fuzz tests are in appropriate _test.go files",
-        "Fuzz tests run successfully with go test -fuzz=Fuzz -fuzztime=10s (short sanity check)",
-        ".github/workflows/fuzz.yml nightly workflow running go test ./... -fuzz=Fuzz -fuzztime=30m",
-        "Typecheck passes"
-      ],
-      "priority": 23,
-      "passes": true,
-      "notes": "No dependency on memdb \u2014 fuzzes the core encoding and expr packages."
-    },
-    {
-      "id": "US-400",
-      "title": "Write transaction builder",
-      "description": "As a developer, I need a fluent transaction builder for write transactions so I can compose multi-item atomic operations (put, update, delete, condition check) in a type-safe way.",
-      "acceptanceCriteria": [
-        "WriteTx(ctx context.Context, db *DB) *WriteTxBuilder constructor",
-        "WriteTxBuilder.Put(table *Table, item any, opts ...PutOption) *WriteTxBuilder \u2014 adds a put operation",
-        "WriteTxBuilder.Update(table *Table, key KeyValue, opts ...UpdateOption) *WriteTxBuilder \u2014 adds an update operation",
-        "WriteTxBuilder.Delete(table *Table, key KeyValue, opts ...DeleteOption) *WriteTxBuilder \u2014 adds a delete operation",
-        "WriteTxBuilder.Check(table *Table, key KeyValue, condition ConditionOption) *WriteTxBuilder \u2014 adds a condition check",
-        "WriteTxBuilder.Run() error \u2014 executes the transaction via Backend.TransactWriteItems",
-        "Maximum 100 operations per transaction (return error if exceeded before calling backend)",
-        "Each operation builds its own expression AST (conditions, updates) independently",
-        "Unit tests: build a transaction with mixed operations, exceed 100 ops error, empty transaction",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 24,
-      "passes": true,
-      "notes": "Phase 4 starts here. Uses existing Backend.TransactWriteItems."
-    },
-    {
-      "id": "US-401",
-      "title": "Read transaction builder",
-      "description": "As a developer, I need a read transaction builder for consistent reads across multiple items so I can get a point-in-time snapshot of several items atomically.",
-      "acceptanceCriteria": [
-        "ReadTx(ctx context.Context, db *DB) *ReadTxBuilder constructor",
-        "ReadTxBuilder.Get(table *Table, key KeyValue, opts ...GetOption) *ReadTxBuilder \u2014 adds a get operation",
-        "ReadTxBuilder.Run() (*ReadTxResult, error) \u2014 executes via Backend.TransactGetItems",
-        "ReadTxResult.Item(index int) (map[string]AttributeValue, bool) \u2014 returns the item at position index",
-        "GetAs[T](result *ReadTxResult, index int) (T, error) \u2014 generic helper to unmarshal item at index into type T",
-        "Maximum 100 operations per transaction",
-        "Unit tests: read transaction with multiple gets, unmarshal results, empty result for missing item",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 25,
-      "passes": true,
-      "notes": "Uses existing Backend.TransactGetItems."
-    },
-    {
-      "id": "US-402",
-      "title": "Transaction error decomposition",
-      "description": "As a developer, I need structured error handling for transaction failures so I can determine which operation failed and why, rather than parsing error strings.",
-      "acceptanceCriteria": [
-        "IsTxCancelled(err error) bool \u2014 checks if the error is a transaction cancellation",
-        "TxCancelReasons(err error) []TxCancelReason \u2014 extracts per-operation failure reasons",
-        "TxCancelReason struct with Code string (e.g., ConditionalCheckFailed) and Message string",
-        "Works with errors returned from both the AWS adapter and memdb",
-        "TxCancelledError type that wraps the individual reasons",
-        "Unit tests: parse cancellation with multiple reasons, non-tx error returns nil reasons",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 26,
-      "passes": true,
-      "notes": "Extends existing error types from Phase 1 (errors.go). IsTxCancelled already exists as a sentinel check."
-    },
-    {
-      "id": "US-406",
-      "title": "MemDB transaction support",
-      "description": "As a developer writing tests, I need the in-memory backend to support TransactWriteItems and TransactGetItems so I can test transaction logic without DynamoDB.",
-      "acceptanceCriteria": [
-        "TransactWriteItems executes all write operations atomically (all-or-nothing)",
-        "Evaluates condition expressions for each operation; if any condition fails, the entire transaction is cancelled",
-        "Returns a TxCancelledError with per-operation reasons on failure",
-        "TransactGetItems reads multiple items in a single atomic snapshot",
-        "Holds write lock for the entire transaction duration (atomicity)",
-        "Supports Put, Update, Delete, and ConditionCheck operations within a transaction",
-        "Maximum 100 operations enforced",
-        "Unit tests: successful write tx, condition failure cancels all, read tx returns consistent snapshot, 100-op limit",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 27,
-      "passes": true,
-      "notes": "Depends on US-301-303 (memdb CRUD), US-402 (TxCancelledError type)"
-    },
-    {
-      "id": "US-403",
-      "title": "ReadModifyWrite with optimistic locking",
-      "description": "As a developer, I need a read-modify-write helper with automatic optimistic locking so I can safely update items without manual version checking.",
-      "acceptanceCriteria": [
-        "ReadModifyWrite[T any](ctx, table, key KeyValue, fn func(*T) error, opts ...RMWOption) error",
-        "Reads the item, calls fn with a pointer to the decoded item, then puts the modified item back",
-        "OptimisticLock(versionAttr string) RMWOption \u2014 auto-increments the version field and adds a condition expression checking the old version",
-        "Retries automatically on condition check failure (optimistic lock contention), up to a configurable max (default 3)",
-        "MaxRetries(n int) RMWOption \u2014 configures retry count",
-        "Returns the condition check error if all retries exhausted",
-        "If fn returns an error, the write is aborted and the error is returned",
-        "Unit tests: successful RMW, concurrent RMW with retries, fn returns error, max retries exceeded",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 28,
-      "passes": true,
-      "notes": "Uses Get[T] and table.Put internally. Best tested with memdb (US-301)."
-    },
-    {
-      "id": "US-404",
-      "title": "Batch write with auto-chunking",
-      "description": "As a developer, I need batch write operations that automatically chunk requests into DynamoDB's 25-item limit and handle unprocessed items.",
-      "acceptanceCriteria": [
-        "table.BatchPut(ctx, items []any, opts ...BatchOption) error \u2014 method on Table",
-        "table.BatchDelete(ctx, keys []KeyValue, opts ...BatchOption) error \u2014 method on Table",
-        "Automatically chunks into groups of 25 (DynamoDB batch limit)",
-        "Retries unprocessed items with exponential backoff",
-        "OnProgress(fn func(completed, total int)) BatchOption \u2014 progress callback",
-        "MaxConcurrency(n int) BatchOption \u2014 limits concurrent chunk requests (default 1, sequential)",
-        "Returns a combined error if any chunk fails after retries",
-        "Unit tests: batch put < 25 items, batch put > 25 items (chunking), progress callback invoked correctly, batch delete",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 29,
-      "passes": true,
-      "notes": "Uses Backend.BatchWriteItem. Chunking and retry logic is library-level."
-    },
-    {
-      "id": "US-405",
-      "title": "Batch get with type safety",
-      "description": "As a developer, I need a type-safe batch get that retrieves multiple items by key and returns them as a typed slice.",
-      "acceptanceCriteria": [
-        "BatchGet[T any](ctx, table *Table, keys []KeyValue, opts ...BatchGetOption) ([]T, error) free function",
-        "Automatically chunks into groups of 100 (DynamoDB BatchGetItem limit)",
-        "Retries unprocessed keys with exponential backoff",
-        "Returns results in arbitrary order (matches DynamoDB behavior \u2014 no ordering guarantee)",
-        "Supports projection expressions via options",
-        "Unit tests: batch get < 100 keys, batch get > 100 keys, unprocessed key retry, projection",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 30,
-      "passes": true,
-      "notes": "Uses Backend.BatchGetItem. Free function because return type needs generic parameter."
-    },
-    {
-      "id": "US-407",
-      "title": "MemDB batch support",
-      "description": "As a developer writing tests, I need the in-memory backend to support BatchGetItem and BatchWriteItem so I can test batch operations.",
-      "acceptanceCriteria": [
-        "BatchWriteItem executes put and delete operations in a batch",
-        "Does not support condition expressions (matches DynamoDB BatchWriteItem behavior)",
-        "Maximum 25 operations per request enforced",
-        "BatchGetItem retrieves multiple items by key",
-        "Maximum 100 keys per request enforced",
-        "Returns all items found; missing items are silently omitted (matches DynamoDB)",
-        "No UnprocessedItems/UnprocessedKeys in memdb (everything succeeds immediately)",
-        "Unit tests: batch write, batch get, batch get with missing items, size limit enforcement",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 31,
-      "passes": true,
-      "notes": "Depends on US-301-302 (memdb PutItem/DeleteItem/GetItem)"
-    },
-    {
-      "id": "US-408",
-      "title": "Instrumentation middleware",
-      "description": "As a developer, I need a pluggable instrumentation middleware that wraps the Backend interface so I can add observability (tracing, metrics, logging) without modifying the core library.",
-      "acceptanceCriteria": [
-        "Middleware func(Backend) Backend type definition",
-        "DB accepts middleware via WithMiddleware(m ...Middleware) Option",
-        "Middleware is applied in order: the last middleware in the list is the outermost wrapper",
-        "Each middleware wraps all 10 Backend methods",
-        "OperationInfo struct available in middleware context: TableName, OperationName (e.g., GetItem, Query), IndexName (if applicable)",
-        "Unit test: middleware that counts calls, verify it intercepts all operations",
-        "Unit test: multiple middleware applied in correct order",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 32,
-      "passes": true,
-      "notes": "Core library change \u2014 no external dependencies. Foundation for US-409 and US-410."
-    },
-    {
-      "id": "US-409",
-      "title": "OpenTelemetry reference implementation (dynagotel)",
-      "description": "As a developer using OpenTelemetry, I need a reference middleware implementation that emits spans and metrics so I can monitor DynamoDB operations in production.",
-      "acceptanceCriteria": [
-        "dynagotel package in dynagotel/ directory with its own go.mod \u2014 separate module so otel dependencies are never transitive for core library users",
-        "dynagotel/go.mod requires the core dynago module at a compatible version",
-        "NewMiddleware(opts ...Option) dynago.Middleware constructor",
-        "WithTracer(tracer trace.Tracer) Option",
-        "WithMeter(meter metric.Meter) Option",
-        "Emits a span per operation with attributes: db.system=dynamodb, db.operation, db.name (table)",
-        "Records dynago.consumed_capacity.total on spans when available",
-        "Emits dynago.operations.total counter metric",
-        "Emits dynago.latency histogram metric",
-        "Noop-safe: if tracer/meter is nil, middleware is a passthrough (no panics)",
-        "Unit tests with in-memory span/metric exporters to verify emitted telemetry",
-        "Tagged independently from core module (e.g., dynagotel/v0.1.0)",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 33,
-      "passes": true,
-      "notes": "Depends on US-408 (Middleware type). Separate go.mod isolates otel dependency. Package name is dynagotel (flat), not otel."
-    },
-    {
-      "id": "US-410",
-      "title": "Structured logging middleware",
-      "description": "As a developer, I need a logging middleware that logs slow operations using slog so I can identify performance issues without full tracing.",
-      "acceptanceCriteria": [
-        "LoggingMiddleware(logger *slog.Logger, opts ...LogOption) Middleware function in root dynago package",
-        "LogSlowOperations(threshold time.Duration) LogOption for the logging middleware",
-        "Logs operations exceeding the threshold at WARN level",
-        "Log attributes: operation, table, duration, consumed_rcu (if available), consumed_wcu (if available)",
-        "All operations are logged at DEBUG level regardless of duration",
-        "Unit test: verify slow operations logged at WARN, fast operations at DEBUG",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 34,
-      "passes": true,
-      "notes": "Depends on US-408 (Middleware type). No external dependencies \u2014 uses stdlib slog."
-    },
-    {
-      "id": "US-411",
-      "title": "Tier 3 comparative benchmarks",
-      "description": "As a library maintainer, I need comparative benchmarks against guregu/dynamo and the raw AWS SDK to validate that DynaGo's performance overhead is within acceptable bounds.",
-      "acceptanceCriteria": [
-        "Benchmark module in benchmarks/ directory with separate go.mod to isolate guregu/dynamo dependency",
-        "Compares encoding and decoding across struct complexity levels: Small (5 fields), Medium (15 fields), Large (30 fields), Nested (3 levels), WithSets",
-        "Each size tested with DynaGo Marshal/Unmarshal, guregu MarshalItem/UnmarshalItem, AWS SDK MarshalMap/UnmarshalMap",
-        "All benchmarks report ns/op, bytes/op, allocs/op via b.ReportAllocs()",
-        ".github/workflows/benchmarks-weekly.yml running weekly + on version tags",
-        "Uses benchmark-action/github-action-benchmark for tracking and regression alerts at 120% threshold",
-        "Typecheck passes"
-      ],
-      "priority": 35,
-      "passes": true,
-      "notes": "Separate go.mod in benchmarks/ isolates guregu/dynamo and AWS SDK dependencies."
-    },
-    {
-      "id": "US-412",
-      "title": "Observability overhead benchmarks",
-      "description": "As a library maintainer, I need benchmarks measuring the overhead of the instrumentation middleware to ensure observability doesn't degrade performance.",
-      "acceptanceCriteria": [
-        "BenchmarkMiddleware_Disabled \u2014 no middleware configured",
-        "BenchmarkMiddleware_NoopProvider \u2014 otel middleware with noop tracer/meter",
-        "BenchmarkMiddleware_RealProvider \u2014 otel middleware with in-memory exporter",
-        "BenchmarkMiddleware_LoggingOnly \u2014 logging middleware with slog",
-        "All benchmarks use a noop backend to isolate middleware overhead",
-        "Noop provider adds less than 2% overhead compared to disabled",
-        "All benchmarks report ns/op and allocs/op",
-        "Typecheck passes"
-      ],
-      "priority": 36,
-      "passes": true,
-      "notes": "Depends on US-408 (Middleware), US-409 (dynagotel), US-410 (logging middleware)"
+      "passes": false,
+      "notes": "Depends on all other Phase 5 stories being complete. This is the final story."
     }
   ]
 }
