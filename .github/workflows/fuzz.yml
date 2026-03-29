@@ -1,0 +1,40 @@
+name: Fuzz Testing
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # Run nightly at 3 AM UTC
+  workflow_dispatch: {}  # Allow manual trigger
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        fuzz-target:
+          - name: FuzzEncodeDecodeRoundTrip
+            package: ./
+          - name: FuzzExpressionEval
+            package: ./internal/expr
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Run ${{ matrix.fuzz-target.name }}
+        run: |
+          go test ${{ matrix.fuzz-target.package }} \
+            -fuzz=${{ matrix.fuzz-target.name }} \
+            -fuzztime=2m \
+            -race
+
+      - name: Upload crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crashes-${{ matrix.fuzz-target.name }}
+          path: |
+            **/testdata/fuzz/
+          retention-days: 30

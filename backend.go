@@ -121,6 +121,7 @@ type QueryRequest struct {
 type QueryResponse struct {
 	Items            []map[string]AttributeValue
 	Count            int32
+	ScannedCount     int32
 	LastEvaluatedKey map[string]AttributeValue
 	ConsumedCapacity *ConsumedCapacity
 }
@@ -144,6 +145,7 @@ type ScanRequest struct {
 type ScanResponse struct {
 	Items            []map[string]AttributeValue
 	Count            int32
+	ScannedCount     int32
 	LastEvaluatedKey map[string]AttributeValue
 	ConsumedCapacity *ConsumedCapacity
 }

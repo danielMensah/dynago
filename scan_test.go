@@ -244,6 +244,103 @@ func TestScan_BackendError(t *testing.T) {
 	}
 }
 
+func TestScan_GSI(t *testing.T) {
+	sb := newScanStub(func(_ context.Context, req *ScanRequest) (*ScanResponse, error) {
+		if req.IndexName != "GSI1" {
+			t.Fatalf("expected IndexName GSI1, got %q", req.IndexName)
+		}
+		if req.TableName != "Orders" {
+			t.Fatalf("expected table Orders, got %s", req.TableName)
+		}
+		return &ScanResponse{
+			Items: []map[string]AttributeValue{
+				{
+					"PK":     {Type: TypeS, S: "USER#1"},
+					"SK":     {Type: TypeS, S: "ORDER#001"},
+					"Amount": {Type: TypeN, N: "100"},
+					"Status": {Type: TypeS, S: "shipped"},
+				},
+				{
+					"PK":     {Type: TypeS, S: "USER#2"},
+					"SK":     {Type: TypeS, S: "ORDER#002"},
+					"Amount": {Type: TypeN, N: "250"},
+					"Status": {Type: TypeS, S: "pending"},
+				},
+			},
+			Count: 2,
+		}, nil
+	})
+
+	db := New(sb)
+	tbl := db.Table("Orders")
+
+	items, err := Scan[orderItem](context.Background(), tbl, ScanIndex("GSI1"))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(items) != 2 {
+		t.Fatalf("expected 2 items, got %d", len(items))
+	}
+
+	req := sb.scanCalls[0]
+	if req.IndexName != "GSI1" {
+		t.Errorf("expected IndexName GSI1 in request, got %q", req.IndexName)
+	}
+}
+
+func TestScan_GSI_WithFilter(t *testing.T) {
+	sb := newScanStub(func(_ context.Context, req *ScanRequest) (*ScanResponse, error) {
+		if req.IndexName != "StatusIndex" {
+			t.Fatalf("expected IndexName StatusIndex, got %q", req.IndexName)
+		}
+		if req.FilterExpression == "" {
+			t.Fatal("expected FilterExpression to be set")
+		}
+		return &ScanResponse{
+			Items: []map[string]AttributeValue{
+				{
+					"PK":     {Type: TypeS, S: "USER#1"},
+					"SK":     {Type: TypeS, S: "ORDER#001"},
+					"Amount": {Type: TypeN, N: "500"},
+					"Status": {Type: TypeS, S: "shipped"},
+				},
+			},
+			Count: 1,
+		}, nil
+	})
+
+	db := New(sb)
+	tbl := db.Table("Orders")
+
+	items, err := Scan[orderItem](context.Background(), tbl,
+		ScanIndex("StatusIndex"),
+		ScanFilter("Amount > ?", 100),
+	)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(items) != 1 {
+		t.Fatalf("expected 1 item, got %d", len(items))
+	}
+}
+
+func TestScan_NoIndex(t *testing.T) {
+	sb := newScanStub(func(_ context.Context, req *ScanRequest) (*ScanResponse, error) {
+		if req.IndexName != "" {
+			t.Fatalf("expected empty IndexName, got %q", req.IndexName)
+		}
+		return &ScanResponse{}, nil
+	})
+
+	db := New(sb)
+	tbl := db.Table("Orders")
+
+	_, err := Scan[orderItem](context.Background(), tbl)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
 func TestScan_LimitStopsPagination(t *testing.T) {
 	callCount := 0
 	sb := newScanStub(func(_ context.Context, _ *ScanRequest) (*ScanResponse, error) {
