@@ -535,12 +535,227 @@ func (m *MemoryBackend) BatchWriteItem(_ context.Context, _ *dynago.BatchWriteIt
 	return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: BatchWriteItem not implemented"}
 }
 
-func (m *MemoryBackend) TransactGetItems(_ context.Context, _ *dynago.TransactGetItemsRequest) (*dynago.TransactGetItemsResponse, error) {
-	return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: TransactGetItems not implemented"}
+func (m *MemoryBackend) TransactGetItems(_ context.Context, req *dynago.TransactGetItemsRequest) (*dynago.TransactGetItemsResponse, error) {
+	if len(req.TransactItems) > 100 {
+		return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: TransactGetItems exceeds maximum of 100 operations"}
+	}
+
+	// Resolve all tables up front.
+	tables := make([]*tableData, len(req.TransactItems))
+	for i, tgi := range req.TransactItems {
+		td, err := m.table(tgi.TableName)
+		if err != nil {
+			return nil, err
+		}
+		tables[i] = td
+	}
+
+	// Lock all distinct tables for reading to get a consistent snapshot.
+	locked := dedup(tables)
+	for _, td := range locked {
+		td.mu.RLock()
+	}
+	defer func() {
+		for _, td := range locked {
+			td.mu.RUnlock()
+		}
+	}()
+
+	responses := make([]map[string]dynago.AttributeValue, len(req.TransactItems))
+	for i, tgi := range req.TransactItems {
+		td := tables[i]
+		hash, rng, err := td.extractKey(tgi.Key)
+		if err != nil {
+			return nil, err
+		}
+		item := td.getItem(hash, rng)
+		if item != nil {
+			result := deepCopyItem(item)
+			result = projectItem(result, tgi.ProjectionExpression, tgi.ExpressionAttributeNames)
+			responses[i] = result
+		}
+	}
+
+	return &dynago.TransactGetItemsResponse{Responses: responses}, nil
 }
 
-func (m *MemoryBackend) TransactWriteItems(_ context.Context, _ *dynago.TransactWriteItemsRequest) (*dynago.TransactWriteItemsResponse, error) {
-	return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: TransactWriteItems not implemented"}
+func (m *MemoryBackend) TransactWriteItems(_ context.Context, req *dynago.TransactWriteItemsRequest) (*dynago.TransactWriteItemsResponse, error) {
+	if len(req.TransactItems) > 100 {
+		return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: TransactWriteItems exceeds maximum of 100 operations"}
+	}
+
+	// Resolve all tables up front.
+	tables := make([]*tableData, len(req.TransactItems))
+	for i, twi := range req.TransactItems {
+		tableName := txWriteTableName(twi)
+		td, err := m.table(tableName)
+		if err != nil {
+			return nil, err
+		}
+		tables[i] = td
+	}
+
+	// Lock all distinct tables for writing (atomicity).
+	locked := dedup(tables)
+	for _, td := range locked {
+		td.mu.Lock()
+	}
+	defer func() {
+		for _, td := range locked {
+			td.mu.Unlock()
+		}
+	}()
+
+	// First pass: evaluate ALL conditions. Collect per-operation reasons.
+	reasons := make([]dynago.TxCancelReason, len(req.TransactItems))
+	anyFailed := false
+
+	for i, twi := range req.TransactItems {
+		td := tables[i]
+		var condExpr string
+		var names map[string]string
+		var values map[string]dynago.AttributeValue
+		var key map[string]dynago.AttributeValue
+
+		switch {
+		case twi.Put != nil:
+			condExpr = twi.Put.ConditionExpression
+			names = twi.Put.ExpressionAttributeNames
+			values = twi.Put.ExpressionAttributeValues
+			key = twi.Put.Item
+		case twi.Delete != nil:
+			condExpr = twi.Delete.ConditionExpression
+			names = twi.Delete.ExpressionAttributeNames
+			values = twi.Delete.ExpressionAttributeValues
+			key = twi.Delete.Key
+		case twi.Update != nil:
+			condExpr = twi.Update.ConditionExpression
+			names = twi.Update.ExpressionAttributeNames
+			values = twi.Update.ExpressionAttributeValues
+			key = twi.Update.Key
+		case twi.ConditionCheck != nil:
+			condExpr = twi.ConditionCheck.ConditionExpression
+			names = twi.ConditionCheck.ExpressionAttributeNames
+			values = twi.ConditionCheck.ExpressionAttributeValues
+			key = twi.ConditionCheck.Key
+		}
+
+		if condExpr == "" {
+			continue
+		}
+
+		hash, rng, err := td.extractKey(key)
+		if err != nil {
+			return nil, err
+		}
+
+		existing := td.getItem(hash, rng)
+		if existing == nil {
+			existing = map[string]dynago.AttributeValue{}
+		}
+
+		ok, evalErr := evalCondition(condExpr, names, values, existing)
+		if evalErr != nil {
+			return nil, evalErr
+		}
+		if !ok {
+			reasons[i] = dynago.TxCancelReason{Code: "ConditionalCheckFailed", Message: "condition check failed"}
+			anyFailed = true
+		}
+	}
+
+	if anyFailed {
+		return nil, &dynago.TxCancelledError{Reasons: reasons}
+	}
+
+	// Second pass: apply all writes atomically.
+	for i, twi := range req.TransactItems {
+		td := tables[i]
+		switch {
+		case twi.Put != nil:
+			p := twi.Put
+			hash, rng, err := td.extractKey(p.Item)
+			if err != nil {
+				return nil, err
+			}
+			oldItem := td.getItem(hash, rng)
+			td.storeItem(hash, rng, p.Item)
+			td.updateGSIs(oldItem, p.Item)
+
+		case twi.Delete != nil:
+			d := twi.Delete
+			hash, rng, err := td.extractKey(d.Key)
+			if err != nil {
+				return nil, err
+			}
+			oldItem := td.deleteItem(hash, rng)
+			td.updateGSIs(oldItem, nil)
+
+		case twi.Update != nil:
+			u := twi.Update
+			hash, rng, err := td.extractKey(u.Key)
+			if err != nil {
+				return nil, err
+			}
+
+			existing := td.getItem(hash, rng)
+			var item map[string]dynago.AttributeValue
+			if existing != nil {
+				item = deepCopyItem(existing)
+			} else {
+				item = deepCopyItem(u.Key)
+			}
+
+			if u.UpdateExpression != "" {
+				nodes, parseErr := parseUpdateExpression(u.UpdateExpression, u.ExpressionAttributeNames, u.ExpressionAttributeValues)
+				if parseErr != nil {
+					return nil, parseErr
+				}
+				updated, evalErr := evalUpdateNodes(nodes, item)
+				if evalErr != nil {
+					return nil, evalErr
+				}
+				item = updated
+			}
+
+			td.storeItem(hash, rng, item)
+			td.updateGSIs(existing, item)
+
+		case twi.ConditionCheck != nil:
+			// No data modification.
+		}
+	}
+
+	return &dynago.TransactWriteItemsResponse{}, nil
+}
+
+// txWriteTableName extracts the table name from a TransactWriteItem.
+func txWriteTableName(twi dynago.TransactWriteItem) string {
+	switch {
+	case twi.Put != nil:
+		return twi.Put.TableName
+	case twi.Delete != nil:
+		return twi.Delete.TableName
+	case twi.Update != nil:
+		return twi.Update.TableName
+	case twi.ConditionCheck != nil:
+		return twi.ConditionCheck.TableName
+	default:
+		return ""
+	}
+}
+
+// dedup returns a deduplicated slice of tableData pointers preserving order.
+func dedup(tables []*tableData) []*tableData {
+	seen := make(map[*tableData]bool, len(tables))
+	var out []*tableData
+	for _, td := range tables {
+		if !seen[td] {
+			seen[td] = true
+			out = append(out, td)
+		}
+	}
+	return out
 }
 
 // compile-time check

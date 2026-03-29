@@ -3,6 +3,7 @@ package memdb
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/danielmensah/dynago"
@@ -888,24 +889,544 @@ func TestUnimplementedStubs(t *testing.T) {
 	if !errors.Is(err, dynago.ErrValidation) {
 		t.Fatal("expected ErrValidation from Scan stub")
 	}
+}
 
-	_, err = m.BatchGetItem(ctx, &dynago.BatchGetItemRequest{})
-	if !errors.Is(err, dynago.ErrValidation) {
-		t.Fatal("expected ErrValidation from BatchGetItem stub")
+// ---------------------------------------------------------------------------
+// US-406: Transaction Support
+// ---------------------------------------------------------------------------
+
+func TestTransactWriteItems_PutMultiple(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Put: &dynago.TransactPut{
+				TableName: "users",
+				Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+			}},
+			{Put: &dynago.TransactPut{
+				TableName: "users",
+				Item:      map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile"), "Name": strAV("Bob")},
+			}},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	_, err = m.BatchWriteItem(ctx, &dynago.BatchWriteItemRequest{})
-	if !errors.Is(err, dynago.ErrValidation) {
-		t.Fatal("expected ErrValidation from BatchWriteItem stub")
+	// Verify both items were written
+	resp, _ := m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+	})
+	if resp.Item["Name"].S != "Alice" {
+		t.Fatalf("expected Alice, got %q", resp.Item["Name"].S)
 	}
 
-	_, err = m.TransactGetItems(ctx, &dynago.TransactGetItemsRequest{})
-	if !errors.Is(err, dynago.ErrValidation) {
-		t.Fatal("expected ErrValidation from TransactGetItems stub")
+	resp, _ = m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile")},
+	})
+	if resp.Item["Name"].S != "Bob" {
+		t.Fatalf("expected Bob, got %q", resp.Item["Name"].S)
+	}
+}
+
+func TestTransactWriteItems_ConditionFails_NoWrites(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	// Pre-populate user#1
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+	})
+
+	// Transaction: Put user#2 + condition check on user#1 that fails
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Put: &dynago.TransactPut{
+				TableName: "users",
+				Item:      map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile"), "Name": strAV("Bob")},
+			}},
+			{ConditionCheck: &dynago.TransactConditionCheck{
+				TableName:                 "users",
+				Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+				ConditionExpression:       "#name = :val",
+				ExpressionAttributeNames:  map[string]string{"#name": "Name"},
+				ExpressionAttributeValues: map[string]dynago.AttributeValue{":val": strAV("Wrong")},
+			}},
+		},
+	})
+	if !errors.Is(err, dynago.ErrTransactionCancelled) {
+		t.Fatalf("expected ErrTransactionCancelled, got %v", err)
 	}
 
-	_, err = m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{})
+	// user#2 should NOT have been written (atomicity)
+	resp, _ := m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile")},
+	})
+	if resp.Item != nil {
+		t.Fatal("expected user#2 to not be written when transaction fails")
+	}
+}
+
+func TestTransactWriteItems_ReturnsReasons(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Put: &dynago.TransactPut{
+				TableName: "users",
+				Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+			}},
+			{Put: &dynago.TransactPut{
+				TableName:                 "users",
+				Item:                      map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile"), "Name": strAV("Bob")},
+				ConditionExpression:       "attribute_exists(#pk)",
+				ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+			}},
+			{ConditionCheck: &dynago.TransactConditionCheck{
+				TableName:                 "users",
+				Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#3"), "SK": strAV("profile")},
+				ConditionExpression:       "attribute_exists(#pk)",
+				ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+			}},
+		},
+	})
+
+	reasons := dynago.TxCancelReasons(err)
+	if reasons == nil {
+		t.Fatal("expected TxCancelledError with reasons")
+	}
+	if len(reasons) != 3 {
+		t.Fatalf("expected 3 reasons, got %d", len(reasons))
+	}
+	// First op has no condition, so reason should be empty
+	if reasons[0].Code != "" {
+		t.Fatalf("expected empty reason for op 0, got %q", reasons[0].Code)
+	}
+	// Second and third ops should have ConditionalCheckFailed
+	if reasons[1].Code != "ConditionalCheckFailed" {
+		t.Fatalf("expected ConditionalCheckFailed for op 1, got %q", reasons[1].Code)
+	}
+	if reasons[2].Code != "ConditionalCheckFailed" {
+		t.Fatalf("expected ConditionalCheckFailed for op 2, got %q", reasons[2].Code)
+	}
+}
+
+func TestTransactWriteItems_Delete(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+	})
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Delete: &dynago.TransactDelete{
+				TableName: "users",
+				Key:       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+			}},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, _ := m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+	})
+	if resp.Item != nil {
+		t.Fatal("expected item to be deleted")
+	}
+}
+
+func TestTransactWriteItems_Update(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice"), "Counter": numAV("5")},
+	})
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Update: &dynago.TransactUpdate{
+				TableName:                 "users",
+				Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+				UpdateExpression:          "SET #counter = #counter + :inc",
+				ExpressionAttributeNames:  map[string]string{"#counter": "Counter"},
+				ExpressionAttributeValues: map[string]dynago.AttributeValue{":inc": numAV("3")},
+			}},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, _ := m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+	})
+	if resp.Item["Counter"].N != "8" {
+		t.Fatalf("expected Counter=8, got %q", resp.Item["Counter"].N)
+	}
+}
+
+func TestTransactWriteItems_UpdateUpsert(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Update: &dynago.TransactUpdate{
+				TableName:                 "users",
+				Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#new"), "SK": strAV("profile")},
+				UpdateExpression:          "SET #name = :val",
+				ExpressionAttributeNames:  map[string]string{"#name": "Name"},
+				ExpressionAttributeValues: map[string]dynago.AttributeValue{":val": strAV("Charlie")},
+			}},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, _ := m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#new"), "SK": strAV("profile")},
+	})
+	if resp.Item["Name"].S != "Charlie" {
+		t.Fatalf("expected Name=Charlie, got %q", resp.Item["Name"].S)
+	}
+}
+
+func TestTransactWriteItems_MixedOps(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+	})
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Put: &dynago.TransactPut{
+				TableName: "users",
+				Item:      map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile"), "Name": strAV("Bob")},
+			}},
+			{Delete: &dynago.TransactDelete{
+				TableName: "users",
+				Key:       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+			}},
+			{ConditionCheck: &dynago.TransactConditionCheck{
+				TableName:                 "users",
+				Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+				ConditionExpression:       "attribute_exists(#pk)",
+				ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+			}},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// user#1 should be deleted
+	resp, _ := m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+	})
+	if resp.Item != nil {
+		t.Fatal("expected user#1 to be deleted")
+	}
+
+	// user#2 should exist
+	resp, _ = m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile")},
+	})
+	if resp.Item["Name"].S != "Bob" {
+		t.Fatal("expected user#2 to be created")
+	}
+}
+
+func TestTransactWriteItems_ExceedsMax(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	items := make([]dynago.TransactWriteItem, 101)
+	for i := range items {
+		items[i] = dynago.TransactWriteItem{
+			Put: &dynago.TransactPut{
+				TableName: "users",
+				Item:      map[string]dynago.AttributeValue{"PK": strAV(fmt.Sprintf("u#%d", i)), "SK": strAV("p")},
+			},
+		}
+	}
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{TransactItems: items})
 	if !errors.Is(err, dynago.ErrValidation) {
-		t.Fatal("expected ErrValidation from TransactWriteItems stub")
+		t.Fatalf("expected ErrValidation for >100 ops, got %v", err)
+	}
+}
+
+func TestTransactWriteItems_PutWithConditionPass(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Put: &dynago.TransactPut{
+				TableName:                 "users",
+				Item:                      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+				ConditionExpression:       "attribute_not_exists(#pk)",
+				ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+			}},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestTransactWriteItems_DeleteWithConditionFail(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Delete: &dynago.TransactDelete{
+				TableName:                 "users",
+				Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+				ConditionExpression:       "attribute_exists(#pk)",
+				ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+			}},
+		},
+	})
+	if !errors.Is(err, dynago.ErrTransactionCancelled) {
+		t.Fatalf("expected ErrTransactionCancelled, got %v", err)
+	}
+	// Should also match ErrConditionFailed via Is()
+	if !errors.Is(err, dynago.ErrConditionFailed) {
+		t.Fatal("expected TxCancelledError to match ErrConditionFailed")
+	}
+}
+
+func TestTransactWriteItems_UpdateWithConditionFail(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+	})
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Update: &dynago.TransactUpdate{
+				TableName:                 "users",
+				Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+				UpdateExpression:          "SET #name = :newval",
+				ConditionExpression:       "#name = :oldval",
+				ExpressionAttributeNames:  map[string]string{"#name": "Name"},
+				ExpressionAttributeValues: map[string]dynago.AttributeValue{":newval": strAV("Bob"), ":oldval": strAV("Wrong")},
+			}},
+		},
+	})
+	if !errors.Is(err, dynago.ErrTransactionCancelled) {
+		t.Fatalf("expected ErrTransactionCancelled, got %v", err)
+	}
+
+	// Verify item was NOT modified
+	resp, _ := m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+	})
+	if resp.Item["Name"].S != "Alice" {
+		t.Fatal("expected item to be unchanged after failed transaction")
+	}
+}
+
+func TestTransactWriteItems_TableNotFound(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Put: &dynago.TransactPut{
+				TableName: "nonexistent",
+				Item:      map[string]dynago.AttributeValue{"PK": strAV("u#1"), "SK": strAV("p")},
+			}},
+		},
+	})
+	if !errors.Is(err, dynago.ErrValidation) {
+		t.Fatalf("expected ErrValidation for unknown table, got %v", err)
+	}
+}
+
+// --- TransactGetItems ---
+
+func TestTransactGetItems_Basic(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+	})
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile"), "Name": strAV("Bob")},
+	})
+
+	resp, err := m.TransactGetItems(ctx, &dynago.TransactGetItemsRequest{
+		TransactItems: []dynago.TransactGetItem{
+			{TableName: "users", Key: map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")}},
+			{TableName: "users", Key: map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile")}},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(resp.Responses) != 2 {
+		t.Fatalf("expected 2 responses, got %d", len(resp.Responses))
+	}
+	if resp.Responses[0]["Name"].S != "Alice" {
+		t.Fatalf("expected Alice at index 0, got %q", resp.Responses[0]["Name"].S)
+	}
+	if resp.Responses[1]["Name"].S != "Bob" {
+		t.Fatalf("expected Bob at index 1, got %q", resp.Responses[1]["Name"].S)
+	}
+}
+
+func TestTransactGetItems_MissingItem(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+	})
+
+	resp, err := m.TransactGetItems(ctx, &dynago.TransactGetItemsRequest{
+		TransactItems: []dynago.TransactGetItem{
+			{TableName: "users", Key: map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")}},
+			{TableName: "users", Key: map[string]dynago.AttributeValue{"PK": strAV("user#missing"), "SK": strAV("profile")}},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(resp.Responses) != 2 {
+		t.Fatalf("expected 2 responses, got %d", len(resp.Responses))
+	}
+	if resp.Responses[0] == nil {
+		t.Fatal("expected non-nil at index 0")
+	}
+	if resp.Responses[1] != nil {
+		t.Fatal("expected nil at index 1 for missing item")
+	}
+}
+
+func TestTransactGetItems_WithProjection(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice"), "Age": numAV("30")},
+	})
+
+	resp, err := m.TransactGetItems(ctx, &dynago.TransactGetItemsRequest{
+		TransactItems: []dynago.TransactGetItem{
+			{
+				TableName:                "users",
+				Key:                      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+				ProjectionExpression:     "#n",
+				ExpressionAttributeNames: map[string]string{"#n": "Name"},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(resp.Responses[0]) != 1 {
+		t.Fatalf("expected 1 projected attribute, got %d", len(resp.Responses[0]))
+	}
+	if resp.Responses[0]["Name"].S != "Alice" {
+		t.Fatal("expected projected Name=Alice")
+	}
+}
+
+func TestTransactGetItems_ExceedsMax(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	items := make([]dynago.TransactGetItem, 101)
+	for i := range items {
+		items[i] = dynago.TransactGetItem{
+			TableName: "users",
+			Key:       map[string]dynago.AttributeValue{"PK": strAV(fmt.Sprintf("u#%d", i)), "SK": strAV("p")},
+		}
+	}
+
+	_, err := m.TransactGetItems(ctx, &dynago.TransactGetItemsRequest{TransactItems: items})
+	if !errors.Is(err, dynago.ErrValidation) {
+		t.Fatalf("expected ErrValidation for >100 ops, got %v", err)
+	}
+}
+
+func TestTransactGetItems_TableNotFound(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, err := m.TransactGetItems(ctx, &dynago.TransactGetItemsRequest{
+		TransactItems: []dynago.TransactGetItem{
+			{TableName: "nonexistent", Key: map[string]dynago.AttributeValue{"PK": strAV("u#1"), "SK": strAV("p")}},
+		},
+	})
+	if !errors.Is(err, dynago.ErrValidation) {
+		t.Fatalf("expected ErrValidation for unknown table, got %v", err)
+	}
+}
+
+func TestTransactWriteItems_GSIMaintenance(t *testing.T) {
+	m := newTestBackendWithGSI()
+	ctx := context.Background()
+
+	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
+		TransactItems: []dynago.TransactWriteItem{
+			{Put: &dynago.TransactPut{
+				TableName: "users",
+				Item: map[string]dynago.AttributeValue{
+					"PK": strAV("user#1"), "SK": strAV("profile"),
+					"Email": strAV("alice@example.com"),
+				},
+			}},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	td := m.tables["users"]
+	td.mu.RLock()
+	defer td.mu.RUnlock()
+
+	emailGSI := td.gsis["email-index"]
+	hashKey := keyString(strAV("alice@example.com"))
+	if _, ok := emailGSI.items[hashKey]; !ok {
+		t.Fatal("expected GSI to be updated by transactional put")
 	}
 }
