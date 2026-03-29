@@ -41,5 +41,47 @@
 - `anyToAttributeValue(v any)` converts Go values to AttributeValue (used by condition builder)
 - `noopBackend` pattern: implement all Backend interface methods, store pre-built responses, return them without doing work
 - `stubBackend` pattern: embed noopBackend, override specific methods, capture calls slice for assertions
+- `WriteTx`/`ReadTx` builders use fluent chaining; errors are deferred to `Run()` call
+- `buildUpdateRequest(tableName, key, &cfg)` can be reused to build TransactUpdate from UpdateOption configs
+- `putConfig`, `deleteConfig`, `updateConfig`, `getConfig` are unexported but can be instantiated locally and options applied
+- `TxCancelledError.Is()` matches both `ErrTransactionCancelled` and `ErrConditionFailed` (when ConditionalCheckFailed reason present)
+- `ReadModifyWrite` uses reflection to get/set version field by dynamo tag name
 
+---
+
+## 2026-03-29 - US-400
+- Implemented WriteTxBuilder with Put, Update, Delete, Check, Run methods
+- Fluent builder pattern with deferred error handling
+- Max 100 operations validation
+- Files: transaction.go, transaction_test.go
+- **Learnings:**
+  - Reused `buildUpdateRequest` to construct `TransactUpdate` from `UpdateOption` config
+  - Instantiated unexported config structs locally and applied option funcs to extract expressions
+---
+
+## 2026-03-29 - US-401
+- Implemented ReadTxBuilder with Get, Run methods plus ReadTxResult.Item and GetAs[T] generic helper
+- Included in transaction.go alongside WriteTxBuilder
+- Files: transaction.go, transaction_test.go
+- **Learnings:**
+  - `GetAs[T]` returns `ErrNotFound` for nil/missing items at index
+---
+
+## 2026-03-29 - US-402
+- Implemented TxCancelledError, TxCancelReason, TxCancelReasons helper
+- TxCancelledError.Is matches ErrTransactionCancelled always, ErrConditionFailed when ConditionalCheckFailed reason present
+- Works with existing IsTxCancelled via errors.Is chain
+- Files: tx_errors.go, tx_errors_test.go
+- **Learnings:**
+  - Custom Is() method on error types enables matching multiple sentinels conditionally
+---
+
+## 2026-03-29 - US-403
+- Implemented ReadModifyWrite[T] with OptimisticLock and MaxRetries options
+- Uses reflection to read/write version field by dynamo struct tag
+- Retries on ErrConditionFailed up to maxRetries (default 3)
+- Files: rmw.go, rmw_test.go
+- **Learnings:**
+  - Version field lookup uses dynamo struct tags, matching the codec convention
+  - Test stub with putErrOnce field allows simulating transient failures
 ---
