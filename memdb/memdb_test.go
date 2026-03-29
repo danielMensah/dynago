@@ -875,21 +875,539 @@ func TestHashOnlyTable(t *testing.T) {
 
 // --- Unimplemented stubs ---
 
+// --- US-304: Query ---
+
+func seedQueryData(t *testing.T, m *MemoryBackend) {
+	t.Helper()
+	ctx := context.Background()
+	items := []map[string]dynago.AttributeValue{
+		{"PK": strAV("user#1"), "SK": strAV("order#001"), "Status": strAV("active"), "Amount": numAV("100")},
+		{"PK": strAV("user#1"), "SK": strAV("order#002"), "Status": strAV("active"), "Amount": numAV("200")},
+		{"PK": strAV("user#1"), "SK": strAV("order#003"), "Status": strAV("cancelled"), "Amount": numAV("50")},
+		{"PK": strAV("user#1"), "SK": strAV("profile"), "Status": strAV("active"), "Amount": numAV("0")},
+		{"PK": strAV("user#2"), "SK": strAV("order#001"), "Status": strAV("active"), "Amount": numAV("300")},
+	}
+	for _, item := range items {
+		_, err := m.PutItem(ctx, &dynago.PutItemRequest{TableName: "users", Item: item})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func TestQueryBasic(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	resp, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		KeyConditionExpression:    "#pk = :pk0",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("user#1")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 4 {
+		t.Fatalf("expected 4 items, got %d", resp.Count)
+	}
+	// Items should be sorted by SK ascending.
+	if resp.Items[0]["SK"].S != "order#001" {
+		t.Fatalf("expected first item SK=order#001, got %q", resp.Items[0]["SK"].S)
+	}
+	if resp.Items[3]["SK"].S != "profile" {
+		t.Fatalf("expected last item SK=profile, got %q", resp.Items[3]["SK"].S)
+	}
+}
+
+func TestQuerySortKeyBeginsWith(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	resp, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		KeyConditionExpression:    "#pk = :pk0 AND begins_with(#sk, :sk0)",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK", "#sk": "SK"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("user#1"), ":sk0": strAV("order#")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 3 {
+		t.Fatalf("expected 3 items, got %d", resp.Count)
+	}
+}
+
+func TestQuerySortKeyEquals(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	resp, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		KeyConditionExpression:    "#pk = :pk0 AND #sk = :sk0",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK", "#sk": "SK"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("user#1"), ":sk0": strAV("order#002")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 1 {
+		t.Fatalf("expected 1 item, got %d", resp.Count)
+	}
+	if resp.Items[0]["Amount"].N != "200" {
+		t.Fatalf("expected Amount=200, got %q", resp.Items[0]["Amount"].N)
+	}
+}
+
+func TestQuerySortKeyBetween(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	resp, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		KeyConditionExpression:    "#pk = :pk0 AND #sk BETWEEN :lo AND :hi",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK", "#sk": "SK"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("user#1"), ":lo": strAV("order#001"), ":hi": strAV("order#002")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 2 {
+		t.Fatalf("expected 2 items, got %d", resp.Count)
+	}
+}
+
+func TestQuerySortKeyComparisons(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	// Greater than
+	resp, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		KeyConditionExpression:    "#pk = :pk0 AND #sk > :sk0",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK", "#sk": "SK"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("user#1"), ":sk0": strAV("order#002")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 2 { // order#003, profile
+		t.Fatalf("expected 2 items for >, got %d", resp.Count)
+	}
+
+	// Less than or equal
+	resp, err = m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		KeyConditionExpression:    "#pk = :pk0 AND #sk <= :sk0",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK", "#sk": "SK"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("user#1"), ":sk0": strAV("order#002")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 2 { // order#001, order#002
+		t.Fatalf("expected 2 items for <=, got %d", resp.Count)
+	}
+}
+
+func TestQueryDescending(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	scanForward := false
+	resp, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		KeyConditionExpression:    "#pk = :pk0 AND begins_with(#sk, :sk0)",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK", "#sk": "SK"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("user#1"), ":sk0": strAV("order#")},
+		ScanIndexForward:          &scanForward,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 3 {
+		t.Fatalf("expected 3 items, got %d", resp.Count)
+	}
+	// Descending order.
+	if resp.Items[0]["SK"].S != "order#003" {
+		t.Fatalf("expected first item SK=order#003, got %q", resp.Items[0]["SK"].S)
+	}
+	if resp.Items[2]["SK"].S != "order#001" {
+		t.Fatalf("expected last item SK=order#001, got %q", resp.Items[2]["SK"].S)
+	}
+}
+
+func TestQueryFilter(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	resp, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		KeyConditionExpression:    "#pk = :pk0",
+		FilterExpression:          "#status = :status",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK", "#status": "Status"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("user#1"), ":status": strAV("active")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 3 { // order#001, order#002, profile (all active)
+		t.Fatalf("expected 3 items, got %d", resp.Count)
+	}
+	if resp.ScannedCount != 4 { // all 4 items were scanned
+		t.Fatalf("expected ScannedCount=4, got %d", resp.ScannedCount)
+	}
+}
+
+func TestQueryProjection(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	resp, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		KeyConditionExpression:    "#pk = :pk0 AND #sk = :sk0",
+		ProjectionExpression:      "#amount",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK", "#sk": "SK", "#amount": "Amount"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("user#1"), ":sk0": strAV("order#001")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 1 {
+		t.Fatalf("expected 1 item, got %d", resp.Count)
+	}
+	if len(resp.Items[0]) != 1 {
+		t.Fatalf("expected 1 attribute in projection, got %d", len(resp.Items[0]))
+	}
+	if resp.Items[0]["Amount"].N != "100" {
+		t.Fatalf("expected Amount=100, got %q", resp.Items[0]["Amount"].N)
+	}
+}
+
+func TestQueryLimit(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	resp, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		KeyConditionExpression:    "#pk = :pk0",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("user#1")},
+		Limit:                     2,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 2 {
+		t.Fatalf("expected 2 items, got %d", resp.Count)
+	}
+	if resp.ScannedCount != 2 {
+		t.Fatalf("expected ScannedCount=2, got %d", resp.ScannedCount)
+	}
+	if len(resp.LastEvaluatedKey) == 0 {
+		t.Fatal("expected LastEvaluatedKey for pagination")
+	}
+}
+
+func TestQueryPagination(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	var allItems []map[string]dynago.AttributeValue
+	var startKey map[string]dynago.AttributeValue
+
+	for {
+		resp, err := m.Query(ctx, &dynago.QueryRequest{
+			TableName:                 "users",
+			KeyConditionExpression:    "#pk = :pk0",
+			ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+			ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("user#1")},
+			Limit:                     2,
+			ExclusiveStartKey:         startKey,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		allItems = append(allItems, resp.Items...)
+		if len(resp.LastEvaluatedKey) == 0 {
+			break
+		}
+		startKey = resp.LastEvaluatedKey
+	}
+
+	if len(allItems) != 4 {
+		t.Fatalf("expected 4 total items across pages, got %d", len(allItems))
+	}
+	// Verify ordering preserved across pages.
+	expectedSKs := []string{"order#001", "order#002", "order#003", "profile"}
+	for i, item := range allItems {
+		if item["SK"].S != expectedSKs[i] {
+			t.Fatalf("item %d: expected SK=%s, got %s", i, expectedSKs[i], item["SK"].S)
+		}
+	}
+}
+
+func TestQueryEmptyPartition(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	resp, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		KeyConditionExpression:    "#pk = :pk0",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("nonexistent")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 0 {
+		t.Fatalf("expected 0 items, got %d", resp.Count)
+	}
+}
+
+func TestQueryGSI(t *testing.T) {
+	m := newTestBackendWithGSI()
+	ctx := context.Background()
+
+	// Seed data with GSI attributes.
+	items := []map[string]dynago.AttributeValue{
+		{"PK": strAV("user#1"), "SK": strAV("profile"), "Email": strAV("alice@example.com"), "Status": strAV("active"), "CreatedAt": strAV("2024-01-01"), "Name": strAV("Alice")},
+		{"PK": strAV("user#2"), "SK": strAV("profile"), "Email": strAV("bob@example.com"), "Status": strAV("active"), "CreatedAt": strAV("2024-01-02"), "Name": strAV("Bob")},
+		{"PK": strAV("user#3"), "SK": strAV("profile"), "Email": strAV("charlie@example.com"), "Status": strAV("inactive"), "CreatedAt": strAV("2024-01-03"), "Name": strAV("Charlie")},
+	}
+	for _, item := range items {
+		_, err := m.PutItem(ctx, &dynago.PutItemRequest{TableName: "users", Item: item})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Query GSI with hash key only.
+	resp, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		IndexName:                 "status-created-index",
+		KeyConditionExpression:    "#pk = :pk0",
+		ExpressionAttributeNames:  map[string]string{"#pk": "Status"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("active")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 2 {
+		t.Fatalf("expected 2 active items from GSI, got %d", resp.Count)
+	}
+
+	// Query GSI with sort key condition.
+	resp, err = m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "users",
+		IndexName:                 "status-created-index",
+		KeyConditionExpression:    "#pk = :pk0 AND #sk >= :sk0",
+		ExpressionAttributeNames:  map[string]string{"#pk": "Status", "#sk": "CreatedAt"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("active"), ":sk0": strAV("2024-01-02")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 1 {
+		t.Fatalf("expected 1 item from GSI with sort key, got %d", resp.Count)
+	}
+}
+
+func TestQueryTableNotFound(t *testing.T) {
+	m := New()
+	ctx := context.Background()
+
+	_, err := m.Query(ctx, &dynago.QueryRequest{
+		TableName:                 "nonexistent",
+		KeyConditionExpression:    "#pk = :pk0",
+		ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("x")},
+	})
+	if !errors.Is(err, dynago.ErrValidation) {
+		t.Fatalf("expected ErrValidation, got %v", err)
+	}
+}
+
+// --- US-305: Scan ---
+
+func TestScanBasic(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	resp, err := m.Scan(ctx, &dynago.ScanRequest{TableName: "users"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 5 { // all items from seedQueryData
+		t.Fatalf("expected 5 items, got %d", resp.Count)
+	}
+	if resp.ScannedCount != 5 {
+		t.Fatalf("expected ScannedCount=5, got %d", resp.ScannedCount)
+	}
+}
+
+func TestScanFilter(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	resp, err := m.Scan(ctx, &dynago.ScanRequest{
+		TableName:                 "users",
+		FilterExpression:          "#status = :status",
+		ExpressionAttributeNames:  map[string]string{"#status": "Status"},
+		ExpressionAttributeValues: map[string]dynago.AttributeValue{":status": strAV("cancelled")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 1 {
+		t.Fatalf("expected 1 cancelled item, got %d", resp.Count)
+	}
+	if resp.ScannedCount != 5 {
+		t.Fatalf("expected ScannedCount=5, got %d", resp.ScannedCount)
+	}
+}
+
+func TestScanProjection(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	resp, err := m.Scan(ctx, &dynago.ScanRequest{
+		TableName:                "users",
+		ProjectionExpression:     "#pk",
+		ExpressionAttributeNames: map[string]string{"#pk": "PK"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, item := range resp.Items {
+		if len(item) != 1 {
+			t.Fatalf("expected 1 attribute in projection, got %d", len(item))
+		}
+		if _, ok := item["PK"]; !ok {
+			t.Fatal("expected PK in projected item")
+		}
+	}
+}
+
+func TestScanLimit(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	resp, err := m.Scan(ctx, &dynago.ScanRequest{
+		TableName: "users",
+		Limit:     3,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 3 {
+		t.Fatalf("expected 3 items, got %d", resp.Count)
+	}
+	if len(resp.LastEvaluatedKey) == 0 {
+		t.Fatal("expected LastEvaluatedKey for pagination")
+	}
+}
+
+func TestScanPagination(t *testing.T) {
+	m := newTestBackend()
+	seedQueryData(t, m)
+	ctx := context.Background()
+
+	var allItems []map[string]dynago.AttributeValue
+	var startKey map[string]dynago.AttributeValue
+
+	for {
+		resp, err := m.Scan(ctx, &dynago.ScanRequest{
+			TableName:         "users",
+			Limit:             2,
+			ExclusiveStartKey: startKey,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		allItems = append(allItems, resp.Items...)
+		if len(resp.LastEvaluatedKey) == 0 {
+			break
+		}
+		startKey = resp.LastEvaluatedKey
+	}
+
+	if len(allItems) != 5 {
+		t.Fatalf("expected 5 total items across pages, got %d", len(allItems))
+	}
+}
+
+func TestScanGSI(t *testing.T) {
+	m := newTestBackendWithGSI()
+	ctx := context.Background()
+
+	items := []map[string]dynago.AttributeValue{
+		{"PK": strAV("user#1"), "SK": strAV("profile"), "Email": strAV("alice@example.com"), "Status": strAV("active"), "CreatedAt": strAV("2024-01-01")},
+		{"PK": strAV("user#2"), "SK": strAV("profile"), "Email": strAV("bob@example.com"), "Status": strAV("active"), "CreatedAt": strAV("2024-01-02")},
+	}
+	for _, item := range items {
+		_, err := m.PutItem(ctx, &dynago.PutItemRequest{TableName: "users", Item: item})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	resp, err := m.Scan(ctx, &dynago.ScanRequest{
+		TableName: "users",
+		IndexName: "email-index",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 2 {
+		t.Fatalf("expected 2 items in GSI scan, got %d", resp.Count)
+	}
+}
+
+func TestScanEmpty(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	resp, err := m.Scan(ctx, &dynago.ScanRequest{TableName: "users"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.Count != 0 {
+		t.Fatalf("expected 0 items, got %d", resp.Count)
+	}
+}
+
+func TestScanTableNotFound(t *testing.T) {
+	m := New()
+	ctx := context.Background()
+
+	_, err := m.Scan(ctx, &dynago.ScanRequest{TableName: "nonexistent"})
+	if !errors.Is(err, dynago.ErrValidation) {
+		t.Fatalf("expected ErrValidation, got %v", err)
+	}
+}
+
+// --- Unimplemented stubs ---
+
 func TestUnimplementedStubs(t *testing.T) {
 	m := New()
 	ctx := context.Background()
 
-	_, err := m.Query(ctx, &dynago.QueryRequest{})
-	if !errors.Is(err, dynago.ErrValidation) {
-		t.Fatal("expected ErrValidation from Query stub")
-	}
-
-	_, err = m.Scan(ctx, &dynago.ScanRequest{})
-	if !errors.Is(err, dynago.ErrValidation) {
-		t.Fatal("expected ErrValidation from Scan stub")
-	}
-
-	_, err = m.BatchGetItem(ctx, &dynago.BatchGetItemRequest{})
+	_, err := m.BatchGetItem(ctx, &dynago.BatchGetItemRequest{})
 	if !errors.Is(err, dynago.ErrValidation) {
 		t.Fatal("expected ErrValidation from BatchGetItem stub")
 	}
