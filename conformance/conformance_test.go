@@ -22,6 +22,7 @@ import (
 type backendSetup struct {
 	name    string
 	backend dynago.Backend
+	table   string
 	cleanup func()
 }
 
@@ -48,6 +49,7 @@ func memdbSetup(t *testing.T) backendSetup {
 	return backendSetup{
 		name:    "memdb",
 		backend: m,
+		table:   "conformance",
 		cleanup: func() {},
 	}
 }
@@ -96,6 +98,7 @@ func awsSetup(t *testing.T, endpoint string) backendSetup {
 	return backendSetup{
 		name:    "aws-local",
 		backend: backend,
+		table:   tableName,
 		cleanup: func() {
 			client.DeleteTable(context.Background(), &dynamodb.DeleteTableInput{
 				TableName: &tableName,
@@ -132,7 +135,7 @@ func TestPutGetRoundTrip(t *testing.T) {
 			}
 
 			_, err := setup.backend.PutItem(ctx, &dynago.PutItemRequest{
-				TableName: "conformance",
+				TableName: setup.table,
 				Item:      item,
 			})
 			if err != nil {
@@ -140,7 +143,7 @@ func TestPutGetRoundTrip(t *testing.T) {
 			}
 
 			resp, err := setup.backend.GetItem(ctx, &dynago.GetItemRequest{
-				TableName: "conformance",
+				TableName: setup.table,
 				Key: map[string]dynago.AttributeValue{
 					"PK": strAV("user#1"),
 					"SK": strAV("profile"),
@@ -173,7 +176,7 @@ func TestConditionExpressionPut(t *testing.T) {
 
 			// First put should succeed.
 			_, err := setup.backend.PutItem(ctx, &dynago.PutItemRequest{
-				TableName:           "conformance",
+				TableName:           setup.table,
 				Item:                item,
 				ConditionExpression: "attribute_not_exists(#pk)",
 				ExpressionAttributeNames: map[string]string{"#pk": "PK"},
@@ -184,7 +187,7 @@ func TestConditionExpressionPut(t *testing.T) {
 
 			// Second put with same condition should fail.
 			_, err = setup.backend.PutItem(ctx, &dynago.PutItemRequest{
-				TableName:           "conformance",
+				TableName:           setup.table,
 				Item:                item,
 				ConditionExpression: "attribute_not_exists(#pk)",
 				ExpressionAttributeNames: map[string]string{"#pk": "PK"},
@@ -203,7 +206,7 @@ func TestUpdateItem(t *testing.T) {
 			ctx := context.Background()
 
 			_, _ = setup.backend.PutItem(ctx, &dynago.PutItemRequest{
-				TableName: "conformance",
+				TableName: setup.table,
 				Item: map[string]dynago.AttributeValue{
 					"PK":   strAV("update#1"),
 					"SK":   strAV("test"),
@@ -213,7 +216,7 @@ func TestUpdateItem(t *testing.T) {
 			})
 
 			resp, err := setup.backend.UpdateItem(ctx, &dynago.UpdateItemRequest{
-				TableName:        "conformance",
+				TableName:        setup.table,
 				Key:              map[string]dynago.AttributeValue{"PK": strAV("update#1"), "SK": strAV("test")},
 				UpdateExpression: "SET #name = :name ADD #count :inc",
 				ExpressionAttributeNames:  map[string]string{"#name": "Name", "#count": "Count"},
@@ -242,7 +245,7 @@ func TestQueryWithSortKeys(t *testing.T) {
 			// Seed data.
 			for i := 0; i < 5; i++ {
 				_, err := setup.backend.PutItem(ctx, &dynago.PutItemRequest{
-					TableName: "conformance",
+					TableName: setup.table,
 					Item: map[string]dynago.AttributeValue{
 						"PK":   strAV("query#1"),
 						"SK":   strAV(fmt.Sprintf("item#%03d", i)),
@@ -256,7 +259,7 @@ func TestQueryWithSortKeys(t *testing.T) {
 
 			// Query with begins_with.
 			resp, err := setup.backend.Query(ctx, &dynago.QueryRequest{
-				TableName:                 "conformance",
+				TableName:                 setup.table,
 				KeyConditionExpression:    "#pk = :pk0 AND begins_with(#sk, :sk0)",
 				ExpressionAttributeNames:  map[string]string{"#pk": "PK", "#sk": "SK"},
 				ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("query#1"), ":sk0": strAV("item#")},
@@ -287,7 +290,7 @@ func TestQueryWithFilter(t *testing.T) {
 					status = "inactive"
 				}
 				_, err := setup.backend.PutItem(ctx, &dynago.PutItemRequest{
-					TableName: "conformance",
+					TableName: setup.table,
 					Item: map[string]dynago.AttributeValue{
 						"PK":     strAV("filter#1"),
 						"SK":     strAV(fmt.Sprintf("item#%03d", i)),
@@ -300,7 +303,7 @@ func TestQueryWithFilter(t *testing.T) {
 			}
 
 			resp, err := setup.backend.Query(ctx, &dynago.QueryRequest{
-				TableName:                 "conformance",
+				TableName:                 setup.table,
 				KeyConditionExpression:    "#pk = :pk0",
 				FilterExpression:          "#status = :status",
 				ExpressionAttributeNames:  map[string]string{"#pk": "PK", "#status": "Status"},
@@ -324,7 +327,7 @@ func TestQueryPagination(t *testing.T) {
 
 			for i := 0; i < 10; i++ {
 				_, err := setup.backend.PutItem(ctx, &dynago.PutItemRequest{
-					TableName: "conformance",
+					TableName: setup.table,
 					Item: map[string]dynago.AttributeValue{
 						"PK": strAV("page#1"),
 						"SK": strAV(fmt.Sprintf("item#%03d", i)),
@@ -340,7 +343,7 @@ func TestQueryPagination(t *testing.T) {
 
 			for {
 				resp, err := setup.backend.Query(ctx, &dynago.QueryRequest{
-					TableName:                 "conformance",
+					TableName:                 setup.table,
 					KeyConditionExpression:    "#pk = :pk0",
 					ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
 					ExpressionAttributeValues: map[string]dynago.AttributeValue{":pk0": strAV("page#1")},
@@ -372,7 +375,7 @@ func TestScan(t *testing.T) {
 
 			for i := 0; i < 3; i++ {
 				_, err := setup.backend.PutItem(ctx, &dynago.PutItemRequest{
-					TableName: "conformance",
+					TableName: setup.table,
 					Item: map[string]dynago.AttributeValue{
 						"PK":   strAV(fmt.Sprintf("scan#%d", i)),
 						"SK":   strAV("test"),
@@ -385,7 +388,7 @@ func TestScan(t *testing.T) {
 			}
 
 			resp, err := setup.backend.Scan(ctx, &dynago.ScanRequest{
-				TableName:                 "conformance",
+				TableName:                 setup.table,
 				FilterExpression:          "begins_with(#pk, :prefix)",
 				ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
 				ExpressionAttributeValues: map[string]dynago.AttributeValue{":prefix": strAV("scan#")},
@@ -412,14 +415,14 @@ func TestDeleteItem(t *testing.T) {
 			}
 
 			_, _ = setup.backend.PutItem(ctx, &dynago.PutItemRequest{
-				TableName: "conformance",
+				TableName: setup.table,
 				Item: map[string]dynago.AttributeValue{
 					"PK": strAV("del#1"), "SK": strAV("test"), "Name": strAV("Delete Me"),
 				},
 			})
 
 			_, err := setup.backend.DeleteItem(ctx, &dynago.DeleteItemRequest{
-				TableName: "conformance",
+				TableName: setup.table,
 				Key:       key,
 			})
 			if err != nil {
@@ -427,7 +430,7 @@ func TestDeleteItem(t *testing.T) {
 			}
 
 			resp, err := setup.backend.GetItem(ctx, &dynago.GetItemRequest{
-				TableName: "conformance",
+				TableName: setup.table,
 				Key:       key,
 			})
 			if err != nil {
@@ -462,7 +465,7 @@ func TestTypeMarshalingRoundTrip(t *testing.T) {
 			}
 
 			_, err := setup.backend.PutItem(ctx, &dynago.PutItemRequest{
-				TableName: "conformance",
+				TableName: setup.table,
 				Item:      item,
 			})
 			if err != nil {
@@ -470,7 +473,7 @@ func TestTypeMarshalingRoundTrip(t *testing.T) {
 			}
 
 			resp, err := setup.backend.GetItem(ctx, &dynago.GetItemRequest{
-				TableName: "conformance",
+				TableName: setup.table,
 				Key: map[string]dynago.AttributeValue{
 					"PK": strAV("types#1"),
 					"SK": strAV("test"),
