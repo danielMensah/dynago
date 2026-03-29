@@ -4,7 +4,9 @@ go 1.26.1
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.5
+	github.com/aws/aws-sdk-go-v2/credentials v1.19.13
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.57.1
+	golang.org/x/sync v0.20.0
 )
 
 require (

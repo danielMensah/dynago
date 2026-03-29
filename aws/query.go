@@ -57,6 +57,7 @@ func (b *AWSBackend) Query(ctx context.Context, req *dynago.QueryRequest) (*dyna
 	resp := &dynago.QueryResponse{
 		Items:            items,
 		Count:            out.Count,
+		ScannedCount:     out.ScannedCount,
 		LastEvaluatedKey: fromAWSItem(out.LastEvaluatedKey),
 	}
 	if out.ConsumedCapacity != nil {
@@ -108,6 +109,7 @@ func (b *AWSBackend) Scan(ctx context.Context, req *dynago.ScanRequest) (*dynago
 	resp := &dynago.ScanResponse{
 		Items:            items,
 		Count:            out.Count,
+		ScannedCount:     out.ScannedCount,
 		LastEvaluatedKey: fromAWSItem(out.LastEvaluatedKey),
 	}
 	if out.ConsumedCapacity != nil {

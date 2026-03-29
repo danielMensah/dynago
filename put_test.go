@@ -221,3 +221,62 @@ func TestPut_IfNotExistsAndCondition(t *testing.T) {
 		t.Fatal("expected :v0 in expression attribute values")
 	}
 }
+
+func TestPut_AutoDiscriminator(t *testing.T) {
+	sb := &putDeleteStub{}
+	db := New(sb)
+
+	r := NewRegistry("_type")
+	r.Register(userEntity{})
+	tbl := db.Table("MyTable", WithRegistry(r))
+
+	item := userEntity{PK: "USER#1", SK: "PROFILE", Name: "Alice"}
+	err := tbl.Put(context.Background(), item)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	av, ok := sb.putReq.Item["_type"]
+	if !ok {
+		t.Fatal("expected _type attribute to be set")
+	}
+	if av.Type != TypeS || av.S != "USER" {
+		t.Fatalf("expected S=USER, got type=%d S=%q", av.Type, av.S)
+	}
+}
+
+func TestPut_NoRegistryNoDiscriminator(t *testing.T) {
+	sb := &putDeleteStub{}
+	db := New(sb)
+	tbl := db.Table("MyTable") // no registry
+
+	item := userEntity{PK: "USER#1", SK: "PROFILE", Name: "Alice"}
+	err := tbl.Put(context.Background(), item)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if _, ok := sb.putReq.Item["_type"]; ok {
+		t.Fatal("expected no _type attribute without registry")
+	}
+}
+
+func TestPut_NonEntityTypeWithRegistry(t *testing.T) {
+	sb := &putDeleteStub{}
+	db := New(sb)
+
+	r := NewRegistry("_type")
+	r.Register(userEntity{})
+	tbl := db.Table("MyTable", WithRegistry(r))
+
+	// testItem does not implement Entity
+	item := testItem{PK: "X", SK: "Y", Name: "Z"}
+	err := tbl.Put(context.Background(), item)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if _, ok := sb.putReq.Item["_type"]; ok {
+		t.Fatal("expected no _type for non-Entity type")
+	}
+}

@@ -22,8 +22,21 @@ type TableOption func(*Table)
 
 // Table represents a single DynamoDB table bound to the DB's backend.
 type Table struct {
-	name    string
-	backend Backend
+	name     string
+	backend  Backend
+	registry *Registry
+}
+
+// WithRegistry attaches a Registry to the table for polymorphic support.
+func WithRegistry(r *Registry) TableOption {
+	return func(t *Table) {
+		t.registry = r
+	}
+}
+
+// Registry returns the table's Registry, or nil if none is set.
+func (t *Table) Registry() *Registry {
+	return t.registry
 }
 
 // Table creates a Table reference that uses the DB's backend.
