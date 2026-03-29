@@ -1,4 +1,9 @@
 ## Codebase Patterns
+- `Eval(node, item)` evaluates condition/filter AST; `EvalUpdate(nodes, item)` applies update AST returning a new item copy
+- `resolvePathValue(parts, item)` traverses nested M attributes for dotted paths; reused by both evaluators
+- `resolveNode(node, item)` resolves PathNode/ValueNode/FuncNode(size) to AttributeValue; used in comparisons and updates
+- DynamoDB number comparisons: parse string N values to float64 via strconv.ParseFloat
+- Update evaluator uses copy-on-write for nested maps to avoid mutating input items
 - Package name is `dynago`, all files in project root
 - No external dependencies yet; stdlib only
 - Tests use standard `testing` package with table-driven tests
@@ -110,4 +115,19 @@
   - Batch/Transaction request types are minimal but extensible — they use nested structs (KeysAndProjection, WriteRequest, TransactWriteItem etc.)
   - ScanIndexForward in QueryRequest is *bool to distinguish unset from false
   - Key() helper uses toAttributeValue() internal function that can be reused for marshalling
+---
+
+## 2026-03-29 - US-008/US-009
+- Implemented condition/filter evaluator (Eval) and update evaluator (EvalUpdate)
+- Files changed: internal/expr/eval.go (new), internal/expr/eval_update.go (new), internal/expr/eval_test.go (new), prd.json (updated passes), progress.txt
+- **Learnings for future iterations:**
+  - Eval dispatches on node type: CompareNode, LogicalNode, FuncNode
+  - resolveNode handles PathNode (item lookup), ValueNode (direct), FuncNode for size() (returns TypeN)
+  - compareValues supports TypeS (strings.Compare), TypeN (float64 parse), TypeB (bytes.Compare), TypeBOOL
+  - Missing paths in comparisons return false (not error), matching DynamoDB behavior
+  - contains() supports: string substring, list element membership, SS/NS set membership
+  - EvalUpdate takes []Node (all UpdateNode), applies in order, returns copied item
+  - SET uses setNestedPath which creates intermediate maps and does copy-on-write
+  - ADD on missing path acts as SET; ADD on number does addition; ADD on sets does union
+  - DELETE from missing attribute is a no-op (no error)
 ---
