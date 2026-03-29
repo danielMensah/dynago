@@ -68,3 +68,45 @@
   - Sub-modules (dynagotel, benchmarks) must be tested with `cd <dir> && go test` since they have separate go.mod
   - The `if` condition for main-only jobs: `github.event_name == 'push' && github.ref == 'refs/heads/main'`
 ---
+
+## 2026-03-29 - US-500/US-501/US-502
+- Renamed `aws/` package to `awsbackend/` per PRD naming convention
+- Fixed TxCancelledError mapping: wrapAWSError now extracts per-operation CancellationReasons
+- Added NewFromConfig(cfg aws.Config) convenience constructor
+- Added package-level doc comment in awsbackend/doc.go
+- All 10 Backend interface methods implemented with full type translation
+- Files changed: awsbackend/ (renamed from aws/), conformance test import updated
+- **Learnings:** AWS SDK TransactionCanceledException.CancellationReasons maps to TxCancelReason slice
+---
+
+## 2026-03-29 - US-504
+- Created comprehensive README.md with badges, quick-start, features, examples
+- Covers: CRUD, queries, single-table design, testing with memdb, OTel setup
+- Files changed: README.md
+---
+
+## 2026-03-29 - US-505
+- Created docs/migration-from-guregu.md with side-by-side API comparison
+- Covers: CRUD operations, struct tags, testing, error handling, new features
+- Files changed: docs/migration-from-guregu.md
+---
+
+## 2026-03-29 - US-506
+- Created docs/single-table-design.md with e-commerce example
+- Covers: entities, registry, QueryCollection, ItemsOf, CollectionIter, GSI overloading, memdb testing
+- Files changed: docs/single-table-design.md
+---
+
+## 2026-03-29 - US-503
+- Added GoDoc comments to all exported types in backend.go (20+ request/response types)
+- Added package-level doc comments for dynago, dynagotel, dynagotest packages
+- Enhanced middleware.go, memdb, awsbackend doc comments
+- Files changed: dynago.go, backend.go, middleware.go, awsbackend/aws.go, dynagotel/dynagotel.go, dynagotest/seed.go, memdb/memdb.go
+---
+
+## 2026-03-29 - US-510
+- Verified module paths, sub-module require/replace directives
+- Confirmed LICENSE (MIT), .gitignore, no TODO/FIXME in shipped code
+- Ran go mod tidy on all modules
+- Files changed: benchmarks/go.mod, benchmarks/go.sum
+---
