@@ -11,7 +11,7 @@ import (
 	"github.com/danielmensah/dynago"
 )
 
-// DynamoDBAPI is the subset of *dynamodb.Client methods used by AWSBackend.
+// DynamoDBAPI is the subset of [dynamodb.Client] methods used by [AWSBackend].
 // Accepting an interface enables unit testing with mock implementations.
 type DynamoDBAPI interface {
 	GetItem(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
@@ -38,6 +38,7 @@ type AWSBackend struct {
 var _ dynago.Backend = (*AWSBackend)(nil)
 
 // NewAWSBackend creates a new AWSBackend wrapping the given DynamoDB client.
+// For most use cases prefer [NewFromConfig], which creates the client internally.
 func NewAWSBackend(client DynamoDBAPI) *AWSBackend {
 	return &AWSBackend{client: client}
 }

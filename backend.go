@@ -34,6 +34,7 @@ type ConsumedCapacity struct {
 // GetItem
 // ---------------------------------------------------------------------------
 
+// GetItemRequest describes a GetItem operation.
 type GetItemRequest struct {
 	TableName               string
 	Key                     map[string]AttributeValue
@@ -42,6 +43,8 @@ type GetItemRequest struct {
 	ExpressionAttributeNames map[string]string
 }
 
+// GetItemResponse is the result of a GetItem operation. Item is nil when the
+// key does not exist.
 type GetItemResponse struct {
 	Item             map[string]AttributeValue
 	ConsumedCapacity *ConsumedCapacity
@@ -51,6 +54,7 @@ type GetItemResponse struct {
 // PutItem
 // ---------------------------------------------------------------------------
 
+// PutItemRequest describes a PutItem operation.
 type PutItemRequest struct {
 	TableName                 string
 	Item                      map[string]AttributeValue
@@ -60,6 +64,7 @@ type PutItemRequest struct {
 	ReturnValues              string
 }
 
+// PutItemResponse is the result of a PutItem operation.
 type PutItemResponse struct {
 	ConsumedCapacity *ConsumedCapacity
 }
@@ -68,6 +73,7 @@ type PutItemResponse struct {
 // DeleteItem
 // ---------------------------------------------------------------------------
 
+// DeleteItemRequest describes a DeleteItem operation.
 type DeleteItemRequest struct {
 	TableName                 string
 	Key                       map[string]AttributeValue
@@ -77,6 +83,7 @@ type DeleteItemRequest struct {
 	ReturnValues              string
 }
 
+// DeleteItemResponse is the result of a DeleteItem operation.
 type DeleteItemResponse struct {
 	ConsumedCapacity *ConsumedCapacity
 }
@@ -85,6 +92,7 @@ type DeleteItemResponse struct {
 // UpdateItem
 // ---------------------------------------------------------------------------
 
+// UpdateItemRequest describes an UpdateItem operation.
 type UpdateItemRequest struct {
 	TableName                 string
 	Key                       map[string]AttributeValue
@@ -95,6 +103,8 @@ type UpdateItemRequest struct {
 	ReturnValues              string
 }
 
+// UpdateItemResponse is the result of an UpdateItem operation. Attributes is
+// populated when ReturnValues is set.
 type UpdateItemResponse struct {
 	Attributes       map[string]AttributeValue
 	ConsumedCapacity *ConsumedCapacity
@@ -104,6 +114,7 @@ type UpdateItemResponse struct {
 // Query
 // ---------------------------------------------------------------------------
 
+// QueryRequest describes a Query operation.
 type QueryRequest struct {
 	TableName                 string
 	IndexName                 string
@@ -118,6 +129,8 @@ type QueryRequest struct {
 	ConsistentRead            bool
 }
 
+// QueryResponse is the result of a Query operation. LastEvaluatedKey is
+// non-nil when more pages are available.
 type QueryResponse struct {
 	Items            []map[string]AttributeValue
 	Count            int32
@@ -130,6 +143,7 @@ type QueryResponse struct {
 // Scan
 // ---------------------------------------------------------------------------
 
+// ScanRequest describes a Scan operation.
 type ScanRequest struct {
 	TableName                 string
 	IndexName                 string
@@ -142,6 +156,8 @@ type ScanRequest struct {
 	ConsistentRead            bool
 }
 
+// ScanResponse is the result of a Scan operation. LastEvaluatedKey is non-nil
+// when more pages are available.
 type ScanResponse struct {
 	Items            []map[string]AttributeValue
 	Count            int32
@@ -154,10 +170,13 @@ type ScanResponse struct {
 // BatchGetItem
 // ---------------------------------------------------------------------------
 
+// BatchGetItemRequest describes a BatchGetItem operation.
 type BatchGetItemRequest struct {
 	RequestItems map[string]KeysAndProjection
 }
 
+// KeysAndProjection groups keys and an optional projection for a single table
+// in a BatchGetItem request.
 type KeysAndProjection struct {
 	Keys                     []map[string]AttributeValue
 	ProjectionExpression     string
@@ -165,6 +184,8 @@ type KeysAndProjection struct {
 	ConsistentRead           bool
 }
 
+// BatchGetItemResponse is the result of a BatchGetItem operation.
+// UnprocessedKeys contains keys that were not processed due to throughput limits.
 type BatchGetItemResponse struct {
 	Responses        map[string][]map[string]AttributeValue
 	UnprocessedKeys  map[string]KeysAndProjection
@@ -175,23 +196,30 @@ type BatchGetItemResponse struct {
 // BatchWriteItem
 // ---------------------------------------------------------------------------
 
+// BatchWriteItemRequest describes a BatchWriteItem operation.
 type BatchWriteItemRequest struct {
 	RequestItems map[string][]WriteRequest
 }
 
+// WriteRequest is a single put or delete within a BatchWriteItem call.
+// Exactly one of PutItem or DeleteItem must be set.
 type WriteRequest struct {
 	PutItem    *PutRequest
 	DeleteItem *DeleteRequest
 }
 
+// PutRequest is the put-item payload within a WriteRequest.
 type PutRequest struct {
 	Item map[string]AttributeValue
 }
 
+// DeleteRequest is the delete-item payload within a WriteRequest.
 type DeleteRequest struct {
 	Key map[string]AttributeValue
 }
 
+// BatchWriteItemResponse is the result of a BatchWriteItem operation.
+// UnprocessedItems contains requests that were not processed due to throughput limits.
 type BatchWriteItemResponse struct {
 	UnprocessedItems map[string][]WriteRequest
 	ConsumedCapacity []ConsumedCapacity
@@ -201,10 +229,12 @@ type BatchWriteItemResponse struct {
 // TransactGetItems
 // ---------------------------------------------------------------------------
 
+// TransactGetItemsRequest describes a TransactGetItems operation.
 type TransactGetItemsRequest struct {
 	TransactItems []TransactGetItem
 }
 
+// TransactGetItem is a single get within a read transaction.
 type TransactGetItem struct {
 	TableName               string
 	Key                     map[string]AttributeValue
@@ -212,6 +242,8 @@ type TransactGetItem struct {
 	ExpressionAttributeNames map[string]string
 }
 
+// TransactGetItemsResponse is the result of a TransactGetItems operation.
+// Responses are ordered to match the input TransactItems.
 type TransactGetItemsResponse struct {
 	Responses        []map[string]AttributeValue
 	ConsumedCapacity []ConsumedCapacity
@@ -221,10 +253,13 @@ type TransactGetItemsResponse struct {
 // TransactWriteItems
 // ---------------------------------------------------------------------------
 
+// TransactWriteItemsRequest describes a TransactWriteItems operation.
 type TransactWriteItemsRequest struct {
 	TransactItems []TransactWriteItem
 }
 
+// TransactWriteItem is a single operation within a write transaction. Exactly
+// one of Put, Delete, Update, or ConditionCheck must be set.
 type TransactWriteItem struct {
 	Put            *TransactPut
 	Delete         *TransactDelete
@@ -232,6 +267,7 @@ type TransactWriteItem struct {
 	ConditionCheck *TransactConditionCheck
 }
 
+// TransactPut is a put operation within a write transaction.
 type TransactPut struct {
 	TableName                 string
 	Item                      map[string]AttributeValue
@@ -240,6 +276,7 @@ type TransactPut struct {
 	ExpressionAttributeValues map[string]AttributeValue
 }
 
+// TransactDelete is a delete operation within a write transaction.
 type TransactDelete struct {
 	TableName                 string
 	Key                       map[string]AttributeValue
@@ -248,6 +285,7 @@ type TransactDelete struct {
 	ExpressionAttributeValues map[string]AttributeValue
 }
 
+// TransactUpdate is an update operation within a write transaction.
 type TransactUpdate struct {
 	TableName                 string
 	Key                       map[string]AttributeValue
@@ -257,6 +295,8 @@ type TransactUpdate struct {
 	ExpressionAttributeValues map[string]AttributeValue
 }
 
+// TransactConditionCheck is a condition-only check within a write transaction.
+// It verifies a condition without modifying any data.
 type TransactConditionCheck struct {
 	TableName                 string
 	Key                       map[string]AttributeValue
@@ -265,6 +305,7 @@ type TransactConditionCheck struct {
 	ExpressionAttributeValues map[string]AttributeValue
 }
 
+// TransactWriteItemsResponse is the result of a TransactWriteItems operation.
 type TransactWriteItemsResponse struct {
 	ConsumedCapacity []ConsumedCapacity
 }

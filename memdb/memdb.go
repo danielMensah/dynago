@@ -16,8 +16,11 @@ import (
 type KeyType int
 
 const (
+	// StringKey indicates the key attribute is a string (S).
 	StringKey KeyType = iota + 1
+	// NumberKey indicates the key attribute is a number (N).
 	NumberKey
+	// BinaryKey indicates the key attribute is binary (B).
 	BinaryKey
 )
 
