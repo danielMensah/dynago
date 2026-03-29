@@ -10,6 +10,11 @@
 - `Table.Backend()` and `Table.Name()` are the accessors free functions (Get[T], Query[T]) use
 - `KeyValue.Map()` returns the internal map[string]AttributeValue for passing to Backend
 - `Key()` panics on misuse (programmer error convention like regexp.MustCompile)
+- Expression AST lives in `internal/expr/` package; Node interface has private marker method
+- `ParseCondition(expr, args...)` parses placeholder expressions into AST with correct precedence (NOT > AND > OR)
+- `BuildSet/BuildAdd/BuildRemove/BuildDelete` construct UpdateNode for update expressions
+- `goToAttributeValue(v any)` in builder.go converts Go values to dynago.AttributeValue
+- Reserved words in `internal/reserved.go` as `map[string]bool` with uppercase keys; use `IsReserved(word)` for lookup
 
 ---
 
@@ -32,6 +37,18 @@
   - `isKnownOption()` helper distinguishes name tokens from option tokens
   - `getCodec()` uses `LoadOrStore` for safe concurrent first-access
   - Unexported fields are filtered at codec-build time, not at marshal/unmarshal time
+---
+
+## 2026-03-29 - US-005/US-006
+- Implemented expression AST node types and builder with placeholder parser
+- Files changed: internal/expr/ast.go (new), internal/expr/builder.go (new), internal/expr/builder_test.go (new), internal/reserved.go (new), unmarshal.go (fixed duplicate timeType), prd.json (updated passes)
+- **Learnings for future iterations:**
+  - Node interface uses private `node()` marker to prevent external implementations
+  - CompareOp, LogicalOp, UpdateAction are int enums with String() methods
+  - Tokenizer handles dotted paths as single tokens (e.g. "Address.City")
+  - Parser implements recursive descent with correct precedence: OR < AND < NOT < comparison
+  - `#name` prefix is stripped to get the actual attribute name in PathNode
+  - Pre-existing issue: unmarshal.go had duplicate `timeType` declaration conflicting with marshal.go; fixed by removing from unmarshal.go
 ---
 
 ## 2026-03-28 - US-001
