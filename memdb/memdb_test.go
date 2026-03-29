@@ -1430,3 +1430,394 @@ func TestTransactWriteItems_GSIMaintenance(t *testing.T) {
 		t.Fatal("expected GSI to be updated by transactional put")
 	}
 }
+
+// ---------------------------------------------------------------------------
+// US-407: Batch Support
+// ---------------------------------------------------------------------------
+
+func TestBatchWriteItem_PutMultiple(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, err := m.BatchWriteItem(ctx, &dynago.BatchWriteItemRequest{
+		RequestItems: map[string][]dynago.WriteRequest{
+			"users": {
+				{PutItem: &dynago.PutRequest{Item: map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")}}},
+				{PutItem: &dynago.PutRequest{Item: map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile"), "Name": strAV("Bob")}}},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, _ := m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+	})
+	if resp.Item["Name"].S != "Alice" {
+		t.Fatalf("expected Alice, got %q", resp.Item["Name"].S)
+	}
+
+	resp, _ = m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile")},
+	})
+	if resp.Item["Name"].S != "Bob" {
+		t.Fatalf("expected Bob, got %q", resp.Item["Name"].S)
+	}
+}
+
+func TestBatchWriteItem_DeleteMultiple(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+	})
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile"), "Name": strAV("Bob")},
+	})
+
+	_, err := m.BatchWriteItem(ctx, &dynago.BatchWriteItemRequest{
+		RequestItems: map[string][]dynago.WriteRequest{
+			"users": {
+				{DeleteItem: &dynago.DeleteRequest{Key: map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")}}},
+				{DeleteItem: &dynago.DeleteRequest{Key: map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile")}}},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, _ := m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+	})
+	if resp.Item != nil {
+		t.Fatal("expected user#1 to be deleted")
+	}
+
+	resp, _ = m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile")},
+	})
+	if resp.Item != nil {
+		t.Fatal("expected user#2 to be deleted")
+	}
+}
+
+func TestBatchWriteItem_MixedPutDelete(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+	})
+
+	_, err := m.BatchWriteItem(ctx, &dynago.BatchWriteItemRequest{
+		RequestItems: map[string][]dynago.WriteRequest{
+			"users": {
+				{DeleteItem: &dynago.DeleteRequest{Key: map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")}}},
+				{PutItem: &dynago.PutRequest{Item: map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile"), "Name": strAV("Bob")}}},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp, _ := m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+	})
+	if resp.Item != nil {
+		t.Fatal("expected user#1 to be deleted")
+	}
+
+	resp, _ = m.GetItem(ctx, &dynago.GetItemRequest{
+		TableName: "users",
+		Key:       map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile")},
+	})
+	if resp.Item["Name"].S != "Bob" {
+		t.Fatal("expected user#2 to be created")
+	}
+}
+
+func TestBatchWriteItem_ExceedsMax(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	writes := make([]dynago.WriteRequest, 26)
+	for i := range writes {
+		writes[i] = dynago.WriteRequest{
+			PutItem: &dynago.PutRequest{
+				Item: map[string]dynago.AttributeValue{"PK": strAV(fmt.Sprintf("u#%d", i)), "SK": strAV("p")},
+			},
+		}
+	}
+
+	_, err := m.BatchWriteItem(ctx, &dynago.BatchWriteItemRequest{
+		RequestItems: map[string][]dynago.WriteRequest{"users": writes},
+	})
+	if !errors.Is(err, dynago.ErrValidation) {
+		t.Fatalf("expected ErrValidation for >25 ops, got %v", err)
+	}
+}
+
+func TestBatchWriteItem_NoUnprocessedItems(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	resp, err := m.BatchWriteItem(ctx, &dynago.BatchWriteItemRequest{
+		RequestItems: map[string][]dynago.WriteRequest{
+			"users": {
+				{PutItem: &dynago.PutRequest{Item: map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")}}},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.UnprocessedItems != nil && len(resp.UnprocessedItems) > 0 {
+		t.Fatal("expected no unprocessed items")
+	}
+}
+
+func TestBatchWriteItem_TableNotFound(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, err := m.BatchWriteItem(ctx, &dynago.BatchWriteItemRequest{
+		RequestItems: map[string][]dynago.WriteRequest{
+			"nonexistent": {
+				{PutItem: &dynago.PutRequest{Item: map[string]dynago.AttributeValue{"PK": strAV("u#1"), "SK": strAV("p")}}},
+			},
+		},
+	})
+	if !errors.Is(err, dynago.ErrValidation) {
+		t.Fatalf("expected ErrValidation for unknown table, got %v", err)
+	}
+}
+
+func TestBatchWriteItem_GSIMaintenance(t *testing.T) {
+	m := newTestBackendWithGSI()
+	ctx := context.Background()
+
+	_, err := m.BatchWriteItem(ctx, &dynago.BatchWriteItemRequest{
+		RequestItems: map[string][]dynago.WriteRequest{
+			"users": {
+				{PutItem: &dynago.PutRequest{Item: map[string]dynago.AttributeValue{
+					"PK": strAV("user#1"), "SK": strAV("profile"),
+					"Email": strAV("alice@example.com"),
+				}}},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	td := m.tables["users"]
+	td.mu.RLock()
+	defer td.mu.RUnlock()
+
+	emailGSI := td.gsis["email-index"]
+	hashKey := keyString(strAV("alice@example.com"))
+	if _, ok := emailGSI.items[hashKey]; !ok {
+		t.Fatal("expected GSI to be updated by batch put")
+	}
+}
+
+// --- BatchGetItem ---
+
+func TestBatchGetItem_Basic(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+	})
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile"), "Name": strAV("Bob")},
+	})
+
+	resp, err := m.BatchGetItem(ctx, &dynago.BatchGetItemRequest{
+		RequestItems: map[string]dynago.KeysAndProjection{
+			"users": {
+				Keys: []map[string]dynago.AttributeValue{
+					{"PK": strAV("user#1"), "SK": strAV("profile")},
+					{"PK": strAV("user#2"), "SK": strAV("profile")},
+				},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	items := resp.Responses["users"]
+	if len(items) != 2 {
+		t.Fatalf("expected 2 items, got %d", len(items))
+	}
+}
+
+func TestBatchGetItem_MissingItemsSilentlyOmitted(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+	})
+
+	resp, err := m.BatchGetItem(ctx, &dynago.BatchGetItemRequest{
+		RequestItems: map[string]dynago.KeysAndProjection{
+			"users": {
+				Keys: []map[string]dynago.AttributeValue{
+					{"PK": strAV("user#1"), "SK": strAV("profile")},
+					{"PK": strAV("user#missing"), "SK": strAV("profile")},
+				},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	items := resp.Responses["users"]
+	if len(items) != 1 {
+		t.Fatalf("expected 1 item (missing silently omitted), got %d", len(items))
+	}
+	if items[0]["Name"].S != "Alice" {
+		t.Fatal("expected Alice")
+	}
+}
+
+func TestBatchGetItem_WithProjection(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice"), "Age": numAV("30")},
+	})
+
+	resp, err := m.BatchGetItem(ctx, &dynago.BatchGetItemRequest{
+		RequestItems: map[string]dynago.KeysAndProjection{
+			"users": {
+				Keys: []map[string]dynago.AttributeValue{
+					{"PK": strAV("user#1"), "SK": strAV("profile")},
+				},
+				ProjectionExpression:     "#n",
+				ExpressionAttributeNames: map[string]string{"#n": "Name"},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	items := resp.Responses["users"]
+	if len(items) != 1 {
+		t.Fatalf("expected 1 item, got %d", len(items))
+	}
+	if len(items[0]) != 1 {
+		t.Fatalf("expected 1 projected attribute, got %d", len(items[0]))
+	}
+	if items[0]["Name"].S != "Alice" {
+		t.Fatal("expected projected Name=Alice")
+	}
+}
+
+func TestBatchGetItem_ExceedsMax(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	keys := make([]map[string]dynago.AttributeValue, 101)
+	for i := range keys {
+		keys[i] = map[string]dynago.AttributeValue{"PK": strAV(fmt.Sprintf("u#%d", i)), "SK": strAV("p")}
+	}
+
+	_, err := m.BatchGetItem(ctx, &dynago.BatchGetItemRequest{
+		RequestItems: map[string]dynago.KeysAndProjection{
+			"users": {Keys: keys},
+		},
+	})
+	if !errors.Is(err, dynago.ErrValidation) {
+		t.Fatalf("expected ErrValidation for >100 keys, got %v", err)
+	}
+}
+
+func TestBatchGetItem_NoUnprocessedKeys(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, _ = m.PutItem(ctx, &dynago.PutItemRequest{
+		TableName: "users",
+		Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+	})
+
+	resp, err := m.BatchGetItem(ctx, &dynago.BatchGetItemRequest{
+		RequestItems: map[string]dynago.KeysAndProjection{
+			"users": {
+				Keys: []map[string]dynago.AttributeValue{
+					{"PK": strAV("user#1"), "SK": strAV("profile")},
+				},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.UnprocessedKeys != nil && len(resp.UnprocessedKeys) > 0 {
+		t.Fatal("expected no unprocessed keys")
+	}
+}
+
+func TestBatchGetItem_TableNotFound(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	_, err := m.BatchGetItem(ctx, &dynago.BatchGetItemRequest{
+		RequestItems: map[string]dynago.KeysAndProjection{
+			"nonexistent": {
+				Keys: []map[string]dynago.AttributeValue{
+					{"PK": strAV("u#1"), "SK": strAV("p")},
+				},
+			},
+		},
+	})
+	if !errors.Is(err, dynago.ErrValidation) {
+		t.Fatalf("expected ErrValidation for unknown table, got %v", err)
+	}
+}
+
+func TestBatchGetItem_AllMissing(t *testing.T) {
+	m := newTestBackend()
+	ctx := context.Background()
+
+	resp, err := m.BatchGetItem(ctx, &dynago.BatchGetItemRequest{
+		RequestItems: map[string]dynago.KeysAndProjection{
+			"users": {
+				Keys: []map[string]dynago.AttributeValue{
+					{"PK": strAV("user#missing"), "SK": strAV("profile")},
+				},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// When all items are missing, table should not appear in Responses (or be empty)
+	items := resp.Responses["users"]
+	if len(items) != 0 {
+		t.Fatalf("expected 0 items for all-missing, got %d", len(items))
+	}
+}

@@ -527,12 +527,94 @@ func (m *MemoryBackend) Scan(_ context.Context, _ *dynago.ScanRequest) (*dynago.
 	return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: Scan not implemented"}
 }
 
-func (m *MemoryBackend) BatchGetItem(_ context.Context, _ *dynago.BatchGetItemRequest) (*dynago.BatchGetItemResponse, error) {
-	return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: BatchGetItem not implemented"}
+func (m *MemoryBackend) BatchGetItem(_ context.Context, req *dynago.BatchGetItemRequest) (*dynago.BatchGetItemResponse, error) {
+	// Count total keys across all tables.
+	total := 0
+	for _, kp := range req.RequestItems {
+		total += len(kp.Keys)
+	}
+	if total > 100 {
+		return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: BatchGetItem exceeds maximum of 100 keys"}
+	}
+
+	responses := make(map[string][]map[string]dynago.AttributeValue)
+
+	for tableName, kp := range req.RequestItems {
+		td, err := m.table(tableName)
+		if err != nil {
+			return nil, err
+		}
+
+		td.mu.RLock()
+		var items []map[string]dynago.AttributeValue
+		for _, key := range kp.Keys {
+			hash, rng, err := td.extractKey(key)
+			if err != nil {
+				td.mu.RUnlock()
+				return nil, err
+			}
+			item := td.getItem(hash, rng)
+			if item != nil {
+				result := deepCopyItem(item)
+				result = projectItem(result, kp.ProjectionExpression, kp.ExpressionAttributeNames)
+				items = append(items, result)
+			}
+			// Missing items are silently omitted.
+		}
+		td.mu.RUnlock()
+
+		if len(items) > 0 {
+			responses[tableName] = items
+		}
+	}
+
+	return &dynago.BatchGetItemResponse{Responses: responses}, nil
 }
 
-func (m *MemoryBackend) BatchWriteItem(_ context.Context, _ *dynago.BatchWriteItemRequest) (*dynago.BatchWriteItemResponse, error) {
-	return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: BatchWriteItem not implemented"}
+func (m *MemoryBackend) BatchWriteItem(_ context.Context, req *dynago.BatchWriteItemRequest) (*dynago.BatchWriteItemResponse, error) {
+	// Count total operations across all tables.
+	total := 0
+	for _, writes := range req.RequestItems {
+		total += len(writes)
+	}
+	if total > 25 {
+		return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: BatchWriteItem exceeds maximum of 25 operations"}
+	}
+
+	for tableName, writes := range req.RequestItems {
+		td, err := m.table(tableName)
+		if err != nil {
+			return nil, err
+		}
+
+		td.mu.Lock()
+		for _, wr := range writes {
+			switch {
+			case wr.PutItem != nil:
+				hash, rng, err := td.extractKey(wr.PutItem.Item)
+				if err != nil {
+					td.mu.Unlock()
+					return nil, err
+				}
+				oldItem := td.getItem(hash, rng)
+				td.storeItem(hash, rng, wr.PutItem.Item)
+				td.updateGSIs(oldItem, wr.PutItem.Item)
+
+			case wr.DeleteItem != nil:
+				hash, rng, err := td.extractKey(wr.DeleteItem.Key)
+				if err != nil {
+					td.mu.Unlock()
+					return nil, err
+				}
+				oldItem := td.deleteItem(hash, rng)
+				td.updateGSIs(oldItem, nil)
+			}
+		}
+		td.mu.Unlock()
+	}
+
+	// No UnprocessedItems in memdb -- everything always succeeds.
+	return &dynago.BatchWriteItemResponse{}, nil
 }
 
 func (m *MemoryBackend) TransactGetItems(_ context.Context, req *dynago.TransactGetItemsRequest) (*dynago.TransactGetItemsResponse, error) {
