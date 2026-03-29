@@ -1,11 +1,11 @@
-// Package aws provides an AWS SDK v2 adapter that implements the dynago.Backend interface.
-package aws
+package awsbackend
 
 import (
 	"context"
 	"errors"
 	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/danielmensah/dynago"
@@ -42,7 +42,20 @@ func NewAWSBackend(client DynamoDBAPI) *AWSBackend {
 	return &AWSBackend{client: client}
 }
 
-// wrapAWSError translates AWS SDK errors into dynago sentinel errors.
+// NewFromConfig creates a new AWSBackend using the given AWS config.
+// Options are passed through to dynamodb.NewFromConfig.
+//
+// Example:
+//
+//	cfg, err := config.LoadDefaultConfig(ctx)
+//	if err != nil { /* handle error */ }
+//	backend := awsbackend.NewFromConfig(cfg)
+func NewFromConfig(cfg aws.Config, opts ...func(*dynamodb.Options)) *AWSBackend {
+	client := dynamodb.NewFromConfig(cfg, opts...)
+	return &AWSBackend{client: client}
+}
+
+// wrapAWSError translates AWS SDK errors into dynago error types.
 func wrapAWSError(err error) error {
 	if err == nil {
 		return nil
@@ -55,7 +68,21 @@ func wrapAWSError(err error) error {
 
 	var txCancelled *types.TransactionCanceledException
 	if errors.As(err, &txCancelled) {
-		return &dynago.Error{Sentinel: dynago.ErrTransactionCancelled, Cause: err}
+		reasons := make([]dynago.TxCancelReason, len(txCancelled.CancellationReasons))
+		for i, cr := range txCancelled.CancellationReasons {
+			var code, msg string
+			if cr.Code != nil {
+				code = *cr.Code
+			}
+			if cr.Message != nil {
+				msg = *cr.Message
+			}
+			reasons[i] = dynago.TxCancelReason{
+				Code:    code,
+				Message: msg,
+			}
+		}
+		return &dynago.TxCancelledError{Reasons: reasons}
 	}
 
 	var resNotFound *types.ResourceNotFoundException

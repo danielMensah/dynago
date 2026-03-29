@@ -1,4 +1,4 @@
-package aws
+package awsbackend
 
 import (
 	"context"
@@ -129,7 +129,7 @@ func TestGetItem_TranslatesRequest(t *testing.T) {
 	mock := &mockClient{
 		getItemOutput: &dynamodb.GetItemOutput{
 			Item: map[string]dbtypes.AttributeValue{
-				"pk": &dbtypes.AttributeValueMemberS{Value: "user#1"},
+				"pk":   &dbtypes.AttributeValueMemberS{Value: "user#1"},
 				"name": &dbtypes.AttributeValueMemberS{Value: "Alice"},
 			},
 		},
@@ -141,8 +141,8 @@ func TestGetItem_TranslatesRequest(t *testing.T) {
 		Key: map[string]dynago.AttributeValue{
 			"pk": {Type: dynago.TypeS, S: "user#1"},
 		},
-		ConsistentRead:       true,
-		ProjectionExpression: "#n",
+		ConsistentRead:           true,
+		ProjectionExpression:     "#n",
 		ExpressionAttributeNames: map[string]string{"#n": "name"},
 	})
 	if err != nil {
@@ -332,6 +332,78 @@ func TestWrapAWSError_TransactionCancelled(t *testing.T) {
 	}
 }
 
+func TestWrapAWSError_TransactionCancelled_WithReasons(t *testing.T) {
+	awsErr := &dbtypes.TransactionCanceledException{
+		Message: aws.String("tx cancelled"),
+		CancellationReasons: []dbtypes.CancellationReason{
+			{
+				Code:    aws.String("ConditionalCheckFailed"),
+				Message: aws.String("The conditional request failed"),
+			},
+			{
+				Code: aws.String("None"),
+			},
+			{}, // empty reason (nil code and message)
+		},
+	}
+	err := wrapAWSError(awsErr)
+
+	// Should match ErrTransactionCancelled
+	if !errors.Is(err, dynago.ErrTransactionCancelled) {
+		t.Errorf("expected ErrTransactionCancelled, got %v", err)
+	}
+
+	// Should also match ErrConditionFailed (due to ConditionalCheckFailed reason)
+	if !errors.Is(err, dynago.ErrConditionFailed) {
+		t.Errorf("expected ErrConditionFailed, got %v", err)
+	}
+
+	// Should be a TxCancelledError with correct reasons
+	var txErr *dynago.TxCancelledError
+	if !errors.As(err, &txErr) {
+		t.Fatalf("expected *dynago.TxCancelledError, got %T", err)
+	}
+
+	if len(txErr.Reasons) != 3 {
+		t.Fatalf("expected 3 reasons, got %d", len(txErr.Reasons))
+	}
+
+	if txErr.Reasons[0].Code != "ConditionalCheckFailed" {
+		t.Errorf("expected reason[0].Code=ConditionalCheckFailed, got %q", txErr.Reasons[0].Code)
+	}
+	if txErr.Reasons[0].Message != "The conditional request failed" {
+		t.Errorf("expected reason[0].Message='The conditional request failed', got %q", txErr.Reasons[0].Message)
+	}
+	if txErr.Reasons[1].Code != "None" {
+		t.Errorf("expected reason[1].Code=None, got %q", txErr.Reasons[1].Code)
+	}
+	if txErr.Reasons[2].Code != "" {
+		t.Errorf("expected reason[2].Code='', got %q", txErr.Reasons[2].Code)
+	}
+}
+
+func TestWrapAWSError_TransactionCancelled_ExtractReasons(t *testing.T) {
+	awsErr := &dbtypes.TransactionCanceledException{
+		Message: aws.String("tx cancelled"),
+		CancellationReasons: []dbtypes.CancellationReason{
+			{Code: aws.String("ConditionalCheckFailed"), Message: aws.String("item exists")},
+			{Code: aws.String("None")},
+		},
+	}
+	err := wrapAWSError(awsErr)
+
+	reasons := dynago.TxCancelReasons(err)
+	if len(reasons) != 2 {
+		t.Fatalf("expected 2 reasons, got %d", len(reasons))
+	}
+	if reasons[0].Code != "ConditionalCheckFailed" {
+		t.Errorf("expected ConditionalCheckFailed, got %q", reasons[0].Code)
+	}
+	if reasons[0].Message != "item exists" {
+		t.Errorf("expected 'item exists', got %q", reasons[0].Message)
+	}
+}
+
 func TestWrapAWSError_ResourceNotFound(t *testing.T) {
 	awsErr := &dbtypes.ResourceNotFoundException{
 		Message: aws.String("table not found"),
@@ -507,5 +579,19 @@ func TestPutItem_ConditionFailed(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestAWSBackend_ImplementsBackend(t *testing.T) {
+	var _ dynago.Backend = (*AWSBackend)(nil)
+}
+
+// ---------------------------------------------------------------------------
+// NewFromConfig compile check
+// ---------------------------------------------------------------------------
+
+func TestNewFromConfig_CompileCheck(t *testing.T) {
+	// NewFromConfig accepts an aws.Config and returns *AWSBackend.
+	// We verify the signature compiles and the return type satisfies dynago.Backend.
+	var fn func(aws.Config, ...func(*dynamodb.Options)) *AWSBackend = NewFromConfig
+	_ = fn
+
+	// Also verify the returned type satisfies the Backend interface.
 	var _ dynago.Backend = (*AWSBackend)(nil)
 }

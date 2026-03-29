@@ -1,4 +1,4 @@
-package aws
+package awsbackend
 
 import (
 	"testing"
@@ -143,12 +143,12 @@ func TestFromAWSAttributeValue_AllTypes(t *testing.T) {
 
 func TestRoundTrip_Item(t *testing.T) {
 	original := map[string]dynago.AttributeValue{
-		"pk":    {Type: dynago.TypeS, S: "user#123"},
-		"sk":    {Type: dynago.TypeN, N: "1"},
-		"data":  {Type: dynago.TypeB, B: []byte{0xDE, 0xAD}},
-		"flag":  {Type: dynago.TypeBOOL, BOOL: true},
-		"empty": {Type: dynago.TypeNULL, NULL: true},
-		"tags":  {Type: dynago.TypeSS, SS: []string{"go", "aws"}},
+		"pk":     {Type: dynago.TypeS, S: "user#123"},
+		"sk":     {Type: dynago.TypeN, N: "1"},
+		"data":   {Type: dynago.TypeB, B: []byte{0xDE, 0xAD}},
+		"flag":   {Type: dynago.TypeBOOL, BOOL: true},
+		"empty":  {Type: dynago.TypeNULL, NULL: true},
+		"tags":   {Type: dynago.TypeSS, SS: []string{"go", "aws"}},
 		"scores": {Type: dynago.TypeNS, NS: []string{"100", "200"}},
 		"nested": {Type: dynago.TypeM, M: map[string]dynago.AttributeValue{
 			"inner": {Type: dynago.TypeS, S: "value"},
