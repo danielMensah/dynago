@@ -133,6 +133,10 @@
   - ADD on missing path acts as SET; ADD on number does addition; ADD on sets does union
   - DELETE from missing attribute is a no-op (no error)
 - Import cycle: `internal/expr` imports `dynago` for AttributeValue, so dynago package CANNOT import `internal/expr`. Use `condition.go` helpers (conditionExpr, buildCondition, anyToAttributeValue) instead.
+- IMPORT CYCLE in tests: `bench_test.go` (package dynago) CANNOT import `internal/expr` because `internal/expr` imports `dynago`. Put expr benchmarks in `internal/expr/bench_test.go` instead.
+- `noopBackend` pattern: implement all Backend interface methods, store pre-built responses, return them without doing work
+- `codecCache.Range` + `Delete` can be used to clear the codec cache for cold-cache benchmarks
+- `b.Loop()` is available in Go 1.26+ for benchmarks (replaces manual `for i := 0; i < b.N; i++` loops)
 - `buildQueryRequest` and `buildScanRequest` build complete request structs from configs and handle merging name/value maps
 - `conditionExpr` struct holds expression string + names + values maps; `mergeConditions` combines with AND
 - `buildProjection` in get.go builds projection expression strings from attribute name lists
@@ -160,4 +164,15 @@
   - Pagination loop: check LastEvaluatedKey after processing items, set ExclusiveStartKey and adjust Limit for next page
   - Test stubs embed stubBackend and override specific methods (Query/Scan); capture calls slice for assertions
   - QueryLimit and ScanLimit take int (not int32) for API ergonomics, convert internally
+---
+
+## 2026-03-29 - US-020/US-021
+- Implemented all Tier 1 benchmarks for encoding/decoding, expression building, round-trip operations, and key construction
+- Files changed: bench_test.go (new), internal/expr/bench_test.go (new), prd.json (updated passes), progress.txt
+- **Learnings for future iterations:**
+  - Cannot import internal/expr from dynago test files due to import cycle; expr benchmarks must live in internal/expr/bench_test.go
+  - noopBackend implements all 10 Backend methods with pre-built responses for round-trip benchmarks
+  - ColdCache benchmark clears codecCache via Range+Delete before each Marshal call
+  - b.Loop() available in Go 1.26 for cleaner benchmark iteration
+  - Benchmark results (Apple M4 Pro): Encode_Flat ~488ns/9alloc, Decode_Flat ~803ns/2alloc, QueryRoundTrip(100 items) ~83us/218alloc, KeyConstruction ~123ns/4alloc
 ---
