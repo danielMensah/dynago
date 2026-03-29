@@ -5,6 +5,8 @@ package memdb
 import (
 	"context"
 	"fmt"
+	"sort"
+	"strings"
 	"sync"
 
 	"github.com/danielmensah/dynago"
@@ -519,12 +521,579 @@ func (m *MemoryBackend) UpdateItem(_ context.Context, req *dynago.UpdateItemRequ
 	return resp, nil
 }
 
-func (m *MemoryBackend) Query(_ context.Context, _ *dynago.QueryRequest) (*dynago.QueryResponse, error) {
-	return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: Query not implemented"}
+func (m *MemoryBackend) Query(_ context.Context, req *dynago.QueryRequest) (*dynago.QueryResponse, error) {
+	td, err := m.table(req.TableName)
+	if err != nil {
+		return nil, err
+	}
+	td.mu.RLock()
+	defer td.mu.RUnlock()
+
+	// Determine which data source and key schema to use.
+	var items map[string]map[string]map[string]dynago.AttributeValue
+	var hashKeyDef KeyDef
+	var rangeKeyDef *KeyDef
+
+	if req.IndexName != "" {
+		gsi, ok := td.gsis[req.IndexName]
+		if !ok {
+			return nil, &dynago.Error{
+				Sentinel: dynago.ErrValidation,
+				Message:  fmt.Sprintf("memdb: index %q does not exist on table %q", req.IndexName, req.TableName),
+			}
+		}
+		items = gsi.items
+		hashKeyDef = gsi.schema.HashKey
+		rangeKeyDef = gsi.schema.RangeKey
+	} else {
+		items = td.items
+		hashKeyDef = td.schema.HashKey
+		rangeKeyDef = td.schema.RangeKey
+	}
+
+	// Parse the key condition expression to extract partition key value and sort key condition.
+	pkValue, skCond, err := parseKeyCondition(req.KeyConditionExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, hashKeyDef.Name, rangeKeyDef)
+	if err != nil {
+		return nil, err
+	}
+
+	// Look up the partition.
+	hashKey := keyString(pkValue)
+	partition, ok := items[hashKey]
+	if !ok {
+		return &dynago.QueryResponse{}, nil
+	}
+
+	// Collect and sort range keys.
+	rangeKeys := make([]string, 0, len(partition))
+	for rk := range partition {
+		rangeKeys = append(rangeKeys, rk)
+	}
+	sort.Strings(rangeKeys)
+
+	// Apply sort direction.
+	ascending := true
+	if req.ScanIndexForward != nil && !*req.ScanIndexForward {
+		ascending = false
+	}
+	if !ascending {
+		// Reverse the sorted keys.
+		for i, j := 0, len(rangeKeys)-1; i < j; i, j = i+1, j-1 {
+			rangeKeys[i], rangeKeys[j] = rangeKeys[j], rangeKeys[i]
+		}
+	}
+
+	// Find ExclusiveStartKey position.
+	startIdx := 0
+	if len(req.ExclusiveStartKey) > 0 {
+		startRangeKey := "_"
+		if rangeKeyDef != nil {
+			if rv, exists := req.ExclusiveStartKey[rangeKeyDef.Name]; exists {
+				startRangeKey = keyString(rv)
+			}
+		}
+		// Skip past the start key.
+		for i, rk := range rangeKeys {
+			if rk == startRangeKey {
+				startIdx = i + 1
+				break
+			}
+		}
+	}
+
+	// Build the table key schema for building LastEvaluatedKey.
+	tableHashDef := td.schema.HashKey
+	tableRangeDef := td.schema.RangeKey
+
+	// First, collect candidate items matching the sort key condition.
+	type candidate struct {
+		item map[string]dynago.AttributeValue
+	}
+	var candidates []candidate
+	for i := startIdx; i < len(rangeKeys); i++ {
+		rk := rangeKeys[i]
+		item := partition[rk]
+		if skCond != nil && !matchesSortKeyCondition(item, skCond, rangeKeyDef) {
+			continue
+		}
+		candidates = append(candidates, candidate{item: item})
+	}
+
+	// Apply Limit: DynamoDB Limit caps items evaluated (scanned), not results.
+	limit := int(req.Limit)
+	hasMore := false
+	if limit > 0 && len(candidates) > limit {
+		candidates = candidates[:limit]
+		hasMore = true
+	}
+
+	scannedCount := int32(len(candidates))
+	var resultItems []map[string]dynago.AttributeValue
+
+	for _, c := range candidates {
+		// Apply filter expression.
+		if req.FilterExpression != "" {
+			matched, evalErr := evalCondition(req.FilterExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, c.item)
+			if evalErr != nil {
+				return nil, evalErr
+			}
+			if !matched {
+				continue
+			}
+		}
+		// Apply projection.
+		resultItem := deepCopyItem(c.item)
+		resultItem = projectItem(resultItem, req.ProjectionExpression, req.ExpressionAttributeNames)
+		resultItems = append(resultItems, resultItem)
+	}
+
+	resp := &dynago.QueryResponse{
+		Items:        resultItems,
+		Count:        int32(len(resultItems)),
+		ScannedCount: scannedCount,
+	}
+
+	// Set LastEvaluatedKey if there are more items.
+	if hasMore && len(candidates) > 0 {
+		lastItem := candidates[len(candidates)-1].item
+		resp.LastEvaluatedKey = buildLastEvaluatedKey(lastItem, tableHashDef, tableRangeDef)
+	}
+
+	return resp, nil
 }
 
-func (m *MemoryBackend) Scan(_ context.Context, _ *dynago.ScanRequest) (*dynago.ScanResponse, error) {
-	return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: Scan not implemented"}
+// buildLastEvaluatedKey constructs the LastEvaluatedKey from an item and table key schema.
+func buildLastEvaluatedKey(item map[string]dynago.AttributeValue, hashDef KeyDef, rangeDef *KeyDef) map[string]dynago.AttributeValue {
+	key := make(map[string]dynago.AttributeValue)
+	if v, ok := item[hashDef.Name]; ok {
+		key[hashDef.Name] = deepCopyAV(v)
+	}
+	if rangeDef != nil {
+		if v, ok := item[rangeDef.Name]; ok {
+			key[rangeDef.Name] = deepCopyAV(v)
+		}
+	}
+	return key
+}
+
+// sortKeyCondition holds a parsed sort key condition.
+type sortKeyCondition struct {
+	op     string // "=", "<", "<=", ">", ">=", "begins_with", "BETWEEN"
+	value  dynago.AttributeValue
+	value2 dynago.AttributeValue // used for BETWEEN high bound
+	attr   string                // resolved sort key attribute name
+}
+
+// parseKeyCondition extracts the partition key value and optional sort key condition
+// from a KeyConditionExpression like "#pk = :pk0 AND begins_with(#sk, :sk0)".
+func parseKeyCondition(expr string, names map[string]string, values map[string]dynago.AttributeValue, pkName string, rangeDef *KeyDef) (dynago.AttributeValue, *sortKeyCondition, error) {
+	// Split on AND (case insensitive).
+	parts := splitOnAND(expr)
+	if len(parts) == 0 || len(parts) > 2 {
+		return dynago.AttributeValue{}, nil, &dynago.Error{
+			Sentinel: dynago.ErrValidation,
+			Message:  fmt.Sprintf("memdb: invalid key condition expression: %q", expr),
+		}
+	}
+
+	var pkValue dynago.AttributeValue
+	var skCond *sortKeyCondition
+	pkFound := false
+
+	for _, part := range parts {
+		part = trimSpace(part)
+
+		// Check for begins_with function.
+		lowerPart := strings.ToLower(part)
+		if strings.HasPrefix(lowerPart, "begins_with(") || strings.HasPrefix(lowerPart, "begins_with (") {
+			sc, err := parseBeginsWith(part, names, values, rangeDef)
+			if err != nil {
+				return dynago.AttributeValue{}, nil, err
+			}
+			skCond = sc
+			continue
+		}
+
+		// Check for BETWEEN.
+		if containsBETWEEN(part) {
+			sc, err := parseBetween(part, names, values, rangeDef)
+			if err != nil {
+				return dynago.AttributeValue{}, nil, err
+			}
+			skCond = sc
+			continue
+		}
+
+		// Parse comparison: attr op value.
+		attr, op, val, err := parseSimpleComparison(part, names, values)
+		if err != nil {
+			return dynago.AttributeValue{}, nil, err
+		}
+
+		if attr == pkName && op == "=" {
+			pkValue = val
+			pkFound = true
+		} else if rangeDef != nil && attr == rangeDef.Name {
+			skCond = &sortKeyCondition{
+				op:    op,
+				value: val,
+				attr:  attr,
+			}
+		} else {
+			return dynago.AttributeValue{}, nil, &dynago.Error{
+				Sentinel: dynago.ErrValidation,
+				Message:  fmt.Sprintf("memdb: unexpected attribute %q in key condition", attr),
+			}
+		}
+	}
+
+	if !pkFound {
+		return dynago.AttributeValue{}, nil, &dynago.Error{
+			Sentinel: dynago.ErrValidation,
+			Message:  "memdb: partition key condition not found in key condition expression",
+		}
+	}
+
+	return pkValue, skCond, nil
+}
+
+// splitOnAND splits a key condition expression on the top-level " AND " that
+// separates the partition key condition from the sort key condition. It must
+// not split on the AND inside "BETWEEN x AND y". It does this by splitting
+// into at most 2 parts: the first equality condition for the partition key,
+// and everything else as the sort key condition.
+func splitOnAND(s string) []string {
+	upper := strings.ToUpper(s)
+	depth := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] == '(' {
+			depth++
+		} else if s[i] == ')' {
+			depth--
+		} else if depth == 0 && i+5 <= len(s) && upper[i:i+5] == " AND " {
+			left := trimSpace(s[:i])
+			right := trimSpace(s[i+5:])
+			// If the left side is a simple equality (contains = but not BETWEEN),
+			// this is the partition/sort key split.
+			leftUpper := strings.ToUpper(left)
+			if !strings.Contains(leftUpper, " BETWEEN ") {
+				return []string{left, right}
+			}
+		}
+	}
+	return []string{s}
+}
+
+// containsBETWEEN checks if the part contains a BETWEEN keyword (case insensitive).
+func containsBETWEEN(s string) bool {
+	upper := strings.ToUpper(s)
+	return strings.Contains(upper, " BETWEEN ")
+}
+
+// parseBeginsWith parses "begins_with(#sk, :sk0)" style expressions.
+func parseBeginsWith(part string, names map[string]string, values map[string]dynago.AttributeValue, rangeDef *KeyDef) (*sortKeyCondition, error) {
+	// Extract content inside parentheses.
+	openParen := strings.Index(part, "(")
+	closeParen := strings.LastIndex(part, ")")
+	if openParen < 0 || closeParen < 0 {
+		return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: invalid begins_with expression"}
+	}
+	inner := part[openParen+1 : closeParen]
+	args := strings.SplitN(inner, ",", 2)
+	if len(args) != 2 {
+		return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: begins_with requires 2 arguments"}
+	}
+
+	attrTok := trimSpace(args[0])
+	valTok := trimSpace(args[1])
+
+	attrName := resolveNamePlaceholder(attrTok, names)
+	val, err := resolveValuePlaceholder(valTok, values)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sortKeyCondition{
+		op:    "begins_with",
+		value: val,
+		attr:  attrName,
+	}, nil
+}
+
+// parseBetween parses "#sk BETWEEN :lo AND :hi" style expressions.
+func parseBetween(part string, names map[string]string, values map[string]dynago.AttributeValue, rangeDef *KeyDef) (*sortKeyCondition, error) {
+	upper := strings.ToUpper(part)
+	betweenIdx := strings.Index(upper, " BETWEEN ")
+	if betweenIdx < 0 {
+		return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: invalid BETWEEN expression"}
+	}
+	attrTok := trimSpace(part[:betweenIdx])
+	rest := part[betweenIdx+9:] // after " BETWEEN "
+
+	// Split rest on AND.
+	andUpper := strings.ToUpper(rest)
+	andIdx := strings.Index(andUpper, " AND ")
+	if andIdx < 0 {
+		return nil, &dynago.Error{Sentinel: dynago.ErrValidation, Message: "memdb: BETWEEN requires AND"}
+	}
+	loTok := trimSpace(rest[:andIdx])
+	hiTok := trimSpace(rest[andIdx+5:])
+
+	attrName := resolveNamePlaceholder(attrTok, names)
+	loVal, err := resolveValuePlaceholder(loTok, values)
+	if err != nil {
+		return nil, err
+	}
+	hiVal, err := resolveValuePlaceholder(hiTok, values)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sortKeyCondition{
+		op:     "BETWEEN",
+		value:  loVal,
+		value2: hiVal,
+		attr:   attrName,
+	}, nil
+}
+
+// parseSimpleComparison parses "attr op value" from a string like "#pk = :pk0".
+func parseSimpleComparison(part string, names map[string]string, values map[string]dynago.AttributeValue) (string, string, dynago.AttributeValue, error) {
+	// Find the operator.
+	ops := []string{"<=", ">=", "<>", "=", "<", ">"}
+	for _, op := range ops {
+		idx := strings.Index(part, op)
+		if idx >= 0 {
+			attrTok := trimSpace(part[:idx])
+			valTok := trimSpace(part[idx+len(op):])
+			attrName := resolveNamePlaceholder(attrTok, names)
+			val, err := resolveValuePlaceholder(valTok, values)
+			if err != nil {
+				return "", "", dynago.AttributeValue{}, err
+			}
+			return attrName, op, val, nil
+		}
+	}
+	return "", "", dynago.AttributeValue{}, &dynago.Error{
+		Sentinel: dynago.ErrValidation,
+		Message:  fmt.Sprintf("memdb: cannot parse key condition part: %q", part),
+	}
+}
+
+// resolveNamePlaceholder resolves #name placeholders to attribute names.
+func resolveNamePlaceholder(tok string, names map[string]string) string {
+	if len(tok) > 0 && tok[0] == '#' {
+		if resolved, ok := names[tok]; ok {
+			return resolved
+		}
+	}
+	return tok
+}
+
+// resolveValuePlaceholder resolves :value placeholders to AttributeValues.
+func resolveValuePlaceholder(tok string, values map[string]dynago.AttributeValue) (dynago.AttributeValue, error) {
+	if len(tok) > 0 && tok[0] == ':' {
+		if v, ok := values[tok]; ok {
+			return v, nil
+		}
+		return dynago.AttributeValue{}, &dynago.Error{
+			Sentinel: dynago.ErrValidation,
+			Message:  fmt.Sprintf("memdb: unknown value placeholder %q", tok),
+		}
+	}
+	return dynago.AttributeValue{}, &dynago.Error{
+		Sentinel: dynago.ErrValidation,
+		Message:  fmt.Sprintf("memdb: expected value placeholder, got %q", tok),
+	}
+}
+
+// matchesSortKeyCondition checks if an item matches the sort key condition.
+func matchesSortKeyCondition(item map[string]dynago.AttributeValue, cond *sortKeyCondition, rangeDef *KeyDef) bool {
+	if rangeDef == nil {
+		return true
+	}
+	av, ok := item[cond.attr]
+	if !ok {
+		return false
+	}
+
+	switch cond.op {
+	case "=":
+		return keyString(av) == keyString(cond.value)
+	case "begins_with":
+		if av.Type == dynago.TypeS && cond.value.Type == dynago.TypeS {
+			return strings.HasPrefix(av.S, cond.value.S)
+		}
+		if av.Type == dynago.TypeB && cond.value.Type == dynago.TypeB {
+			return len(av.B) >= len(cond.value.B) && string(av.B[:len(cond.value.B)]) == string(cond.value.B)
+		}
+		return false
+	case "<":
+		return compareKeyValues(av, cond.value) < 0
+	case "<=":
+		return compareKeyValues(av, cond.value) <= 0
+	case ">":
+		return compareKeyValues(av, cond.value) > 0
+	case ">=":
+		return compareKeyValues(av, cond.value) >= 0
+	case "BETWEEN":
+		return compareKeyValues(av, cond.value) >= 0 && compareKeyValues(av, cond.value2) <= 0
+	default:
+		return false
+	}
+}
+
+// compareKeyValues compares two key AttributeValues, returning -1, 0, or 1.
+func compareKeyValues(a, b dynago.AttributeValue) int {
+	if a.Type != b.Type {
+		return 0
+	}
+	switch a.Type {
+	case dynago.TypeS:
+		return strings.Compare(a.S, b.S)
+	case dynago.TypeN:
+		af, _ := parseFloat(a.N)
+		bf, _ := parseFloat(b.N)
+		switch {
+		case af < bf:
+			return -1
+		case af > bf:
+			return 1
+		default:
+			return 0
+		}
+	case dynago.TypeB:
+		return strings.Compare(string(a.B), string(b.B))
+	default:
+		return 0
+	}
+}
+
+func (m *MemoryBackend) Scan(_ context.Context, req *dynago.ScanRequest) (*dynago.ScanResponse, error) {
+	td, err := m.table(req.TableName)
+	if err != nil {
+		return nil, err
+	}
+	td.mu.RLock()
+	defer td.mu.RUnlock()
+
+	var items map[string]map[string]map[string]dynago.AttributeValue
+	var tableHashDef KeyDef
+	var tableRangeDef *KeyDef
+
+	if req.IndexName != "" {
+		gsi, ok := td.gsis[req.IndexName]
+		if !ok {
+			return nil, &dynago.Error{
+				Sentinel: dynago.ErrValidation,
+				Message:  fmt.Sprintf("memdb: index %q does not exist on table %q", req.IndexName, req.TableName),
+			}
+		}
+		items = gsi.items
+		tableHashDef = gsi.schema.HashKey
+		if gsi.schema.RangeKey != nil {
+			tableRangeDef = gsi.schema.RangeKey
+		}
+	} else {
+		items = td.items
+		tableHashDef = td.schema.HashKey
+		tableRangeDef = td.schema.RangeKey
+	}
+
+	// Collect all items in deterministic order for pagination.
+	// Sort hash keys, then range keys within each hash.
+	hashKeys := make([]string, 0, len(items))
+	for hk := range items {
+		hashKeys = append(hashKeys, hk)
+	}
+	sort.Strings(hashKeys)
+
+	type itemRef struct {
+		hashKey  string
+		rangeKey string
+	}
+	var allRefs []itemRef
+	for _, hk := range hashKeys {
+		rangeMap := items[hk]
+		rangeKeys := make([]string, 0, len(rangeMap))
+		for rk := range rangeMap {
+			rangeKeys = append(rangeKeys, rk)
+		}
+		sort.Strings(rangeKeys)
+		for _, rk := range rangeKeys {
+			allRefs = append(allRefs, itemRef{hashKey: hk, rangeKey: rk})
+		}
+	}
+
+	// Find ExclusiveStartKey position.
+	startIdx := 0
+	if len(req.ExclusiveStartKey) > 0 {
+		startHash := ""
+		if hv, exists := req.ExclusiveStartKey[tableHashDef.Name]; exists {
+			startHash = keyString(hv)
+		}
+		startRange := "_"
+		if tableRangeDef != nil {
+			if rv, exists := req.ExclusiveStartKey[tableRangeDef.Name]; exists {
+				startRange = keyString(rv)
+			}
+		}
+		for i, ref := range allRefs {
+			if ref.hashKey == startHash && ref.rangeKey == startRange {
+				startIdx = i + 1
+				break
+			}
+		}
+	}
+
+	// Collect candidates from startIdx.
+	type scanCandidate struct {
+		item map[string]dynago.AttributeValue
+	}
+	var candidates []scanCandidate
+	for i := startIdx; i < len(allRefs); i++ {
+		ref := allRefs[i]
+		candidates = append(candidates, scanCandidate{item: items[ref.hashKey][ref.rangeKey]})
+	}
+
+	// Apply Limit: DynamoDB Limit caps items evaluated (scanned), not results.
+	limit := int(req.Limit)
+	hasMore := false
+	if limit > 0 && len(candidates) > limit {
+		candidates = candidates[:limit]
+		hasMore = true
+	}
+
+	scannedCount := int32(len(candidates))
+	var resultItems []map[string]dynago.AttributeValue
+
+	for _, c := range candidates {
+		if req.FilterExpression != "" {
+			matched, evalErr := evalCondition(req.FilterExpression, req.ExpressionAttributeNames, req.ExpressionAttributeValues, c.item)
+			if evalErr != nil {
+				return nil, evalErr
+			}
+			if !matched {
+				continue
+			}
+		}
+		resultItem := deepCopyItem(c.item)
+		resultItem = projectItem(resultItem, req.ProjectionExpression, req.ExpressionAttributeNames)
+		resultItems = append(resultItems, resultItem)
+	}
+
+	resp := &dynago.ScanResponse{
+		Items:        resultItems,
+		Count:        int32(len(resultItems)),
+		ScannedCount: scannedCount,
+	}
+
+	if hasMore && len(candidates) > 0 {
+		lastItem := candidates[len(candidates)-1].item
+		resp.LastEvaluatedKey = buildLastEvaluatedKey(lastItem, tableHashDef, tableRangeDef)
+	}
+
+	return resp, nil
 }
 
 func (m *MemoryBackend) BatchGetItem(_ context.Context, req *dynago.BatchGetItemRequest) (*dynago.BatchGetItemResponse, error) {

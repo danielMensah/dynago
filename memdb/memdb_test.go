@@ -874,23 +874,6 @@ func TestHashOnlyTable(t *testing.T) {
 	}
 }
 
-// --- Unimplemented stubs ---
-
-func TestUnimplementedStubs(t *testing.T) {
-	m := New()
-	ctx := context.Background()
-
-	_, err := m.Query(ctx, &dynago.QueryRequest{})
-	if !errors.Is(err, dynago.ErrValidation) {
-		t.Fatal("expected ErrValidation from Query stub")
-	}
-
-	_, err = m.Scan(ctx, &dynago.ScanRequest{})
-	if !errors.Is(err, dynago.ErrValidation) {
-		t.Fatal("expected ErrValidation from Scan stub")
-	}
-}
-
 // ---------------------------------------------------------------------------
 // US-406: Transaction Support
 // ---------------------------------------------------------------------------

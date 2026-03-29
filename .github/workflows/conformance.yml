@@ -1,0 +1,32 @@
+name: Conformance Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+
+    services:
+      dynamodb-local:
+        image: amazon/dynamodb-local:latest
+        ports:
+          - 8000:8000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Run conformance tests
+        env:
+          DYNAMODB_LOCAL_ENDPOINT: http://localhost:8000
+        run: go test ./... -tags=conformance -race -v
+
+      - name: Run unit tests
+        run: go test ./... -race
