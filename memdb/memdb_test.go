@@ -1566,7 +1566,7 @@ func TestBatchWriteItem_NoUnprocessedItems(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if resp.UnprocessedItems != nil && len(resp.UnprocessedItems) > 0 {
+	if len(resp.UnprocessedItems) > 0 {
 		t.Fatal("expected no unprocessed items")
 	}
 }
@@ -1759,7 +1759,7 @@ func TestBatchGetItem_NoUnprocessedKeys(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if resp.UnprocessedKeys != nil && len(resp.UnprocessedKeys) > 0 {
+	if len(resp.UnprocessedKeys) > 0 {
 		t.Fatal("expected no unprocessed keys")
 	}
 }

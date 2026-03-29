@@ -14,7 +14,6 @@ type Marshaler interface {
 }
 
 var (
-	marshalerType = reflect.TypeOf((*Marshaler)(nil)).Elem()
 	timeType      = reflect.TypeOf(time.Time{})
 	byteSliceType = reflect.TypeOf([]byte(nil))
 )

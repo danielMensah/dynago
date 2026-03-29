@@ -1,4 +1,18 @@
 // Package dynagotel provides OpenTelemetry instrumentation middleware for dynago.
+//
+// It wraps a dynago.Backend to automatically create spans and record metrics
+// for every DynamoDB operation. Use [NewMiddleware] with [WithTracer] and/or
+// [WithMeter] to enable tracing and metrics respectively.
+//
+// Example:
+//
+//	tp := sdktrace.NewTracerProvider(...)
+//	mp := sdkmetric.NewMeterProvider(...)
+//	otelMW := dynagotel.NewMiddleware(
+//	    dynagotel.WithTracer(tp.Tracer("dynago")),
+//	    dynagotel.WithMeter(mp.Meter("dynago")),
+//	)
+//	db := dynago.New(backend, dynago.WithMiddleware(otelMW))
 package dynagotel
 
 import (

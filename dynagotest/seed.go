@@ -1,6 +1,25 @@
 // Package dynagotest provides test helpers for the dynago DynamoDB library.
 // It includes seed utilities for populating tables and assertion helpers for
 // verifying table state in tests.
+//
+// Example:
+//
+//	func TestMyFeature(t *testing.T) {
+//	    backend := memdb.New()
+//	    backend.CreateTable("users", memdb.TableSchema{
+//	        HashKey: memdb.KeyDef{Name: "PK", Type: memdb.StringKey},
+//	    })
+//	    db := dynago.New(backend)
+//	    table := db.Table("users")
+//
+//	    // Seed test data
+//	    dynagotest.Seed(ctx, table, []any{User{PK: "u#1", Name: "Alice"}})
+//
+//	    // Assert
+//	    dynagotest.AssertItemExists(t, table, dynago.Key("PK", "u#1"),
+//	        dynagotest.HasAttribute("Name", "Alice"),
+//	    )
+//	}
 package dynagotest
 
 import (

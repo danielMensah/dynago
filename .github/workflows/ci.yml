@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.26']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Run tests
+        run: go test ./... -race -count=1
+
+      - name: Run vet
+        run: go vet ./...
+
+      - name: Install staticcheck
+        run: go install honnef.co/go/tools/cmd/staticcheck@latest
+
+      - name: Run staticcheck
+        run: staticcheck ./...
+
+      - name: Test dynagotel sub-module
+        run: |
+          cd dynagotel
+          go test ./... -race -count=1
+
+      - name: Test benchmarks sub-module
+        run: |
+          cd benchmarks
+          go test ./... -race -count=1
+
+  benchmark:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
+      - name: Run benchmarks (root module)
+        run: go test ./... -bench=. -benchmem -run='^$' -count=3 | tee bench.txt
+
+      - name: Run benchmarks (benchmarks sub-module)
+        run: |
+          cd benchmarks
+          go test ./... -bench=. -benchmem -run='^$' -count=3 | tee -a ../bench.txt
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: bench.txt
+          retention-days: 30
+
+      - name: Publish benchmark results to GitHub Pages
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'go'
+          output-file-path: bench.txt
+          auto-push: true
+          alert-threshold: '120%'
+          comment-on-alert: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          gh-pages-branch: gh-pages

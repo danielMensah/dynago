@@ -23,7 +23,7 @@
         "Tests pass"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "notes": "Single module architecture — awsbackend can import internal/expr directly. No separate go.mod."
     },
     {
@@ -42,7 +42,7 @@
         "Tests pass"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-500 (awsbackend package and attribute translation)."
     },
     {
@@ -58,7 +58,7 @@
         "Tests pass"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-500 (AWSBackend type exists)."
     },
     {
@@ -80,7 +80,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on all prior phases being complete. Review all packages including awsbackend, dynagotest, dynagotel."
     },
     {
@@ -98,7 +98,7 @@
         "Typecheck passes (any Go code in README should be valid)"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "Module path is github.com/danielMensah/dynago. awsbackend is in-module (no separate go get)."
     },
     {
@@ -115,7 +115,7 @@
         "Code examples are syntactically valid Go"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
@@ -135,7 +135,7 @@
         "Code examples are syntactically valid Go"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on Phase 2 stories (Entity, Registry, Collection queries) being implemented."
     },
     {
@@ -156,7 +156,7 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on all packages existing. dynagotel/ and benchmarks/ are separate modules — CI must cd into them and run go test separately."
     },
     {
@@ -173,7 +173,7 @@
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "Depends on US-507 (CI workflow that produces bench.txt). Requires GitHub Pages enabled on the repo."
     },
     {
@@ -193,7 +193,7 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "Final audit before tagging. License is MIT."
     },
     {

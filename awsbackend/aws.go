@@ -1,17 +1,17 @@
-// Package aws provides an AWS SDK v2 adapter that implements the dynago.Backend interface.
-package aws
+package awsbackend
 
 import (
 	"context"
 	"errors"
 	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/danielmensah/dynago"
 )
 
-// DynamoDBAPI is the subset of *dynamodb.Client methods used by AWSBackend.
+// DynamoDBAPI is the subset of [dynamodb.Client] methods used by [AWSBackend].
 // Accepting an interface enables unit testing with mock implementations.
 type DynamoDBAPI interface {
 	GetItem(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
@@ -38,11 +38,25 @@ type AWSBackend struct {
 var _ dynago.Backend = (*AWSBackend)(nil)
 
 // NewAWSBackend creates a new AWSBackend wrapping the given DynamoDB client.
+// For most use cases prefer [NewFromConfig], which creates the client internally.
 func NewAWSBackend(client DynamoDBAPI) *AWSBackend {
 	return &AWSBackend{client: client}
 }
 
-// wrapAWSError translates AWS SDK errors into dynago sentinel errors.
+// NewFromConfig creates a new AWSBackend using the given AWS config.
+// Options are passed through to dynamodb.NewFromConfig.
+//
+// Example:
+//
+//	cfg, err := config.LoadDefaultConfig(ctx)
+//	if err != nil { /* handle error */ }
+//	backend := awsbackend.NewFromConfig(cfg)
+func NewFromConfig(cfg aws.Config, opts ...func(*dynamodb.Options)) *AWSBackend {
+	client := dynamodb.NewFromConfig(cfg, opts...)
+	return &AWSBackend{client: client}
+}
+
+// wrapAWSError translates AWS SDK errors into dynago error types.
 func wrapAWSError(err error) error {
 	if err == nil {
 		return nil
@@ -55,7 +69,21 @@ func wrapAWSError(err error) error {
 
 	var txCancelled *types.TransactionCanceledException
 	if errors.As(err, &txCancelled) {
-		return &dynago.Error{Sentinel: dynago.ErrTransactionCancelled, Cause: err}
+		reasons := make([]dynago.TxCancelReason, len(txCancelled.CancellationReasons))
+		for i, cr := range txCancelled.CancellationReasons {
+			var code, msg string
+			if cr.Code != nil {
+				code = *cr.Code
+			}
+			if cr.Message != nil {
+				msg = *cr.Message
+			}
+			reasons[i] = dynago.TxCancelReason{
+				Code:    code,
+				Message: msg,
+			}
+		}
+		return &dynago.TxCancelledError{Reasons: reasons}
 	}
 
 	var resNotFound *types.ResourceNotFoundException
@@ -71,10 +99,3 @@ func wrapAWSError(err error) error {
 	return err
 }
 
-// strPtr returns a *string from a string, or nil if empty.
-func strPtr(s string) *string {
-	if s == "" {
-		return nil
-	}
-	return &s
-}

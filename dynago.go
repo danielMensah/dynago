@@ -1,9 +1,36 @@
+// Package dynago provides a type-safe, generics-first DynamoDB client for Go.
+//
+// DynaGo wraps DynamoDB operations behind a clean Backend interface, enabling
+// in-memory testing with memdb, real AWS calls with awsbackend, and
+// cross-cutting middleware for logging and OpenTelemetry.
+//
+// Quick start:
+//
+//	backend := memdb.New()
+//	backend.CreateTable("users", memdb.TableSchema{
+//	    HashKey: memdb.KeyDef{Name: "PK", Type: memdb.StringKey},
+//	})
+//	db := dynago.New(backend)
+//	table := db.Table("users")
+//
+//	// Put
+//	err := table.Put(ctx, User{PK: "u#1", Name: "Alice"})
+//
+//	// Get
+//	user, err := dynago.Get[User](ctx, table, dynago.Key("PK", "u#1"))
+//
+//	// Query
+//	users, err := dynago.Query[User](ctx, table,
+//	    dynago.Partition("PK", "u#1"),
+//	    dynago.QueryLimit(10),
+//	)
 package dynago
 
 // Option configures a DB instance.
 type Option func(*DB)
 
 // DB is the top-level handle for interacting with DynamoDB through a Backend.
+// Create one with [New] and then call [DB.Table] to bind to a specific table.
 type DB struct {
 	backend Backend
 }
@@ -20,7 +47,9 @@ func New(backend Backend, opts ...Option) *DB {
 // TableOption configures a Table instance.
 type TableOption func(*Table)
 
-// Table represents a single DynamoDB table bound to the DB's backend.
+// Table represents a single DynamoDB table bound to the DB's backend. Use
+// [DB.Table] to create one and pass it to operations such as [Get], [Query],
+// and [Table.Put].
 type Table struct {
 	name     string
 	backend  Backend
