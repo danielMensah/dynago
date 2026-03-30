@@ -98,4 +98,3 @@ func wrapAWSError(err error) error {
 
 	return err
 }
-

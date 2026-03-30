@@ -10,7 +10,7 @@ import (
 // configured responses. It supports multiple calls for pagination testing.
 type queryStubBackend struct {
 	stubBackend
-	queryFunc func(ctx context.Context, req *QueryRequest) (*QueryResponse, error)
+	queryFunc  func(ctx context.Context, req *QueryRequest) (*QueryResponse, error)
 	queryCalls []*QueryRequest
 }
 

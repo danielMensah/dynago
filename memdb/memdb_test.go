@@ -12,7 +12,7 @@ import (
 func newTestBackend() *MemoryBackend {
 	m := New()
 	m.CreateTable("users", TableSchema{
-		HashKey: KeyDef{Name: "PK", Type: StringKey},
+		HashKey:  KeyDef{Name: "PK", Type: StringKey},
 		RangeKey: &KeyDef{Name: "SK", Type: StringKey},
 	})
 	return m
@@ -275,9 +275,9 @@ func TestPutItemConditionExpression(t *testing.T) {
 
 	// Put with attribute_not_exists condition should succeed for new item
 	_, err := m.PutItem(ctx, &dynago.PutItemRequest{
-		TableName:           "users",
-		Item:                map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
-		ConditionExpression: "attribute_not_exists(#pk)",
+		TableName:                "users",
+		Item:                     map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+		ConditionExpression:      "attribute_not_exists(#pk)",
 		ExpressionAttributeNames: map[string]string{"#pk": "PK"},
 	})
 	if err != nil {
@@ -286,9 +286,9 @@ func TestPutItemConditionExpression(t *testing.T) {
 
 	// Put again with same condition should fail
 	_, err = m.PutItem(ctx, &dynago.PutItemRequest{
-		TableName:           "users",
-		Item:                map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Bob")},
-		ConditionExpression: "attribute_not_exists(#pk)",
+		TableName:                "users",
+		Item:                     map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Bob")},
+		ConditionExpression:      "attribute_not_exists(#pk)",
 		ExpressionAttributeNames: map[string]string{"#pk": "PK"},
 	})
 	if !errors.Is(err, dynago.ErrConditionFailed) {
@@ -436,9 +436,9 @@ func TestDeleteItemConditionFails(t *testing.T) {
 
 	// Delete with condition on non-existent item fails
 	_, err := m.DeleteItem(ctx, &dynago.DeleteItemRequest{
-		TableName:           "users",
-		Key:                 map[string]dynago.AttributeValue{"PK": strAV("nope"), "SK": strAV("nope")},
-		ConditionExpression: "attribute_exists(#pk)",
+		TableName:                "users",
+		Key:                      map[string]dynago.AttributeValue{"PK": strAV("nope"), "SK": strAV("nope")},
+		ConditionExpression:      "attribute_exists(#pk)",
 		ExpressionAttributeNames: map[string]string{"#pk": "PK"},
 	})
 	if !errors.Is(err, dynago.ErrConditionFailed) {
@@ -456,9 +456,9 @@ func TestDeleteItemConditionPasses(t *testing.T) {
 	})
 
 	_, err := m.DeleteItem(ctx, &dynago.DeleteItemRequest{
-		TableName:           "users",
-		Key:                 map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
-		ConditionExpression: "#name = :val",
+		TableName:                 "users",
+		Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+		ConditionExpression:       "#name = :val",
 		ExpressionAttributeNames:  map[string]string{"#name": "Name"},
 		ExpressionAttributeValues: map[string]dynago.AttributeValue{":val": strAV("Alice")},
 	})
@@ -479,12 +479,12 @@ func TestUpdateItemSetAttribute(t *testing.T) {
 	})
 
 	resp, err := m.UpdateItem(ctx, &dynago.UpdateItemRequest{
-		TableName:        "users",
-		Key:              map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
-		UpdateExpression: "SET #name = :val",
+		TableName:                 "users",
+		Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+		UpdateExpression:          "SET #name = :val",
 		ExpressionAttributeNames:  map[string]string{"#name": "Name"},
 		ExpressionAttributeValues: map[string]dynago.AttributeValue{":val": strAV("Bob")},
-		ReturnValues:     "ALL_NEW",
+		ReturnValues:              "ALL_NEW",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -499,12 +499,12 @@ func TestUpdateItemUpsert(t *testing.T) {
 	ctx := context.Background()
 
 	resp, err := m.UpdateItem(ctx, &dynago.UpdateItemRequest{
-		TableName:        "users",
-		Key:              map[string]dynago.AttributeValue{"PK": strAV("user#new"), "SK": strAV("profile")},
-		UpdateExpression: "SET #name = :val",
+		TableName:                 "users",
+		Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#new"), "SK": strAV("profile")},
+		UpdateExpression:          "SET #name = :val",
 		ExpressionAttributeNames:  map[string]string{"#name": "Name"},
 		ExpressionAttributeValues: map[string]dynago.AttributeValue{":val": strAV("Charlie")},
-		ReturnValues:     "ALL_NEW",
+		ReturnValues:              "ALL_NEW",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -527,12 +527,12 @@ func TestUpdateItemReturnValuesOLD(t *testing.T) {
 	})
 
 	resp, err := m.UpdateItem(ctx, &dynago.UpdateItemRequest{
-		TableName:        "users",
-		Key:              map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
-		UpdateExpression: "SET #name = :val",
+		TableName:                 "users",
+		Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+		UpdateExpression:          "SET #name = :val",
 		ExpressionAttributeNames:  map[string]string{"#name": "Name"},
 		ExpressionAttributeValues: map[string]dynago.AttributeValue{":val": strAV("Bob")},
-		ReturnValues:     "ALL_OLD",
+		ReturnValues:              "ALL_OLD",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -552,10 +552,10 @@ func TestUpdateItemConditionFails(t *testing.T) {
 	})
 
 	_, err := m.UpdateItem(ctx, &dynago.UpdateItemRequest{
-		TableName:           "users",
-		Key:                 map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
-		UpdateExpression:    "SET #name = :newval",
-		ConditionExpression: "#name = :oldval",
+		TableName:                 "users",
+		Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+		UpdateExpression:          "SET #name = :newval",
+		ConditionExpression:       "#name = :oldval",
 		ExpressionAttributeNames:  map[string]string{"#name": "Name"},
 		ExpressionAttributeValues: map[string]dynago.AttributeValue{":newval": strAV("Bob"), ":oldval": strAV("Wrong")},
 	})
@@ -574,11 +574,11 @@ func TestUpdateItemRemove(t *testing.T) {
 	})
 
 	resp, err := m.UpdateItem(ctx, &dynago.UpdateItemRequest{
-		TableName:        "users",
-		Key:              map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
-		UpdateExpression: "REMOVE #age",
+		TableName:                "users",
+		Key:                      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+		UpdateExpression:         "REMOVE #age",
 		ExpressionAttributeNames: map[string]string{"#age": "Age"},
-		ReturnValues:     "ALL_NEW",
+		ReturnValues:             "ALL_NEW",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -601,12 +601,12 @@ func TestUpdateItemAdd(t *testing.T) {
 	})
 
 	resp, err := m.UpdateItem(ctx, &dynago.UpdateItemRequest{
-		TableName:        "users",
-		Key:              map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
-		UpdateExpression: "ADD #counter :val",
+		TableName:                 "users",
+		Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+		UpdateExpression:          "ADD #counter :val",
 		ExpressionAttributeNames:  map[string]string{"#counter": "Counter"},
 		ExpressionAttributeValues: map[string]dynago.AttributeValue{":val": numAV("3")},
-		ReturnValues:     "ALL_NEW",
+		ReturnValues:              "ALL_NEW",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -629,12 +629,12 @@ func TestUpdateItemMultipleActions(t *testing.T) {
 	})
 
 	resp, err := m.UpdateItem(ctx, &dynago.UpdateItemRequest{
-		TableName:        "users",
-		Key:              map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
-		UpdateExpression: "SET #name = :name REMOVE #old",
+		TableName:                 "users",
+		Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+		UpdateExpression:          "SET #name = :name REMOVE #old",
 		ExpressionAttributeNames:  map[string]string{"#name": "Name", "#old": "Old"},
 		ExpressionAttributeValues: map[string]dynago.AttributeValue{":name": strAV("Bob")},
-		ReturnValues:     "ALL_NEW",
+		ReturnValues:              "ALL_NEW",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -657,12 +657,12 @@ func TestUpdateItemArithmetic(t *testing.T) {
 	})
 
 	resp, err := m.UpdateItem(ctx, &dynago.UpdateItemRequest{
-		TableName:        "users",
-		Key:              map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
-		UpdateExpression: "SET #counter = #counter + :val",
+		TableName:                 "users",
+		Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+		UpdateExpression:          "SET #counter = #counter + :val",
 		ExpressionAttributeNames:  map[string]string{"#counter": "Counter"},
 		ExpressionAttributeValues: map[string]dynago.AttributeValue{":val": numAV("5")},
-		ReturnValues:     "ALL_NEW",
+		ReturnValues:              "ALL_NEW",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -727,9 +727,9 @@ func TestGSIUpdateItem(t *testing.T) {
 	})
 
 	_, err := m.UpdateItem(ctx, &dynago.UpdateItemRequest{
-		TableName:        "users",
-		Key:              map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
-		UpdateExpression: "SET #email = :email",
+		TableName:                 "users",
+		Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+		UpdateExpression:          "SET #email = :email",
 		ExpressionAttributeNames:  map[string]string{"#email": "Email"},
 		ExpressionAttributeValues: map[string]dynago.AttributeValue{":email": strAV("bob@example.com")},
 	})
@@ -967,16 +967,16 @@ func TestTransactWriteItems_ReturnsReasons(t *testing.T) {
 				Item:      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
 			}},
 			{Put: &dynago.TransactPut{
-				TableName:                 "users",
-				Item:                      map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile"), "Name": strAV("Bob")},
-				ConditionExpression:       "attribute_exists(#pk)",
-				ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+				TableName:                "users",
+				Item:                     map[string]dynago.AttributeValue{"PK": strAV("user#2"), "SK": strAV("profile"), "Name": strAV("Bob")},
+				ConditionExpression:      "attribute_exists(#pk)",
+				ExpressionAttributeNames: map[string]string{"#pk": "PK"},
 			}},
 			{ConditionCheck: &dynago.TransactConditionCheck{
-				TableName:                 "users",
-				Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#3"), "SK": strAV("profile")},
-				ConditionExpression:       "attribute_exists(#pk)",
-				ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+				TableName:                "users",
+				Key:                      map[string]dynago.AttributeValue{"PK": strAV("user#3"), "SK": strAV("profile")},
+				ConditionExpression:      "attribute_exists(#pk)",
+				ExpressionAttributeNames: map[string]string{"#pk": "PK"},
 			}},
 		},
 	})
@@ -1112,10 +1112,10 @@ func TestTransactWriteItems_MixedOps(t *testing.T) {
 				Key:       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
 			}},
 			{ConditionCheck: &dynago.TransactConditionCheck{
-				TableName:                 "users",
-				Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
-				ConditionExpression:       "attribute_exists(#pk)",
-				ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+				TableName:                "users",
+				Key:                      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+				ConditionExpression:      "attribute_exists(#pk)",
+				ExpressionAttributeNames: map[string]string{"#pk": "PK"},
 			}},
 		},
 	})
@@ -1169,10 +1169,10 @@ func TestTransactWriteItems_PutWithConditionPass(t *testing.T) {
 	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
 		TransactItems: []dynago.TransactWriteItem{
 			{Put: &dynago.TransactPut{
-				TableName:                 "users",
-				Item:                      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
-				ConditionExpression:       "attribute_not_exists(#pk)",
-				ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+				TableName:                "users",
+				Item:                     map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile"), "Name": strAV("Alice")},
+				ConditionExpression:      "attribute_not_exists(#pk)",
+				ExpressionAttributeNames: map[string]string{"#pk": "PK"},
 			}},
 		},
 	})
@@ -1188,10 +1188,10 @@ func TestTransactWriteItems_DeleteWithConditionFail(t *testing.T) {
 	_, err := m.TransactWriteItems(ctx, &dynago.TransactWriteItemsRequest{
 		TransactItems: []dynago.TransactWriteItem{
 			{Delete: &dynago.TransactDelete{
-				TableName:                 "users",
-				Key:                       map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
-				ConditionExpression:       "attribute_exists(#pk)",
-				ExpressionAttributeNames:  map[string]string{"#pk": "PK"},
+				TableName:                "users",
+				Key:                      map[string]dynago.AttributeValue{"PK": strAV("user#1"), "SK": strAV("profile")},
+				ConditionExpression:      "attribute_exists(#pk)",
+				ExpressionAttributeNames: map[string]string{"#pk": "PK"},
 			}},
 		},
 	})

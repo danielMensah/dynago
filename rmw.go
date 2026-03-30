@@ -170,4 +170,3 @@ func indexOf(s string, sep byte) int {
 	}
 	return -1
 }
-

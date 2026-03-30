@@ -511,8 +511,8 @@ func TestUnmarshal_ComplexStruct(t *testing.T) {
 		State string
 	}
 	type record struct {
-		PK        string    `dynamo:"PK,hash"`
-		SK        string    `dynamo:"SK,range"`
+		PK        string `dynamo:"PK,hash"`
+		SK        string `dynamo:"SK,range"`
 		Name      string
 		Age       int
 		Score     float64
@@ -579,8 +579,8 @@ func TestUnmarshal_RoundTrip(t *testing.T) {
 		State string
 	}
 	type record struct {
-		PK      string  `dynamo:"PK,hash"`
-		SK      string  `dynamo:"SK,range"`
+		PK      string `dynamo:"PK,hash"`
+		SK      string `dynamo:"SK,range"`
 		Name    string
 		Age     int
 		Score   float64

@@ -16,9 +16,14 @@ func seedBenchItems(b *testing.B, m *MemoryBackend, tableName string, count int)
 		_, err := m.PutItem(ctx, &dynago.PutItemRequest{
 			TableName: tableName,
 			Item: map[string]dynago.AttributeValue{
-				"PK":     {Type: dynago.TypeS, S: "partition#1"},
-				"SK":     {Type: dynago.TypeS, S: fmt.Sprintf("item#%05d", i)},
-				"Status": {Type: dynago.TypeS, S: func() string { if i%2 == 0 { return "active" }; return "inactive" }()},
+				"PK": {Type: dynago.TypeS, S: "partition#1"},
+				"SK": {Type: dynago.TypeS, S: fmt.Sprintf("item#%05d", i)},
+				"Status": {Type: dynago.TypeS, S: func() string {
+					if i%2 == 0 {
+						return "active"
+					}
+					return "inactive"
+				}()},
 				"Amount": {Type: dynago.TypeN, N: fmt.Sprintf("%d", i*10)},
 				"Name":   {Type: dynago.TypeS, S: fmt.Sprintf("Item %d", i)},
 			},
@@ -37,9 +42,14 @@ func seedBenchScanItems(b *testing.B, m *MemoryBackend, tableName string, count 
 		_, err := m.PutItem(ctx, &dynago.PutItemRequest{
 			TableName: tableName,
 			Item: map[string]dynago.AttributeValue{
-				"PK":     {Type: dynago.TypeS, S: pk},
-				"SK":     {Type: dynago.TypeS, S: fmt.Sprintf("item#%05d", i)},
-				"Status": {Type: dynago.TypeS, S: func() string { if i%3 == 0 { return "active" }; return "inactive" }()},
+				"PK": {Type: dynago.TypeS, S: pk},
+				"SK": {Type: dynago.TypeS, S: fmt.Sprintf("item#%05d", i)},
+				"Status": {Type: dynago.TypeS, S: func() string {
+					if i%3 == 0 {
+						return "active"
+					}
+					return "inactive"
+				}()},
 				"Amount": {Type: dynago.TypeN, N: fmt.Sprintf("%d", i)},
 			},
 		})

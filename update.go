@@ -13,7 +13,7 @@ type UpdateOption func(*updateConfig)
 type updateAction int
 
 const (
-	actionSET    updateAction = iota + 1
+	actionSET updateAction = iota + 1
 	actionADD
 	actionREMOVE
 	actionDELETE
@@ -190,8 +190,8 @@ func buildUpdateRequest(tableName string, key KeyValue, cfg *updateConfig) *Upda
 
 	// Group clauses by action, preserving insertion order.
 	type actionGroup struct {
-		action  updateAction
-		parts   []string
+		action updateAction
+		parts  []string
 	}
 	var groups []actionGroup
 	groupMap := make(map[updateAction]int)

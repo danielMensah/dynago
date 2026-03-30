@@ -11,10 +11,10 @@ import (
 // translator holds the state for a single ToDynamo call, tracking
 // counters for name aliases and value placeholders.
 type translator struct {
-	names    map[string]string              // e.g. "#Status" -> "Status"
+	names    map[string]string                // e.g. "#Status" -> "Status"
 	values   map[string]dynago.AttributeValue // e.g. ":v0" -> AttributeValue
-	nameIdx  int                            // counter for name aliases when not reserved
-	valueIdx int                            // counter for value placeholders
+	nameIdx  int                              // counter for name aliases when not reserved
+	valueIdx int                              // counter for value placeholders
 	// nameCache maps attribute name -> alias to reuse aliases for the same name
 	nameCache map[string]string
 }

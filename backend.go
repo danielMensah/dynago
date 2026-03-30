@@ -24,8 +24,8 @@ type Backend interface {
 
 // ConsumedCapacity reports the capacity units consumed by an operation.
 type ConsumedCapacity struct {
-	TableName    string
-	CapacityUnits float64
+	TableName          string
+	CapacityUnits      float64
 	ReadCapacityUnits  float64
 	WriteCapacityUnits float64
 }
@@ -36,10 +36,10 @@ type ConsumedCapacity struct {
 
 // GetItemRequest describes a GetItem operation.
 type GetItemRequest struct {
-	TableName               string
-	Key                     map[string]AttributeValue
-	ConsistentRead          bool
-	ProjectionExpression    string
+	TableName                string
+	Key                      map[string]AttributeValue
+	ConsistentRead           bool
+	ProjectionExpression     string
 	ExpressionAttributeNames map[string]string
 }
 
@@ -236,9 +236,9 @@ type TransactGetItemsRequest struct {
 
 // TransactGetItem is a single get within a read transaction.
 type TransactGetItem struct {
-	TableName               string
-	Key                     map[string]AttributeValue
-	ProjectionExpression    string
+	TableName                string
+	Key                      map[string]AttributeValue
+	ProjectionExpression     string
 	ExpressionAttributeNames map[string]string
 }
 
